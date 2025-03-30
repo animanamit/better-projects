@@ -185,7 +185,7 @@ export const projects: Project[] = [
 ];
 
 // Mock Tasks
-export const tasks: Task[] = [
+export const mockTasks: Task[] = [
   {
     id: 1,
     title: "Design homepage wireframes",
@@ -593,15 +593,15 @@ export const mockApi = {
   },
 
   // Task-related functions
-  getTasks: () => Promise.resolve([...tasks]),
+  getTasks: () => Promise.resolve([...mockTasks]),
   getTaskById: (id: number) =>
-    Promise.resolve(tasks.find((task) => task.id === id) || null),
+    Promise.resolve(mockTasks.find((task) => task.id === id) || null),
   getTasksByProjectId: (projectId: number) =>
-    Promise.resolve(tasks.filter((task) => task.projectId === projectId)),
+    Promise.resolve(mockTasks.filter((task) => task.projectId === projectId)),
   getTasksByAssignedUserId: (userId: number) =>
-    Promise.resolve(tasks.filter((task) => task.assignedUserId === userId)),
+    Promise.resolve(mockTasks.filter((task) => task.assignedUserId === userId)),
   getTasksByStatus: (status: string) =>
-    Promise.resolve(tasks.filter((task) => task.status === status)),
+    Promise.resolve(mockTasks.filter((task) => task.status === status)),
 
   // Comment-related functions
   getCommentsByTaskId: (taskId: number) =>
@@ -616,7 +616,7 @@ export const mockApi = {
   // Advanced queries
   getTasksWithDetails: () => {
     return Promise.resolve(
-      tasks.map((task) => {
+      mockTasks.map((task) => {
         const project = projects.find((p) => p.id === task.projectId);
         const author = users.find((u) => u.id === task.authorUserId);
         const assignee = task.assignedUserId
@@ -653,7 +653,7 @@ export const mockApi = {
     const user = users.find((u) => u.id === userId);
     if (!user) return Promise.resolve(null);
 
-    const assignedTasks = tasks.filter(
+    const assignedTasks = mockTasks.filter(
       (task) => task.assignedUserId === userId
     );
     return Promise.resolve({
@@ -666,7 +666,9 @@ export const mockApi = {
     const project = projects.find((p) => p.id === projectId);
     if (!project) return Promise.resolve(null);
 
-    const projectTasks = tasks.filter((task) => task.projectId === projectId);
+    const projectTasks = mockTasks.filter(
+      (task) => task.projectId === projectId
+    );
     const teamIds = projectTeams
       .filter((pt) => pt.projectId === projectId)
       .map((pt) => pt.teamId);
