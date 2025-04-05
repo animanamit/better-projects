@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Fonts
+public/fonts/*
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
