@@ -8,7 +8,7 @@ import {
 
 export function AppSidebar() {
   return (
-    <Sidebar>
+    <Sidebar className="w-64  text-white h-full border-none  ">
       <SidebarHeader />
       <SidebarContent>
         <SidebarGroup />
