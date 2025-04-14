@@ -3,16 +3,15 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarHeader,
 } from "@/components/ui/sidebar";
 
 export function AppSidebar() {
   return (
-    <Sidebar className="w-64  text-white h-full border-none  ">
-      <SidebarHeader />
+    <Sidebar className="w-64  text-black px-4 h-full border-none  ">
+      {/* <SidebarHeader>Projects</SidebarHeader> */}
       <SidebarContent>
-        <SidebarGroup />
-        <SidebarGroup />
+        <SidebarGroup>Projects</SidebarGroup>
+        <SidebarGroup>Teams</SidebarGroup>
       </SidebarContent>
       <SidebarFooter />
     </Sidebar>
