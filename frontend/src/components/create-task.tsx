@@ -1,53 +1,49 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import { trpc } from "@/lib/trpc";
-import { useAuth } from "@clerk/clerk-react";
-
-// type Task = {
-//   id: string;
-//   title: string;
-//   description: string | null;
-//   status: string;
-//   createdAt: string;
-//   updatedAt: string;
-//   userId: string;
-// };
+import { useUser } from "@clerk/clerk-react";
+import { type Task } from "@/mock-data";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchTasks, createTask } from "@/lib/api";
 
 export function CreateTask() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const { userId } = useAuth();
+  const { user } = useUser();
+  const queryClient = useQueryClient();
+  const userId = user?.id;
 
-  const utils = trpc.useUtils();
+  // Query for tasks
+  const { data: tasks = [] } = useQuery({
+    queryKey: ["tasks", userId],
+    queryFn: () =>
+      fetchTasks(userId!, user?.primaryEmailAddress?.emailAddress || ""),
+    enabled: !!userId && !!user?.primaryEmailAddress?.emailAddress,
+  });
 
-  const { mutate: createTask, isPending } = trpc.create.useMutation({
+  // Mutation for creating tasks
+  const { mutate, isPending } = useMutation({
+    mutationFn: createTask,
     onSuccess: () => {
+      // Reset form
       setTitle("");
       setDescription("");
-      utils.getAll.invalidate();
-    },
-    onError: (error) => {
-      console.error("Error creating task:", error);
+
+      // Refresh the tasks list
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
   });
 
-  const { data: tasks, isLoading: isLoadingTasks } = trpc.getAll.useQuery(
-    { userId: userId! },
-    { enabled: !!userId, retry: false }
-  );
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!userId) return;
+    if (!userId || !user?.primaryEmailAddress?.emailAddress) return;
 
-    const taskData = {
+    mutate({
       title,
       description,
       userId,
-    };
-
-    console.log("Attempting to create task with data:", taskData);
-    createTask(taskData as any);
+      userEmail: user.primaryEmailAddress.emailAddress,
+      userName: user.fullName || undefined,
+    });
   };
 
   if (!userId) {
@@ -91,7 +87,8 @@ export function CreateTask() {
         <button
           type="submit"
           disabled={isPending}
-          className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 
+focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
         >
           {isPending ? "Creating..." : "Create Task"}
         </button>
@@ -99,17 +96,16 @@ export function CreateTask() {
 
       <div className="mt-8">
         <h2 className="text-lg font-medium text-gray-900">Tasks</h2>
-        {isLoadingTasks ? (
-          <p>Loading tasks...</p>
-        ) : (
-          <ul className="mt-4 space-y-4">
-            {tasks?.map((task: any) => (
-              <li key={task.id} className="rounded-lg border p-4">
-                <h3 className="font-medium">{task.title}</h3>
-              </li>
-            ))}
-          </ul>
-        )}
+        <ul className="mt-4 space-y-4">
+          {tasks.map((task: Task) => (
+            <li key={task.id} className="rounded-lg border p-4">
+              <h3 className="font-medium">{task.title}</h3>
+              {task.description && (
+                <p className="text-gray-600">{task.description}</p>
+              )}
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
