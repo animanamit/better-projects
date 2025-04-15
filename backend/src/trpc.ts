@@ -64,7 +64,7 @@ export const appRouter = router({
         });
         console.log("Successfully created task:", task);
         return task;
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("Error creating task:", error);
         if (error instanceof z.ZodError) {
           console.error("Validation errors:", error.errors);
