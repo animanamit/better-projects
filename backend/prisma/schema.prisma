@@ -17,9 +17,9 @@ model Task {
   description String?
   status      String   @default("todo")
   createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  updatedAt   DateTime? @updatedAt @map("updated_at")
   userId      String   @map("user_id")
-  user        User     @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [clerkId])
 
   @@map("tasks")
 }
@@ -29,8 +29,6 @@ model User {
   email     String   @unique
   name      String?
   clerkId   String   @unique @map("clerk_id")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
   tasks     Task[]
 
   @@map("users")

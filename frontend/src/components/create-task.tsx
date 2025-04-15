@@ -47,7 +47,7 @@ export function CreateTask() {
     };
 
     console.log("Attempting to create task with data:", taskData);
-    createTask(taskData);
+    createTask(taskData as any);
   };
 
   if (!userId) {
@@ -106,14 +106,6 @@ export function CreateTask() {
             {tasks?.map((task: Task) => (
               <li key={task.id} className="rounded-lg border p-4">
                 <h3 className="font-medium">{task.title}</h3>
-                {task.description && (
-                  <p className="mt-1 text-sm text-gray-500">
-                    {task.description}
-                  </p>
-                )}
-                <span className="mt-2 inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
-                  {task.status}
-                </span>
               </li>
             ))}
           </ul>

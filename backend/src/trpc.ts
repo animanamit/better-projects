@@ -9,24 +9,12 @@ const t = initTRPC.create({
 export const publicProcedure = t.procedure;
 export const router = t.router;
 
-const taskSchema = z.object({
-  id: z.string(),
+// Simplified schema that matches frontend exactly
+const createTaskSchema = z.object({
   title: z.string(),
-  description: z.string().optional(),
-  status: z.enum(["todo", "in_progress", "done"]).default("todo"),
+  description: z.string(),
   userId: z.string(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
 });
-
-const createTaskSchema = taskSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-const updateTaskSchema = taskSchema
-  .omit({ createdAt: true, updatedAt: true })
-  .partial();
 
 export const appRouter = router({
   getAll: publicProcedure
@@ -62,18 +50,16 @@ export const appRouter = router({
     .input(createTaskSchema)
     .mutation(async ({ input }) => {
       try {
-        console.log("Received create task request with input:", input);
-
-        // Validate the input against the schema
-        const validatedInput = createTaskSchema.parse(input);
-        console.log("Validated input:", validatedInput);
+        console.log("Raw input received:", input);
+        console.log("Input type:", typeof input);
+        console.log("Input keys:", Object.keys(input));
 
         const task = await prisma.task.create({
           data: {
-            title: validatedInput.title,
-            description: validatedInput.description,
-            status: validatedInput.status,
-            userId: validatedInput.userId,
+            title: input.title,
+            description: input.description,
+            userId: input.userId,
+            status: "todo", // Set default status here
           },
         });
         console.log("Successfully created task:", task);
@@ -82,13 +68,26 @@ export const appRouter = router({
         console.error("Error creating task:", error);
         if (error instanceof z.ZodError) {
           console.error("Validation errors:", error.errors);
+          throw new Error(
+            `Validation error: ${error.errors.map((e) => e.message).join(", ")}`
+          );
         }
-        throw error;
+        if (error instanceof Error) {
+          throw new Error(`Failed to create task: ${error.message}`);
+        }
+        throw new Error("Failed to create task");
       }
     }),
 
   update: publicProcedure
-    .input(updateTaskSchema)
+    .input(
+      z.object({
+        id: z.string(),
+        title: z.string().optional(),
+        description: z.string().optional(),
+        status: z.enum(["todo", "in_progress", "done"]).optional(),
+      })
+    )
     .mutation(async ({ input }) => {
       try {
         const { id, ...data } = input;
