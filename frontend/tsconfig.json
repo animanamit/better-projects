@@ -10,5 +10,5 @@
       "@/*": ["src/*"]
     }
   },
-  "exclude": ["../backend/**/*"]
+  "exclude": ["../backend/**/*", "node_modules"]
 }
