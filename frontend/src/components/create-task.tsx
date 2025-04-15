@@ -3,15 +3,15 @@ import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@clerk/clerk-react";
 
-type Task = {
-  id: string;
-  title: string;
-  description: string | null;
-  status: string;
-  createdAt: string;
-  updatedAt: string;
-  userId: string;
-};
+// type Task = {
+//   id: string;
+//   title: string;
+//   description: string | null;
+//   status: string;
+//   createdAt: string;
+//   updatedAt: string;
+//   userId: string;
+// };
 
 export function CreateTask() {
   const [title, setTitle] = useState("");
@@ -103,7 +103,7 @@ export function CreateTask() {
           <p>Loading tasks...</p>
         ) : (
           <ul className="mt-4 space-y-4">
-            {tasks?.map((task: Task) => (
+            {tasks?.map((task: any) => (
               <li key={task.id} className="rounded-lg border p-4">
                 <h3 className="font-medium">{task.title}</h3>
               </li>
