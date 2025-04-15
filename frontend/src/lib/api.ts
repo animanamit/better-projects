@@ -10,7 +10,7 @@ const USE_MOCK_DATA = import.meta.env.NODE_ENV === 'development' &&
                        import.meta.env.VITE_USE_MOCK_DATA === 'true');
 
 // Fetch all tasks for a user
-export const fetchTasks = async (userId: string, userEmail: string): Promise<Task[]> => {
+export const fetchTasks = async (userId: string, _userEmail?: string): Promise<Task[]> => {
   if (USE_MOCK_DATA) {
     // Simulate API delay
     await new Promise(r => setTimeout(r, 500));
@@ -123,9 +123,20 @@ export const updateTask = async (data: {
       throw new Error('Task not found');
     }
     
+    // Mapping status to enum if needed
+    let mappedStatus = task.status;
+    if (data.status) {
+      switch(data.status) {
+        case 'todo': mappedStatus = 'TODO' as any; break;
+        case 'in_progress': mappedStatus = 'IN_PROGRESS' as any; break;
+        case 'done': mappedStatus = 'COMPLETED' as any; break;
+      }
+    }
+    
     return {
       ...task,
       ...data,
+      status: mappedStatus,
       updatedAt: new Date().toISOString(),
     };
   }
