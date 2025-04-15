@@ -1,34 +1,25 @@
-import { AppSidebar } from "@/components/app-sidebar";
-import TopBar from "@/components/top-bar";
-import { SidebarProvider } from "@/components/ui/sidebar";
-
-import { mockData, type Task } from "@/mock-data";
+import { SignedIn, SignedOut } from "@clerk/clerk-react";
+import { Navigate } from "react-router";
 
 function App() {
   return (
-    <SidebarProvider>
-      <main className="flex flex-col  h-screen w-full">
-        <TopBar />
-        <div className="flex flex-row h-full">
-          <AppSidebar />
-          <div className="flex-1 p-4">
-            {mockData.tasks.map((task: Task) => (
-              <div
-                key={task.id}
-                className="p-4 mb-4 bg-white rounded-lg shadow-md"
-              >
-                <h3 className="text-xl font-bold">{task.title}</h3>
-                <p className="text-gray-600">{task.description}</p>
-                {/* <p className="text-sm text-gray-500 font-mono">
-                  {task.dueDate?.toString().split("T")[0]}
-                </p> */}
-                <span className="uppercase text-xs">{task.projectId}</span>
-              </div>
-            ))}
-          </div>
+    <main>
+      <SignedIn>
+        <Navigate to="/dashboard" />
+      </SignedIn>
+      <SignedOut>
+        <div className="flex flex-col items-center justify-center min-h-screen">
+          <h1 className="text-3xl font-bold mb-4">Welcome to Task Manager</h1>
+          <p className="text-lg mb-8">Please sign in to continue</p>
+          <a
+            href="/sign-in"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Sign In
+          </a>
         </div>
-      </main>
-    </SidebarProvider>
+      </SignedOut>
+    </main>
   );
 }
 
