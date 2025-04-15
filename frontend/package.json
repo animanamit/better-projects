@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "cd .. && rm -rf backend && tsc --project tsconfig.app.json && vite build",
+    "build": "rm -rf ../backend && tsc --project tsconfig.app.json && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
