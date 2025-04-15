@@ -12,25 +12,34 @@ export function CreateTask() {
   const queryClient = useQueryClient();
   const userId = user?.id;
 
-  // Query for tasks
+  // Query for tasks (optimized to reduce edge requests)
   const { data: tasks = [] } = useQuery({
     queryKey: ["tasks", userId],
     queryFn: () =>
       fetchTasks(userId!, user?.primaryEmailAddress?.emailAddress || ""),
     enabled: !!userId && !!user?.primaryEmailAddress?.emailAddress,
+    staleTime: Infinity,
+    retry: false,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 
-  // Mutation for creating tasks
+  // Mutation for creating tasks (optimized to reduce invalidations)
   const { mutate, isPending } = useMutation({
     mutationFn: createTask,
-    onSuccess: () => {
+    onSuccess: (newTask) => {
       // Reset form
       setTitle("");
       setDescription("");
 
-      // Refresh the tasks list
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      // Instead of invalidating the entire query, let's update the cache directly
+      queryClient.setQueryData(
+        ["tasks", userId], 
+        (oldData: Task[] = []) => [newTask, ...oldData]
+      );
     },
+    retry: false,
   });
 
   const handleSubmit = (e: React.FormEvent) => {

@@ -16,22 +16,15 @@ const allowedOrigins = [
 // Enable CORS for allowed origins
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-      
-      if (allowedOrigins.indexOf(origin) === -1) {
-        const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-        return callback(new Error(msg), false);
-      }
-      return callback(null, true);
-    },
+    origin: "*", // Allow all origins for development simplicity
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: [
-      "Content-Type",
+      "Content-Type", 
       "Authorization",
-      "Access-Control-Allow-Origin",
+      "Cache-Control",
+      "Pragma",
+      "Access-Control-Allow-Origin"
     ],
   })
 );

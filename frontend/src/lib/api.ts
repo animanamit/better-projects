@@ -9,56 +9,77 @@ const USE_MOCK_DATA = import.meta.env.NODE_ENV === 'development' &&
                       (!import.meta.env.VITE_BACKEND_URL || 
                        import.meta.env.VITE_USE_MOCK_DATA === 'true');
 
-// Fetch all tasks for a user
-export const fetchTasks = async (userId: string, _userEmail?: string): Promise<Task[]> => {
-  if (USE_MOCK_DATA) {
-    // Simulate API delay
-    await new Promise(r => setTimeout(r, 500));
-    return mockData.tasks.filter(task => 
-      task.assigneeId === userId || task.reporterId === userId
-    ).slice(0, 5);
+// Simple request deduplication mechanism
+const pendingRequests = new Map<string, Promise<any>>();
+
+// Helper function to deduplicate requests
+function deduplicateRequest<T>(key: string, requestFn: () => Promise<T>): Promise<T> {
+  if (pendingRequests.has(key)) {
+    return pendingRequests.get(key) as Promise<T>;
   }
   
-  try {
-    const response = await fetch(`${API_URL}/tasks?userId=${userId}`);
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to fetch tasks');
+  const promise = requestFn().finally(() => {
+    pendingRequests.delete(key);
+  });
+  
+  pendingRequests.set(key, promise);
+  return promise;
+}
+
+// Fetch all tasks for a user
+export const fetchTasks = async (userId: string, _userEmail?: string): Promise<Task[]> => {
+  return deduplicateRequest(`tasks-${userId}`, async () => {
+    if (USE_MOCK_DATA) {
+      // Simulate API delay
+      await new Promise(r => setTimeout(r, 500));
+      return mockData.tasks.filter(task => 
+        task.assigneeId === userId || task.reporterId === userId
+      ).slice(0, 5);
     }
     
-    return response.json();
-  } catch (error) {
-    console.error('Error fetching tasks:', error);
-    throw error;
-  }
+    try {
+      const response = await fetch(`${API_URL}/tasks?userId=${userId}`);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch tasks');
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+      throw error;
+    }
+  });
 };
 
 // Fetch a single task by ID
 export const fetchTaskById = async (taskId: string): Promise<Task> => {
-  if (USE_MOCK_DATA) {
-    // Simulate API delay
-    await new Promise(r => setTimeout(r, 300));
-    const task = mockData.tasks.find(t => t.id === taskId);
-    if (!task) {
-      throw new Error('Task not found');
-    }
-    return task;
-  }
-  
-  try {
-    const response = await fetch(`${API_URL}/tasks/${taskId}`);
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to fetch task');
+  return deduplicateRequest(`task-${taskId}`, async () => {
+    if (USE_MOCK_DATA) {
+      // Simulate API delay
+      await new Promise(r => setTimeout(r, 300));
+      const task = mockData.tasks.find(t => t.id === taskId);
+      if (!task) {
+        throw new Error('Task not found');
+      }
+      return task;
     }
     
-    return response.json();
-  } catch (error) {
-    console.error('Error fetching task:', error);
-    throw error;
-  }
+    try {
+      const response = await fetch(`${API_URL}/tasks/${taskId}`);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch task');
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error('Error fetching task:', error);
+      throw error;
+    }
+  });
 };
 
 // Create a new task
