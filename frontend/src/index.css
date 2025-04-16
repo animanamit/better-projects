@@ -61,6 +61,9 @@
   --font-sans: "Aeonik", "sans-serif"; 
   --color-completed: #20C280;
   --color-blocked: #E75D69;
+  --color-todo: #3B82F6;
+  --color-in-progress: #FB923C;
+  --color-testing: #A855F7;
 }
 
 body {
