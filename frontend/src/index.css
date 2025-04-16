@@ -59,6 +59,8 @@
 
 @theme {
   --font-sans: "Aeonik", "sans-serif"; 
+  --color-completed: #20C280;
+  --color-blocked: #E75D69;
 }
 
 body {
