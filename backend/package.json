@@ -21,12 +21,14 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
+    "@clerk/express": "^1.4.5",
     "@prisma/client": "^6.6.0",
     "@supabase/supabase-js": "^2.49.4",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
     "prisma": "^6.6.0",
+    "svix": "^1.64.0",
     "zod": "^3.22.4"
   }
 }
