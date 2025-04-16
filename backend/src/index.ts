@@ -1,18 +1,22 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import taskRoutes from './routes/tasks';
+import taskRoutes from "./routes/tasks";
 import { verifyWebhook } from "@clerk/express/webhooks";
-import * as path from 'path';
+import * as path from "path";
+import { prisma } from "./prisma";
 
 // Load environment variables with proper path
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 // Log environment variables for debugging (except secrets)
 console.log("Environment loaded:");
 console.log("PORT:", process.env.PORT);
 console.log("NODE_ENV:", process.env.NODE_ENV);
-console.log("WEBHOOK_SECRET exists:", !!process.env.CLERK_WEBHOOK_SIGNING_SECRET);
+console.log(
+  "WEBHOOK_SECRET exists:",
+  !!process.env.CLERK_WEBHOOK_SIGNING_SECRET
+);
 
 const app = express();
 
@@ -29,14 +33,14 @@ app.use(
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: [
-      "Content-Type", 
+      "Content-Type",
       "Authorization",
       "Cache-Control",
       "Pragma",
       "Access-Control-Allow-Origin",
       "svix-id",
       "svix-signature",
-      "svix-timestamp"
+      "svix-timestamp",
     ],
     exposedHeaders: ["svix-id", "svix-signature", "svix-timestamp"],
   })
@@ -45,19 +49,19 @@ app.use(
 // Setup JSON parsing for all routes except webhook
 // This must come after the webhook route setup
 app.use((req, res, next) => {
-  if (req.path === '/api/webhooks') {
+  if (req.path === "/api/webhooks") {
     return next();
   }
   express.json()(req, res, next);
 });
 
 // Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', message: 'Server is running' });
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok", message: "Server is running" });
 });
 
 // Setup raw body parsing for webhook endpoint
-app.use('/api/webhooks', express.raw({ type: 'application/json' }));
+app.use("/api/webhooks", express.raw({ type: "application/json" }));
 
 // Add a debugging middleware to log all requests
 app.use((req, res, next) => {
@@ -65,35 +69,105 @@ app.use((req, res, next) => {
   next();
 });
 
-// Webhook route 
-app.post('/api/webhooks', (req, res) => {
+// Webhook route
+app.post("/api/webhooks", (req, res) => {
   try {
-    console.log('Webhook received at:', new Date().toISOString());
-    console.log('Webhook headers:', req.headers);
-    
+    console.log("Webhook received at:", new Date().toISOString());
+    console.log("Webhook headers:", req.headers);
+
     // Verify webhook signature
     verifyWebhook(req, {
-      signingSecret: process.env.CLERK_WEBHOOK_SIGNING_SECRET
-    }).then(evt => {
-      // Process webhook event
-      const { id } = evt.data;
-      const eventType = evt.type;
-      console.log(`Processed webhook with ID ${id} and type ${eventType}`);
-      console.log('Webhook payload:', evt.data);
-      
-      res.status(200).send('Webhook received');
-    }).catch(err => {
-      console.error('Error verifying webhook:', err);
-      res.status(400).send('Error verifying webhook');
-    });
+      signingSecret: process.env.CLERK_WEBHOOK_SIGNING_SECRET,
+    })
+      .then(async (evt) => {
+        // Process webhook event
+        const { id } = evt.data;
+        const eventType = evt.type;
+        console.log(`Processed webhook with ID ${id} and type ${eventType}`);
+
+        // Handle different event types
+        if (eventType === "user.created" || eventType === "user.updated") {
+          // Extract user data from the webhook payload
+          const userData = evt.data;
+          const {
+            id: clerkUserId,
+            email_addresses,
+            first_name,
+            last_name,
+          } = userData;
+
+          // Get primary email if available
+          const primaryEmail =
+            email_addresses && email_addresses.length > 0
+              ? email_addresses[0].email_address
+              : null;
+
+          // Create a name from first and last name if available
+          const name =
+            [first_name, last_name].filter(Boolean).join(" ") || null;
+
+          if (!primaryEmail) {
+            console.error("No email found for user:", clerkUserId);
+            return;
+          }
+
+          try {
+            // Use Prisma upsert to either create or update the user
+            const user = await prisma.user.upsert({
+              where: {
+                clerkId: clerkUserId,
+              },
+              update: {
+                email: primaryEmail,
+                name: name,
+              },
+              create: {
+                clerkId: clerkUserId,
+                email: primaryEmail,
+                name: name,
+              },
+            });
+
+            console.log(
+              `User ${user.id} upserted successfully with clerk ID: ${clerkUserId}`
+            );
+          } catch (error) {
+            console.error("Error syncing user to database:", error);
+            // Still return 200 to Clerk so it doesn't retry indefinitely
+          }
+        } else if (eventType === "session.created") {
+          // Handle login events
+          const { user_id } = evt.data;
+
+          try {
+            // Log the login event - note that our schema doesn't track login timestamps
+            // You could add this field to the User model if needed
+            console.log("User logged in:", user_id);
+
+            // You could add login tracking here if you extend your schema:
+            // await prisma.user.update({
+            //   where: { clerkId: user_id },
+            //   data: { lastLoginAt: new Date() }
+            // });
+          } catch (error) {
+            console.error("Error processing login event:", error);
+          }
+        }
+
+        res.status(200).send("Webhook received");
+      })
+      .catch((err) => {
+        console.error("Error verifying webhook:", err);
+        res.status(400).send("Error verifying webhook");
+      });
   } catch (err) {
-    console.error('Unexpected error in webhook handler:', err);
-    res.status(500).send('Server error');
+    console.error("Unexpected error in webhook handler:", err);
+    res.status(500).send("Server error");
   }
 });
 
 // Routes
-app.use('/api/tasks', taskRoutes);
+app.use("/api/tasks", taskRoutes);
 
 const port = process.env.PORT || 3001; // Changed to 3001 to avoid conflicts
 

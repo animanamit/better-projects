@@ -2,7 +2,7 @@ import { Task } from "@/mock-data";
 import { mockData } from "@/mock-data";
 
 // API configuration
-const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000/api";
+const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3001/api";
 
 // Use mock data in development if API is not available
 const USE_MOCK_DATA = import.meta.env.NODE_ENV === 'development' && 
