@@ -6,6 +6,7 @@ import { CreateTask } from "./components/create-task";
 import { FileManagement } from "./components/file-management";
 
 import { mockData, TaskStatus, type Task } from "@/mock-data";
+import TaskBoard from "@/components/task-board";
 
 // Create a context for the active tab
 export type TabType = "tasks" | "files";
@@ -29,30 +30,6 @@ const statusClassMap: Record<TaskStatus, string> = {
   [TaskStatus.COMPLETED]: "text-completed",
 };
 
-const TaskDetailsCard = ({ task }: { task: Task }) => {
-  return (
-    <div className="p-4 mb-4 bg-white rounded-lg shadow-md">
-      <div className="flex items-center mb-2">
-        <span className="text-sm font-semibold text-gray-700 mr-2">
-          {task.assigneeId}
-        </span>
-        <span className={`text-sm ${statusClassMap[task.status]}`}>
-          {task.status}
-        </span>
-      </div>
-      <h3 className="text-xl font-bold">{task.title}</h3>
-      <p className="text-gray-600">{task.description}</p>
-      <p className="text-sm text-gray-500 font-mono">
-        {task.dueDate?.toString().split("T")[0]}
-      </p>
-      <div>
-        <span className="text-sm tracking-tight">Related Tasks</span>
-      </div>
-      <span className="uppercase text-xs">{task.projectId}</span>
-    </div>
-  );
-};
-
 function Dashboard() {
   const [activeTab, setActiveTab] = useState<TabType>("tasks");
 
@@ -68,7 +45,8 @@ function Dashboard() {
               <div className="flex-1 overflow-auto">
                 {activeTab === "tasks" && (
                   <div className="p-4">
-                    {mockData.tasks.slice(0, 2).map((task: Task) => (
+                    <TaskBoard />
+                    {/* {mockData.tasks.slice(0, 2).map((task: Task) => (
                       <div
                         key={task.id}
                         className="p-4 mb-4 bg-white rounded-lg shadow-md"
@@ -84,10 +62,10 @@ function Dashboard() {
                       {mockData.tasks.map((task: Task) => (
                         <TaskDetailsCard key={task.id} task={task} />
                       ))}
-                    </div>
-                    <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                    </div> */}
+                    {/* <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                       <CreateTask />
-                    </div>
+                    </div> */}
                   </div>
                 )}
 
