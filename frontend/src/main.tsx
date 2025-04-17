@@ -73,8 +73,9 @@ createRoot(document.getElementById("root")!).render(
                   </SignedOut>
                 </>
               }
-            />
-            <Route path="/task/:id" element={<TaskPage />} />
+            >
+              <Route path="task/:id" element={<TaskPage />} />
+            </Route>
           </Routes>
         </ClerkProvider>
       </BrowserRouter>

@@ -1,4 +1,5 @@
 import { mockData, type Task, TaskStatus } from "@/mock-data";
+import { Link } from "react-router-dom";
 
 const statusClassMap: Record<TaskStatus, string> = {
   [TaskStatus.TODO]: "text-todo",
@@ -11,7 +12,7 @@ const statusClassMap: Record<TaskStatus, string> = {
 
 const TaskDetailsCard = ({ task }: { task: Task }) => {
   return (
-    <a href={`/task/${task.id}`}>
+    <Link to={`/dashboard/task/${task.id}`}>
       <div className="p-4 mb-4 bg-white rounded-lg shadow-md">
         <div className="flex items-center mb-2">
           <span className="text-sm font-semibold text-gray-700 mr-2">
@@ -28,7 +29,7 @@ const TaskDetailsCard = ({ task }: { task: Task }) => {
         </p> */}
         <span className="uppercase text-xs">{task.projectId}</span>
       </div>
-    </a>
+    </Link>
   );
 };
 
