@@ -244,11 +244,13 @@ export const uploadFile = async ({
   userEmail,
   userName,
   taskId,
+  title,
+  description,
 }: UploadFileParams): Promise<FileAttachment> => {
   if (USE_MOCK_DATA) {
     // Simulate API delay
     await new Promise((r) => setTimeout(r, 800));
-    
+
     // Create a mock file attachment
     return {
       id: `file-${Date.now()}`,
@@ -261,7 +263,7 @@ export const uploadFile = async ({
       createdAt: new Date().toISOString(),
     };
   }
-  
+
   try {
     const formData = new FormData();
     formData.append("file", file);
@@ -271,17 +273,17 @@ export const uploadFile = async ({
     if (taskId) formData.append("taskId", taskId);
     if (title) formData.append("title", title);
     if (description) formData.append("description", description);
-    
+
     const response = await fetch(`${API_URL}/files/upload`, {
       method: "POST",
       body: formData,
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.error || "Failed to upload file");
     }
-    
+
     return response.json();
   } catch (error) {
     console.error("Error uploading file:", error);
@@ -314,14 +316,14 @@ export const getUploadUrl = async ({
   if (USE_MOCK_DATA) {
     // Simulate API delay
     await new Promise((r) => setTimeout(r, 300));
-    
+
     return {
       uploadUrl: "https://example.com/mock-upload-url",
       fileId: `file-${Date.now()}`,
       fileKey: `uploads/${fileName}`,
     };
   }
-  
+
   try {
     const response = await fetch(`${API_URL}/files/get-upload-url`, {
       method: "POST",
@@ -337,12 +339,12 @@ export const getUploadUrl = async ({
         taskId,
       }),
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.error || "Failed to get upload URL");
     }
-    
+
     return response.json();
   } catch (error) {
     console.error("Error getting upload URL:", error);
@@ -365,7 +367,7 @@ export const completeFileUpload = async ({
   if (USE_MOCK_DATA) {
     // Simulate API delay
     await new Promise((r) => setTimeout(r, 200));
-    
+
     return {
       id: fileId,
       fileName: "mock-file.jpg",
@@ -377,7 +379,7 @@ export const completeFileUpload = async ({
       createdAt: new Date().toISOString(),
     };
   }
-  
+
   try {
     const response = await fetch(`${API_URL}/files/${fileId}/complete`, {
       method: "PUT",
@@ -389,12 +391,12 @@ export const completeFileUpload = async ({
         fileUrl,
       }),
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.error || "Failed to complete upload");
     }
-    
+
     return response.json();
   } catch (error) {
     console.error("Error completing upload:", error);
@@ -413,39 +415,44 @@ export const getFiles = async ({
   if (!userId && !taskId) {
     throw new Error("Either userId or taskId must be provided");
   }
-  
-  return deduplicateRequest(`files-${userId || ""}-${taskId || ""}`, async () => {
-    if (USE_MOCK_DATA) {
-      // Simulate API delay
-      await new Promise((r) => setTimeout(r, 500));
-      
-      return mockData.fileAttachments
-        .filter((f) => {
-          if (userId && f.userId === userId) return true;
-          if (taskId && f.taskId === taskId) return true;
-          return false;
-        })
-        .slice(0, 5);
-    }
-    
-    try {
-      const queryParams = new URLSearchParams();
-      if (userId) queryParams.append("userId", userId);
-      if (taskId) queryParams.append("taskId", taskId);
-      
-      const response = await fetch(`${API_URL}/files?${queryParams.toString()}`);
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to fetch files");
+
+  return deduplicateRequest(
+    `files-${userId || ""}-${taskId || ""}`,
+    async () => {
+      if (USE_MOCK_DATA) {
+        // Simulate API delay
+        await new Promise((r) => setTimeout(r, 500));
+
+        return mockData.fileAttachments
+          .filter((f) => {
+            if (userId && f.userId === userId) return true;
+            if (taskId && f.taskId === taskId) return true;
+            return false;
+          })
+          .slice(0, 5);
       }
-      
-      return response.json();
-    } catch (error) {
-      console.error("Error fetching files:", error);
-      throw error;
+
+      try {
+        const queryParams = new URLSearchParams();
+        if (userId) queryParams.append("userId", userId);
+        if (taskId) queryParams.append("taskId", taskId);
+
+        const response = await fetch(
+          `${API_URL}/files?${queryParams.toString()}`
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to fetch files");
+        }
+
+        return response.json();
+      } catch (error) {
+        console.error("Error fetching files:", error);
+        throw error;
+      }
     }
-  });
+  );
 };
 
 // Get a download URL for a file
@@ -455,21 +462,21 @@ export const getFileDownloadUrl = async (
   if (USE_MOCK_DATA) {
     // Simulate API delay
     await new Promise((r) => setTimeout(r, 200));
-    
+
     const file = mockData.fileAttachments.find((f) => f.id === fileId);
     return {
       downloadUrl: file?.fileUrl || "https://example.com/mock-download-url",
     };
   }
-  
+
   try {
     const response = await fetch(`${API_URL}/files/${fileId}/download`);
-    
+
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.error || "Failed to get download URL");
     }
-    
+
     return response.json();
   } catch (error) {
     console.error("Error getting download URL:", error);
@@ -486,17 +493,17 @@ export const deleteFile = async (
     await new Promise((r) => setTimeout(r, 300));
     return { success: true };
   }
-  
+
   try {
     const response = await fetch(`${API_URL}/files/${fileId}`, {
       method: "DELETE",
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.error || "Failed to delete file");
     }
-    
+
     return response.json();
   } catch (error) {
     console.error("Error deleting file:", error);

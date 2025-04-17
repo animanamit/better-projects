@@ -10,15 +10,6 @@ import { prisma } from "./prisma";
 // Load environment variables with proper path
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
-// Log environment variables for debugging (except secrets)
-console.log("Environment loaded:");
-console.log("PORT:", process.env.PORT);
-console.log("NODE_ENV:", process.env.NODE_ENV);
-console.log(
-  "WEBHOOK_SECRET exists:",
-  !!process.env.CLERK_WEBHOOK_SIGNING_SECRET
-);
-
 const app = express();
 
 // Configure allowed origins for CORS
@@ -49,12 +40,12 @@ app.use(
 
 // Setup JSON parsing for all routes except webhook
 // This must come after the webhook route setup
-// app.use((req: any, res: any, next: express.NextFunction) => {
-//   if (req.path === "/api/webhooks") {
-//     return next();
-//   }
-//   express.json()(req, res, next);
-// });
+app.use((req: any, res: any, next: express.NextFunction) => {
+  if (req.path === "/api/webhooks") {
+    return next();
+  }
+  express.json()(req, res, next);
+});
 
 // Health check endpoint
 app.get("/health", (req: any, res: any) => {
