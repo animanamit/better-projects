@@ -8,12 +8,12 @@ import { FileManagement } from "./components/file-management";
 import { mockData, TaskStatus, type Task } from "@/mock-data";
 
 // Create a context for the active tab
-export type TabType = 'tasks' | 'files';
+export type TabType = "tasks" | "files";
 export const TabContext = createContext<{
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
 }>({
-  activeTab: 'tasks',
+  activeTab: "tasks",
   setActiveTab: () => {},
 });
 
@@ -54,7 +54,7 @@ const TaskDetailsCard = ({ task }: { task: Task }) => {
 };
 
 function Dashboard() {
-  const [activeTab, setActiveTab] = useState<TabType>('tasks');
+  const [activeTab, setActiveTab] = useState<TabType>("tasks");
 
   return (
     <TabContext.Provider value={{ activeTab, setActiveTab }}>
@@ -67,22 +67,22 @@ function Dashboard() {
               {/* Tabs */}
               <div className="border-b border-gray-200">
                 <nav className="flex space-x-8 px-4" aria-label="Tabs">
-                  <button 
-                    onClick={() => setActiveTab('tasks')}
+                  <button
+                    onClick={() => setActiveTab("tasks")}
                     className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                      activeTab === 'tasks' 
-                        ? 'border-indigo-500 text-indigo-600' 
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      activeTab === "tasks"
+                        ? "border-orange-500 text-orange-500"
+                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                     }`}
                   >
                     Tasks
                   </button>
-                  <button 
-                    onClick={() => setActiveTab('files')}
+                  <button
+                    onClick={() => setActiveTab("files")}
                     className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                      activeTab === 'files' 
-                        ? 'border-indigo-500 text-indigo-600' 
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      activeTab === "files"
+                        ? "border-orange-500 text-orange-500"
+                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                     }`}
                   >
                     Files
@@ -92,7 +92,7 @@ function Dashboard() {
 
               {/* Content */}
               <div className="flex-1 overflow-auto">
-                {activeTab === 'tasks' && (
+                {activeTab === "tasks" && (
                   <div className="p-4">
                     {mockData.tasks.slice(0, 2).map((task: Task) => (
                       <div
@@ -101,7 +101,9 @@ function Dashboard() {
                       >
                         <h3 className="text-xl font-bold">{task.title}</h3>
                         <p className="text-gray-600">{task.description}</p>
-                        <span className="uppercase text-xs">{task.projectId}</span>
+                        <span className="uppercase text-xs">
+                          {task.projectId}
+                        </span>
                       </div>
                     ))}
                     <div className="flex flex-col gap-4">
@@ -115,9 +117,7 @@ function Dashboard() {
                   </div>
                 )}
 
-                {activeTab === 'files' && (
-                  <FileManagement />
-                )}
+                {activeTab === "files" && <FileManagement />}
               </div>
             </div>
           </div>

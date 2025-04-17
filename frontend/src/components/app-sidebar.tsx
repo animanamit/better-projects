@@ -16,13 +16,13 @@ export function AppSidebar() {
         {/* Quick Links Section */}
         <SidebarGroup>Quick Links</SidebarGroup>
         <div className="mb-4">
-          <div 
+          <div
             className={`flex items-center space-x-2 w-full px-2 py-2 text-md font-medium ${
-              activeTab === 'tasks' 
-                ? 'bg-gray-100 text-indigo-600'
-                : 'text-gray-700 hover:bg-gray-100'
+              activeTab === "tasks"
+                ? "bg-gray-100 text-orange-500"
+                : "text-gray-700 hover:bg-gray-100"
             } rounded-lg cursor-pointer`}
-            onClick={() => setActiveTab('tasks')}
+            onClick={() => setActiveTab("tasks")}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -44,14 +44,14 @@ export function AppSidebar() {
             </svg>
             <span>Tasks</span>
           </div>
-          
-          <div 
+
+          <div
             className={`flex items-center space-x-2 w-full px-2 py-2 text-md font-medium ${
-              activeTab === 'files' 
-                ? 'bg-gray-100 text-indigo-600'
-                : 'text-gray-700 hover:bg-gray-100'
+              activeTab === "files"
+                ? "bg-gray-100 text-orange-500"
+                : "text-gray-700 hover:bg-gray-100"
             } rounded-lg cursor-pointer`}
-            onClick={() => setActiveTab('files')}
+            onClick={() => setActiveTab("files")}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
