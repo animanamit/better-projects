@@ -114,6 +114,8 @@ export interface Comment {
 export interface FileAttachment {
   id: string;
   fileName: string;
+  originalFileName?: string;
+  description?: string;
   fileUrl: string;
   fileType: string;
   fileSize: number;

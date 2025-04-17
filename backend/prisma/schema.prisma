@@ -37,18 +37,20 @@ model User {
 }
 
 model FileAttachment {
-  id          String   @id @default(uuid())
-  fileName    String   @map("file_name")
-  fileKey     String   @map("file_key")
-  fileUrl     String   @map("file_url")
-  fileType    String   @map("file_type")
-  fileSize    Int      @map("file_size")
-  taskId      String?  @map("task_id")
-  task        Task?    @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  userId      String   @map("user_id")
-  user        User     @relation(fields: [userId], references: [clerkId])
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id              String   @id @default(uuid())
+  fileName        String   @map("file_name")
+  originalFileName String?  @map("original_file_name")
+  description     String?  @map("description")
+  fileKey         String   @map("file_key")
+  fileUrl         String   @map("file_url")
+  fileType        String   @map("file_type")
+  fileSize        Int      @map("file_size")
+  taskId          String?  @map("task_id")
+  task            Task?    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId          String   @map("user_id")
+  user            User     @relation(fields: [userId], references: [clerkId])
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
 
   @@map("file_attachments")
 }

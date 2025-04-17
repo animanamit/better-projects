@@ -233,6 +233,8 @@ export interface UploadFileParams {
   userEmail: string;
   userName?: string;
   taskId?: string;
+  title?: string;
+  description?: string;
 }
 
 // Upload a file directly
@@ -267,6 +269,8 @@ export const uploadFile = async ({
     formData.append("userEmail", userEmail);
     if (userName) formData.append("userName", userName);
     if (taskId) formData.append("taskId", taskId);
+    if (title) formData.append("title", title);
+    if (description) formData.append("description", description);
     
     const response = await fetch(`${API_URL}/files/upload`, {
       method: "POST",

@@ -55,7 +55,7 @@ router.post(
   async (req: Request, res: Response): Promise<void> => {
     try {
       const file = req.file;
-      const { userId, userEmail, userName, taskId } = req.body;
+      const { userId, userEmail, userName, taskId, title, description } = req.body;
 
       if (!file) {
         res.status(400).json({ error: "No file provided" });
@@ -86,7 +86,9 @@ router.post(
       // Store file metadata in database
       const fileAttachment = await prisma.fileAttachment.create({
         data: {
-          fileName: file.originalname,
+          fileName: title || file.originalname, // Use the title if provided
+          originalFileName: file.originalname, // Always store the original filename
+          description: description || null, // Optional description
           fileKey: `uploads/${uniqueFilename}`,
           fileUrl,
           fileType: file.mimetype,
@@ -109,8 +111,16 @@ router.post(
   "/get-upload-url",
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const { fileName, contentType, userId, userEmail, userName, taskId } =
-        req.body;
+      const { 
+        fileName, 
+        contentType, 
+        userId, 
+        userEmail, 
+        userName, 
+        taskId,
+        title,
+        description 
+      } = req.body;
 
       if (!fileName || !contentType || !userId || !userEmail) {
         res.status(400).json({
@@ -135,7 +145,9 @@ router.post(
       // Create a database record with empty fileUrl (will be updated after upload)
       const fileAttachment = await prisma.fileAttachment.create({
         data: {
-          fileName,
+          fileName: title || fileName, // Use title if provided, otherwise use the original filename
+          originalFileName: fileName, // Store the original filename
+          description: description || null, // Optional description
           fileKey: key,
           fileUrl: "", // Will be updated after client upload
           fileType: contentType,
