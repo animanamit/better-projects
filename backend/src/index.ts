@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import taskRoutes from "./routes/tasks";
+import fileRoutes from "./routes/files";
 import { verifyWebhook } from "@clerk/express/webhooks";
 import * as path from "path";
 import { prisma } from "./prisma";
@@ -48,15 +49,15 @@ app.use(
 
 // Setup JSON parsing for all routes except webhook
 // This must come after the webhook route setup
-app.use((req, res, next) => {
-  if (req.path === "/api/webhooks") {
-    return next();
-  }
-  express.json()(req, res, next);
-});
+// app.use((req: any, res: any, next: express.NextFunction) => {
+//   if (req.path === "/api/webhooks") {
+//     return next();
+//   }
+//   express.json()(req, res, next);
+// });
 
 // Health check endpoint
-app.get("/health", (req, res) => {
+app.get("/health", (req: any, res: any) => {
   res.status(200).json({ status: "ok", message: "Server is running" });
 });
 
@@ -64,19 +65,19 @@ app.get("/health", (req, res) => {
 app.use("/api/webhooks", express.raw({ type: "application/json" }));
 
 // Add a debugging middleware to log all requests
-app.use((req, res, next) => {
+app.use((req: any, res: any, next: any) => {
   console.log(`${req.method} ${req.path} received`);
   next();
 });
 
 // Webhook route
-app.post("/api/webhooks", (req, res) => {
+app.post("/api/webhooks", (req: any, res: any) => {
   try {
     console.log("Webhook received at:", new Date().toISOString());
     console.log("Webhook headers:", req.headers);
 
     // Verify webhook signature
-    verifyWebhook(req, {
+    verifyWebhook(req as any, {
       signingSecret: process.env.CLERK_WEBHOOK_SIGNING_SECRET,
     })
       .then(async (evt) => {
@@ -168,6 +169,7 @@ app.post("/api/webhooks", (req, res) => {
 
 // Routes
 app.use("/api/tasks", taskRoutes);
+app.use("/api/files", fileRoutes);
 
 const port = process.env.PORT || 3001; // Changed to 3001 to avoid conflicts
 

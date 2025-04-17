@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Task } from "@/mock-data";
+import { Task, FileAttachment } from "@/mock-data";
 import { mockData } from "@/mock-data";
 
 // API configuration
@@ -221,6 +221,281 @@ export const deleteTask = async (id: string): Promise<{ success: boolean }> => {
     return response.json();
   } catch (error) {
     console.error("Error deleting task:", error);
+    throw error;
+  }
+};
+
+// File API functions
+
+export interface UploadFileParams {
+  file: File;
+  userId: string;
+  userEmail: string;
+  userName?: string;
+  taskId?: string;
+}
+
+// Upload a file directly
+export const uploadFile = async ({
+  file,
+  userId,
+  userEmail,
+  userName,
+  taskId,
+}: UploadFileParams): Promise<FileAttachment> => {
+  if (USE_MOCK_DATA) {
+    // Simulate API delay
+    await new Promise((r) => setTimeout(r, 800));
+    
+    // Create a mock file attachment
+    return {
+      id: `file-${Date.now()}`,
+      fileName: file.name,
+      fileUrl: URL.createObjectURL(file),
+      fileType: file.type,
+      fileSize: file.size,
+      userId,
+      taskId: taskId || null,
+      createdAt: new Date().toISOString(),
+    };
+  }
+  
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("userId", userId);
+    formData.append("userEmail", userEmail);
+    if (userName) formData.append("userName", userName);
+    if (taskId) formData.append("taskId", taskId);
+    
+    const response = await fetch(`${API_URL}/files/upload`, {
+      method: "POST",
+      body: formData,
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to upload file");
+    }
+    
+    return response.json();
+  } catch (error) {
+    console.error("Error uploading file:", error);
+    throw error;
+  }
+};
+
+export interface GetUploadUrlParams {
+  fileName: string;
+  contentType: string;
+  userId: string;
+  userEmail: string;
+  userName?: string;
+  taskId?: string;
+}
+
+// Get a presigned URL for client-side upload
+export const getUploadUrl = async ({
+  fileName,
+  contentType,
+  userId,
+  userEmail,
+  userName,
+  taskId,
+}: GetUploadUrlParams): Promise<{
+  uploadUrl: string;
+  fileId: string;
+  fileKey: string;
+}> => {
+  if (USE_MOCK_DATA) {
+    // Simulate API delay
+    await new Promise((r) => setTimeout(r, 300));
+    
+    return {
+      uploadUrl: "https://example.com/mock-upload-url",
+      fileId: `file-${Date.now()}`,
+      fileKey: `uploads/${fileName}`,
+    };
+  }
+  
+  try {
+    const response = await fetch(`${API_URL}/files/get-upload-url`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        fileName,
+        contentType,
+        userId,
+        userEmail,
+        userName,
+        taskId,
+      }),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to get upload URL");
+    }
+    
+    return response.json();
+  } catch (error) {
+    console.error("Error getting upload URL:", error);
+    throw error;
+  }
+};
+
+export interface CompleteUploadParams {
+  fileId: string;
+  fileSize: number;
+  fileUrl: string;
+}
+
+// Complete client-side upload
+export const completeFileUpload = async ({
+  fileId,
+  fileSize,
+  fileUrl,
+}: CompleteUploadParams): Promise<FileAttachment> => {
+  if (USE_MOCK_DATA) {
+    // Simulate API delay
+    await new Promise((r) => setTimeout(r, 200));
+    
+    return {
+      id: fileId,
+      fileName: "mock-file.jpg",
+      fileUrl,
+      fileType: "image/jpeg",
+      fileSize,
+      userId: "user-01",
+      taskId: null,
+      createdAt: new Date().toISOString(),
+    };
+  }
+  
+  try {
+    const response = await fetch(`${API_URL}/files/${fileId}/complete`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        fileSize,
+        fileUrl,
+      }),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to complete upload");
+    }
+    
+    return response.json();
+  } catch (error) {
+    console.error("Error completing upload:", error);
+    throw error;
+  }
+};
+
+// Get files for a user or task
+export const getFiles = async ({
+  userId,
+  taskId,
+}: {
+  userId?: string;
+  taskId?: string;
+}): Promise<FileAttachment[]> => {
+  if (!userId && !taskId) {
+    throw new Error("Either userId or taskId must be provided");
+  }
+  
+  return deduplicateRequest(`files-${userId || ""}-${taskId || ""}`, async () => {
+    if (USE_MOCK_DATA) {
+      // Simulate API delay
+      await new Promise((r) => setTimeout(r, 500));
+      
+      return mockData.fileAttachments
+        .filter((f) => {
+          if (userId && f.userId === userId) return true;
+          if (taskId && f.taskId === taskId) return true;
+          return false;
+        })
+        .slice(0, 5);
+    }
+    
+    try {
+      const queryParams = new URLSearchParams();
+      if (userId) queryParams.append("userId", userId);
+      if (taskId) queryParams.append("taskId", taskId);
+      
+      const response = await fetch(`${API_URL}/files?${queryParams.toString()}`);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to fetch files");
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error("Error fetching files:", error);
+      throw error;
+    }
+  });
+};
+
+// Get a download URL for a file
+export const getFileDownloadUrl = async (
+  fileId: string
+): Promise<{ downloadUrl: string }> => {
+  if (USE_MOCK_DATA) {
+    // Simulate API delay
+    await new Promise((r) => setTimeout(r, 200));
+    
+    const file = mockData.fileAttachments.find((f) => f.id === fileId);
+    return {
+      downloadUrl: file?.fileUrl || "https://example.com/mock-download-url",
+    };
+  }
+  
+  try {
+    const response = await fetch(`${API_URL}/files/${fileId}/download`);
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to get download URL");
+    }
+    
+    return response.json();
+  } catch (error) {
+    console.error("Error getting download URL:", error);
+    throw error;
+  }
+};
+
+// Delete a file
+export const deleteFile = async (
+  fileId: string
+): Promise<{ success: boolean }> => {
+  if (USE_MOCK_DATA) {
+    // Simulate API delay
+    await new Promise((r) => setTimeout(r, 300));
+    return { success: true };
+  }
+  
+  try {
+    const response = await fetch(`${API_URL}/files/${fileId}`, {
+      method: "DELETE",
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to delete file");
+    }
+    
+    return response.json();
+  } catch (error) {
+    console.error("Error deleting file:", error);
     throw error;
   }
 };

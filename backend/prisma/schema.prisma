@@ -20,16 +20,35 @@ model Task {
   updatedAt   DateTime? @updatedAt @map("updated_at")
   userId      String   @map("user_id")
   user        User     @relation(fields: [userId], references: [clerkId])
+  attachments FileAttachment[]
 
   @@map("tasks")
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String?
-  clerkId   String   @unique @map("clerk_id")
-  tasks     Task[]
+  id          String   @id @default(uuid())
+  email       String   @unique
+  name        String?
+  clerkId     String   @unique @map("clerk_id")
+  tasks       Task[]
+  attachments FileAttachment[]
 
   @@map("users")
-} 
+}
+
+model FileAttachment {
+  id          String   @id @default(uuid())
+  fileName    String   @map("file_name")
+  fileKey     String   @map("file_key")
+  fileUrl     String   @map("file_url")
+  fileType    String   @map("file_type")
+  fileSize    Int      @map("file_size")
+  taskId      String?  @map("task_id")
+  task        Task?    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId      String   @map("user_id")
+  user        User     @relation(fields: [userId], references: [clerkId])
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("file_attachments")
+}
