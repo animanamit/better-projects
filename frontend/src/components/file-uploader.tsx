@@ -3,7 +3,18 @@ import { useDropzone } from "react-dropzone";
 import { useUser } from "@clerk/clerk-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { uploadFile, getFiles, deleteFile, FileAttachment } from "@/lib/api";
+import { Label } from "./ui/label";
+import { Textarea } from "./ui/textarea";
+import { Progress } from "./ui/progress";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import { uploadFile, getFiles, deleteFile } from "@/lib/api";
+import { FileAttachment } from "@/mock-data";
 
 interface FileUploaderProps {
   taskId?: string;
@@ -34,7 +45,8 @@ export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
       "image/*": [],
       "application/pdf": [],
       "application/msword": [],
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        [],
       "application/vnd.ms-excel": [],
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [],
       "text/plain": [],
@@ -98,7 +110,7 @@ export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
 
       // Add new file to the list
       setFiles((prev) => [uploadedFile, ...prev]);
-      
+
       // Call the callback if provided
       if (onUploadComplete) {
         onUploadComplete(uploadedFile);
@@ -135,212 +147,284 @@ export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
     <div className="space-y-4">
       {/* Drop zone */}
       {!selectedFile ? (
-        <div
-          {...getRootProps()}
-          className={`border-2 border-dashed rounded-lg p-6 cursor-pointer text-center transition-colors ${
-            isUploading
-              ? "border-gray-400 bg-gray-100 cursor-not-allowed"
-              : "border-gray-300 hover:border-primary hover:bg-gray-50"
-          }`}
-        >
-          <input {...getInputProps()} />
-          <div className="flex flex-col items-center justify-center space-y-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="mb-2 text-gray-500"
-            >
-              <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path>
-              <path d="M12 12v9"></path>
-              <path d="m16 16-4-4-4 4"></path>
-            </svg>
-            <p className="text-sm font-medium">Drop file here or click to upload</p>
-            <p className="text-xs text-gray-500">
-              Supports images, PDF, Word, Excel, and text files (Max 10MB)
-            </p>
-          </div>
-        </div>
-      ) : (
-        <div className="border rounded-lg p-4 space-y-4">
-          <div className="flex items-center space-x-3">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-gray-500"
-            >
-              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-              <polyline points="14 2 14 8 20 8" />
-            </svg>
-            <span className="text-sm font-medium">{selectedFile.name}</span>
-            <span className="text-xs text-gray-500">({formatFileSize(selectedFile.size)})</span>
-            {!isUploading && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setSelectedFile(null);
-                  setFileTitle("");
-                  setFileDescription("");
-                }}
-                className="ml-auto"
+        <Card className="border-dashed">
+          <div
+            {...getRootProps()}
+            className={`p-6 cursor-pointer text-center transition-colors ${
+              isUploading
+                ? "bg-gray-100 cursor-not-allowed"
+                : "hover:bg-gray-50"
+            }`}
+          >
+            <input {...getInputProps()} />
+            <div className="flex flex-col items-center justify-center space-y-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="mb-2 text-gray-500"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M18 6 6 18" />
-                  <path d="m6 6 12 12" />
-                </svg>
-              </Button>
-            )}
-          </div>
-
-          {isUploading ? (
-            <div className="w-full">
-              <div className="text-sm mb-1">Uploading... {uploadProgress}%</div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-primary h-2 rounded-full transition-all"
-                  style={{ width: `${uploadProgress}%` }}
-                ></div>
-              </div>
+                <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path>
+                <path d="M12 12v9"></path>
+                <path d="m16 16-4-4-4 4"></path>
+              </svg>
+              <p className="text-sm font-medium">
+                Drop file here or click to upload
+              </p>
+              <p className="text-xs text-gray-500">
+                Supports images, PDF, Word, Excel, and text files (Max 10MB)
+              </p>
             </div>
-          ) : (
-            <>
-              <div className="space-y-3">
-                <div>
-                  <label htmlFor="file-title" className="block text-sm font-medium mb-1">
-                    File Title
-                  </label>
-                  <Input
-                    id="file-title"
-                    value={fileTitle}
-                    onChange={(e) => setFileTitle(e.target.value)}
-                    placeholder="Enter a title for your file"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="file-description" className="block text-sm font-medium mb-1">
-                    Description (optional)
-                  </label>
-                  <Input
-                    id="file-description"
-                    value={fileDescription}
-                    onChange={(e) => setFileDescription(e.target.value)}
-                    placeholder="Add a description"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end">
-                <Button 
+          </div>
+        </Card>
+      ) : (
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center space-x-3">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-gray-500"
+              >
+                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                <polyline points="14 2 14 8 20 8" />
+              </svg>
+              <CardTitle className="text-md font-medium">
+                {selectedFile.name}
+              </CardTitle>
+              <span className="text-xs text-gray-500">
+                ({formatFileSize(selectedFile.size)})
+              </span>
+              {!isUploading && (
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={(e) => {
                     e.preventDefault();
-                    handleFileUpload();
+                    setSelectedFile(null);
+                    setFileTitle("");
+                    setFileDescription("");
                   }}
+                  className="ml-auto h-8 w-8"
                 >
-                  Upload File
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M18 6 6 18" />
+                    <path d="m6 6 12 12" />
+                  </svg>
+                  <span className="sr-only">Cancel</span>
                 </Button>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            {isUploading ? (
+              <div className="w-full">
+                <div className="text-sm mb-1">
+                  Uploading... {uploadProgress}%
+                </div>
+                <Progress value={uploadProgress} className="w-full h-2" />
               </div>
-            </>
+            ) : (
+              <>
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <Label htmlFor="file-title">File Title</Label>
+                    <Input
+                      id="file-title"
+                      value={fileTitle}
+                      onChange={(e) => setFileTitle(e.target.value)}
+                      placeholder="Enter a title for your file"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="file-description">
+                      Description (optional)
+                    </Label>
+                    <Textarea
+                      id="file-description"
+                      value={fileDescription}
+                      onChange={(e) => setFileDescription(e.target.value)}
+                      placeholder="Add a description"
+                      className="resize-none min-h-24"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+          </CardContent>
+
+          {!isUploading && (
+            <CardFooter className="flex justify-end pt-0">
+              <Button
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleFileUpload();
+                }}
+              >
+                Upload File
+              </Button>
+            </CardFooter>
           )}
-        </div>
+        </Card>
       )}
 
       {/* Error message */}
       {error && (
-        <div className="text-sm text-red-600 p-2 bg-red-50 rounded">{error}</div>
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="py-3 text-sm text-red-600">
+            <div className="flex items-center space-x-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-red-600"
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              <span>{error}</span>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* File list */}
-      <div className="space-y-2">
-        <h3 className="text-sm font-medium">
-          {taskId ? "Files for this task" : "Your files"}
-        </h3>
-        {files.length === 0 ? (
-          <p className="text-sm text-gray-500">No files yet</p>
-        ) : (
-          <div className="border rounded-lg overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Name
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Type
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Size
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {files.map((file) => (
-                  <tr key={file.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-2 text-sm">
-                      <a
-                        href={file.fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline"
-                      >
-                        {file.fileName}
-                      </a>
-                    </td>
-                    <td className="px-4 py-2 text-sm text-gray-500">
-                      {file.fileType.split("/")[1] || file.fileType}
-                    </td>
-                    <td className="px-4 py-2 text-sm text-gray-500">
-                      {formatFileSize(file.fileSize)}
-                    </td>
-                    <td className="px-4 py-2 text-sm text-gray-500">
-                      {new Date(file.createdAt).toLocaleString()}
-                    </td>
-                    <td className="px-4 py-2 text-sm text-right">
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDeleteFile(file.id)}
-                      >
-                        Delete
-                      </Button>
-                    </td>
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm">
+            {taskId ? "Files for this task" : "Your files"}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {files.length === 0 ? (
+            <p className="text-sm text-gray-500">No files yet</p>
+          ) : (
+            <div className="rounded-md overflow-hidden">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-muted/50">
+                  <tr>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Name
+                    </th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Type
+                    </th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Size
+                    </th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+                </thead>
+                <tbody className="bg-card divide-y divide-gray-200">
+                  {files.map((file) => (
+                    <tr key={file.id} className="hover:bg-muted/50">
+                      <td className="px-4 py-2 text-sm">
+                        <a
+                          href={file.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline flex items-center"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="mr-1.5"
+                          >
+                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                            <polyline points="14 2 14 8 20 8" />
+                          </svg>
+                          {file.fileName}
+                        </a>
+                        {file.description && (
+                          <div className="text-xs text-gray-500 mt-1 ml-5">
+                            {file.description}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-4 py-2 text-sm text-gray-500">
+                        {file.fileType.split("/")[1] || file.fileType}
+                      </td>
+                      <td className="px-4 py-2 text-sm text-gray-500">
+                        {formatFileSize(file.fileSize)}
+                      </td>
+                      <td className="px-4 py-2 text-sm text-gray-500">
+                        {new Date(file.createdAt).toLocaleString()}
+                      </td>
+                      <td className="px-4 py-2 text-sm text-right">
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDeleteFile(file.id)}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="mr-1"
+                          >
+                            <path d="M3 6h18"></path>
+                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                          </svg>
+                          Delete
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
