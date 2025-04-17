@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { useUser } from "@clerk/clerk-react";
 import { Button } from "./ui/button";
@@ -55,11 +55,7 @@ export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
     disabled: isUploading,
   });
 
-  useEffect(() => {
-    fetchFiles();
-  }, [taskId, user?.id]);
-
-  async function fetchFiles() {
+  const fetchFiles = useCallback(async () => {
     if (!user?.id) return;
 
     try {
@@ -72,7 +68,11 @@ export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
       console.error("Error fetching files:", err);
       setError("Failed to fetch files");
     }
-  }
+  }, [user?.id, taskId]);
+
+  useEffect(() => {
+    fetchFiles();
+  }, [fetchFiles]);
 
   async function handleFileUpload() {
     if (!user?.id || !user.primaryEmailAddress?.emailAddress) {
