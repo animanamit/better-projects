@@ -115,6 +115,7 @@ export const createTask = async (data: {
       projectId: "proj-01", // Default project
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      numComments: 0,
     };
   }
 

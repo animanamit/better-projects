@@ -4,7 +4,7 @@ import { FileUploader } from "./file-uploader";
 import { FileAttachment } from "@/mock-data";
 
 export function FileManagement() {
-  const { user, isSignedIn } = useUser();
+  const { isSignedIn } = useUser();
   const [recentUploads, setRecentUploads] = useState<FileAttachment[]>([]);
 
   const handleUploadComplete = (file: FileAttachment) => {
