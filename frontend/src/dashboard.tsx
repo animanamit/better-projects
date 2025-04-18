@@ -2,10 +2,8 @@ import { useState, createContext, useContext, useEffect } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import TopBar from "@/components/top-bar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { CreateTask } from "./components/create-task";
 import { FileManagement } from "./components/file-management";
 
-import { mockData, TaskStatus, type Task } from "@/mock-data";
 import TaskBoard from "@/components/task-board";
 import { Outlet, useLocation } from "react-router-dom";
 
@@ -22,22 +20,13 @@ export const TabContext = createContext<{
 // Custom hook to use the tab context
 export const useTabContext = () => useContext(TabContext);
 
-const statusClassMap: Record<TaskStatus, string> = {
-  [TaskStatus.TODO]: "text-todo",
-  [TaskStatus.IN_PROGRESS]: "text-in-progress",
-  [TaskStatus.IN_REVIEW]: "text-in-review",
-  [TaskStatus.TESTING]: "text-testing",
-  [TaskStatus.BLOCKED]: "text-blocked",
-  [TaskStatus.COMPLETED]: "text-completed",
-};
-
 function Dashboard() {
   const [activeTab, setActiveTab] = useState<TabType>("tasks");
   const location = useLocation();
   const [isTaskPage, setIsTaskPage] = useState(false);
-  
+
   useEffect(() => {
-    setIsTaskPage(location.pathname.includes('/task/'));
+    setIsTaskPage(location.pathname.includes("/task/"));
   }, [location]);
 
   return (

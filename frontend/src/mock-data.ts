@@ -1651,4 +1651,8 @@ export const mockData: {
   ],
 };
 
+export const getTaskById = (id: string) => {
+  return mockData.tasks.find((task) => task.id === id);
+};
+
 export default mockData;

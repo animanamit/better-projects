@@ -86,4 +86,21 @@ router.post("/", async (req: any, res: any) => {
   }
 });
 
+router.get("/task/:id", async (req: any, res: any) => {
+  try {
+    const { id } = req.params;
+    const task = await prisma.task.findUnique({
+      where: { id },
+    });
+
+    if (!task) {
+      return res.status(404).json({ error: "Task not found" });
+    }
+
+    res.json(task);
+  } catch (error) {
+    console.error("Error fetching task:", error);
+    res.status(500).json({ error: "Failed to fetch task" });
+  }
+});
 export default router;
