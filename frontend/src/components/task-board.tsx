@@ -27,7 +27,12 @@ const TaskDetailsCard = ({ task }: { task: Task }) => {
         {/* <p className="text-sm text-gray-500 font-mono">
           {task.dueDate?.toString().split("T")[0]}
         </p> */}
-        <span className="uppercase text-xs">{task.projectId}</span>
+        <div className="flex items-center justify-between">
+          <span className="uppercase text-xs">{task.projectId}</span>
+          <span className="text-xs text-gray-500 ">
+            {task.numComments} comments
+          </span>
+        </div>
       </div>
     </Link>
   );

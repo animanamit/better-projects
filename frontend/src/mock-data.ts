@@ -86,6 +86,7 @@ export type Task = {
   parentTaskId?: string | null;
   createdAt: string;
   updatedAt: string;
+  numComments: number;
 };
 
 export interface Tag {
@@ -610,6 +611,7 @@ export const mockData: {
       parentTaskId: null,
       createdAt: "2023-03-01T14:30:00Z",
       updatedAt: "2023-03-14T16:30:00Z",
+      numComments: 3,
     },
     {
       id: "task-02",
@@ -631,6 +633,7 @@ export const mockData: {
       parentTaskId: "task-01",
       createdAt: "2023-03-10T11:15:00Z",
       updatedAt: "2023-03-29T15:45:00Z",
+      numComments: 4,
     },
     {
       id: "task-03",
@@ -652,6 +655,7 @@ export const mockData: {
       parentTaskId: "task-01",
       createdAt: "2023-03-10T11:30:00Z",
       updatedAt: "2023-03-27T14:30:00Z",
+      numComments: 3, // Updated to reflect actual number of comments
     },
     {
       id: "task-04",
@@ -673,6 +677,7 @@ export const mockData: {
       parentTaskId: null,
       createdAt: "2023-03-25T10:45:00Z",
       updatedAt: "2023-04-04T16:15:00Z",
+      numComments: 0,
     },
     {
       id: "task-05",
@@ -694,6 +699,7 @@ export const mockData: {
       parentTaskId: "task-02",
       createdAt: "2023-04-01T13:15:00Z",
       updatedAt: "2023-04-11T15:30:00Z",
+      numComments: 2,
     },
     {
       id: "task-06",
@@ -715,6 +721,7 @@ export const mockData: {
       parentTaskId: null,
       createdAt: "2023-04-10T11:00:00Z",
       updatedAt: "2023-04-24T14:45:00Z",
+      numComments: 2,
     },
     {
       id: "task-07",
@@ -736,6 +743,7 @@ export const mockData: {
       parentTaskId: null,
       createdAt: "2023-04-20T09:30:00Z",
       updatedAt: "2023-04-20T09:30:00Z",
+      numComments: 1,
     },
     {
       id: "task-08",
@@ -757,6 +765,7 @@ export const mockData: {
       parentTaskId: null,
       createdAt: "2023-03-10T13:45:00Z",
       updatedAt: "2023-03-30T16:00:00Z",
+      numComments: 2,
     },
     {
       id: "task-09",
@@ -778,6 +787,7 @@ export const mockData: {
       parentTaskId: "task-08",
       createdAt: "2023-03-25T10:30:00Z",
       updatedAt: "2023-04-18T15:45:00Z",
+      numComments: 0,
     },
     {
       id: "task-10",
@@ -799,6 +809,7 @@ export const mockData: {
       parentTaskId: "task-08",
       createdAt: "2023-04-05T11:15:00Z",
       updatedAt: "2023-04-19T14:30:00Z",
+      numComments: 0,
     },
     {
       id: "task-11",
@@ -820,6 +831,7 @@ export const mockData: {
       parentTaskId: null,
       createdAt: "2023-03-30T13:45:00Z",
       updatedAt: "2023-04-13T15:30:00Z",
+      numComments: 3,
     },
     {
       id: "task-12",
@@ -841,6 +853,7 @@ export const mockData: {
       parentTaskId: null,
       createdAt: "2023-02-15T11:00:00Z",
       updatedAt: "2023-03-15T16:30:00Z",
+      numComments: 2,
     },
     {
       id: "task-13",
@@ -861,6 +874,7 @@ export const mockData: {
       parentTaskId: null,
       createdAt: "2023-03-10T10:30:00Z",
       updatedAt: "2023-03-28T15:45:00Z",
+      numComments: 3,
     },
     {
       id: "task-14",
@@ -882,6 +896,7 @@ export const mockData: {
       parentTaskId: null,
       createdAt: "2023-03-30T13:15:00Z",
       updatedAt: "2023-04-20T11:30:00Z",
+      numComments: 3,
     },
     {
       id: "task-15",
@@ -903,6 +918,7 @@ export const mockData: {
       parentTaskId: null,
       createdAt: "2023-04-15T10:45:00Z",
       updatedAt: "2023-04-15T10:45:00Z",
+      numComments: 2,
     },
     {
       id: "task-16",
@@ -924,6 +940,7 @@ export const mockData: {
       parentTaskId: null,
       createdAt: "2023-04-17T14:30:00Z",
       updatedAt: "2023-04-26T11:15:00Z",
+      numComments: 2,
     },
     {
       id: "task-17",
@@ -945,6 +962,7 @@ export const mockData: {
       parentTaskId: "task-09",
       createdAt: "2023-04-19T15:30:00Z",
       updatedAt: "2023-04-22T10:45:00Z",
+      numComments: 2,
     },
     {
       id: "task-18",
@@ -966,6 +984,7 @@ export const mockData: {
       parentTaskId: null,
       createdAt: "2023-04-25T11:45:00Z",
       updatedAt: "2023-04-25T11:45:00Z",
+      numComments: 2,
     },
     {
       id: "task-19",
@@ -987,6 +1006,7 @@ export const mockData: {
       parentTaskId: null,
       createdAt: "2023-04-28T09:30:00Z",
       updatedAt: "2023-04-28T09:30:00Z",
+      numComments: 1,
     },
     {
       id: "task-20",
@@ -1007,6 +1027,117 @@ export const mockData: {
       parentTaskId: null,
       createdAt: "2023-04-30T13:15:00Z",
       updatedAt: "2023-04-30T13:15:00Z",
+      numComments: 2,
+    },
+    {
+      id: "task-21",
+      title: "Implement user notification system",
+      description:
+        "Create a real-time notification system to alert users of important events and updates",
+      status: TaskStatus.IN_REVIEW,
+      priority: TaskPriority.HIGH,
+      storyPoints: 8,
+      startDate: "2023-04-10T09:00:00Z",
+      dueDate: "2023-04-28T17:00:00Z",
+      completedDate: null,
+      estimatedHours: 24,
+      actualHours: 26,
+      projectId: "proj-01",
+      assigneeId: "user-03",
+      reporterId: "user-09",
+      qaId: "user-04",
+      parentTaskId: null,
+      createdAt: "2023-04-05T11:30:00Z",
+      updatedAt: "2023-04-26T15:45:00Z",
+      numComments: 3,
+    },
+    {
+      id: "task-22",
+      title: "Develop data export functionality",
+      description:
+        "Implement feature to allow users to export dashboard data in various formats (CSV, Excel, PDF)",
+      status: TaskStatus.IN_REVIEW,
+      priority: TaskPriority.MEDIUM,
+      storyPoints: 5,
+      startDate: "2023-04-15T09:00:00Z",
+      dueDate: "2023-04-25T17:00:00Z",
+      completedDate: null,
+      estimatedHours: 16,
+      actualHours: 14,
+      projectId: "proj-01",
+      assigneeId: "user-02",
+      reporterId: "user-01",
+      qaId: "user-04",
+      parentTaskId: null,
+      createdAt: "2023-04-10T13:45:00Z",
+      updatedAt: "2023-04-24T16:30:00Z",
+      numComments: 2,
+    },
+    {
+      id: "task-23",
+      title: "Create user onboarding tutorial",
+      description:
+        "Design and implement an interactive tutorial to guide new users through the platform features",
+      status: TaskStatus.IN_REVIEW,
+      priority: TaskPriority.MEDIUM,
+      storyPoints: 8,
+      startDate: "2023-04-12T09:00:00Z",
+      dueDate: "2023-04-28T17:00:00Z",
+      completedDate: null,
+      estimatedHours: 24,
+      actualHours: 22,
+      projectId: "proj-01",
+      assigneeId: "user-05",
+      reporterId: "user-09",
+      qaId: "user-04",
+      parentTaskId: null,
+      createdAt: "2023-04-08T10:15:00Z",
+      updatedAt: "2023-04-27T14:30:00Z",
+      numComments: 4,
+    },
+    {
+      id: "task-24",
+      title: "Implement data caching layer",
+      description:
+        "Add Redis caching to improve API performance and reduce database load",
+      status: TaskStatus.IN_REVIEW,
+      priority: TaskPriority.HIGH,
+      storyPoints: 5,
+      startDate: "2023-04-18T09:00:00Z",
+      dueDate: "2023-04-26T17:00:00Z",
+      completedDate: null,
+      estimatedHours: 16,
+      actualHours: 18,
+      projectId: "proj-02",
+      assigneeId: "user-12",
+      reporterId: "user-10",
+      qaId: "user-04",
+      parentTaskId: null,
+      createdAt: "2023-04-15T13:30:00Z",
+      updatedAt: "2023-04-25T16:45:00Z",
+      numComments: 3,
+    },
+    {
+      id: "task-25",
+      title: "Implement dark mode support",
+      description:
+        "Add dark mode theme option across the entire application with user preference persistence",
+      status: TaskStatus.IN_REVIEW,
+      priority: TaskPriority.LOW,
+      storyPoints: 5,
+      startDate: "2023-04-20T09:00:00Z",
+      dueDate: "2023-04-28T17:00:00Z",
+      completedDate: null,
+      estimatedHours: 16,
+      actualHours: 12,
+      projectId: "proj-01",
+      assigneeId: "user-06",
+      reporterId: "user-05",
+      qaId: "user-04",
+      parentTaskId: null,
+      createdAt: "2023-04-18T11:45:00Z",
+      updatedAt: "2023-04-27T15:30:00Z",
+      numComments: 2,
     },
   ],
   taskTags: [
@@ -1038,6 +1169,17 @@ export const mockData: {
     { taskId: "task-18", tagId: "tag-07" },
     { taskId: "task-19", tagId: "tag-04" },
     { taskId: "task-20", tagId: "tag-02" },
+    { taskId: "task-21", tagId: "tag-02" },
+    { taskId: "task-21", tagId: "tag-03" },
+    { taskId: "task-22", tagId: "tag-02" },
+    { taskId: "task-22", tagId: "tag-07" },
+    { taskId: "task-23", tagId: "tag-02" },
+    { taskId: "task-23", tagId: "tag-08" },
+    { taskId: "task-24", tagId: "tag-02" },
+    { taskId: "task-24", tagId: "tag-07" },
+    { taskId: "task-25", tagId: "tag-02" },
+    { taskId: "task-25", tagId: "tag-05" },
+    { taskId: "task-25", tagId: "tag-08" },
   ],
   comments: [
     {
@@ -1203,6 +1345,390 @@ export const mockData: {
       createdAt: "2023-04-11T10:30:00Z",
       updatedAt: "2023-04-11T10:30:00Z",
     },
+    {
+      id: "comment-16",
+      content:
+        "I've created wireframes for the user settings page. Let me know what you think.",
+      userId: "user-06",
+      taskId: "task-06",
+      parentCommentId: null,
+      isEdited: false,
+      createdAt: "2023-04-18T10:15:00Z",
+      updatedAt: "2023-04-18T10:15:00Z",
+    },
+    {
+      id: "comment-17",
+      content:
+        "The wireframes look good. Let's add a section for notification preferences.",
+      userId: "user-09",
+      taskId: "task-06",
+      parentCommentId: "comment-16",
+      isEdited: false,
+      createdAt: "2023-04-18T14:30:00Z",
+      updatedAt: "2023-04-18T14:30:00Z",
+    },
+    {
+      id: "comment-18",
+      content:
+        "I've identified the issue with the navigation menu. It's related to the media query breakpoints.",
+      userId: "user-02",
+      taskId: "task-07",
+      parentCommentId: null,
+      isEdited: false,
+      createdAt: "2023-04-22T11:45:00Z",
+      updatedAt: "2023-04-22T11:45:00Z",
+    },
+    {
+      id: "comment-19",
+      content:
+        "I've completed the research on test automation frameworks. Jest and Cypress seem to be the best fit for our needs.",
+      userId: "user-04",
+      taskId: "task-11",
+      parentCommentId: null,
+      isEdited: false,
+      createdAt: "2023-04-10T13:20:00Z",
+      updatedAt: "2023-04-10T13:20:00Z",
+    },
+    {
+      id: "comment-20",
+      content:
+        "Great work! Can you provide more details on how Cypress would integrate with our CI/CD pipeline?",
+      userId: "user-08",
+      taskId: "task-11",
+      parentCommentId: "comment-19",
+      isEdited: false,
+      createdAt: "2023-04-11T09:10:00Z",
+      updatedAt: "2023-04-11T09:10:00Z",
+    },
+    {
+      id: "comment-21",
+      content:
+        "I've added a section about CI/CD integration in the comparison document. See the attached file.",
+      userId: "user-04",
+      taskId: "task-11",
+      parentCommentId: "comment-20",
+      isEdited: false,
+      createdAt: "2023-04-12T16:25:00Z",
+      updatedAt: "2023-04-12T16:25:00Z",
+    },
+    {
+      id: "comment-22",
+      content:
+        "The component library is now available in Storybook. You can view all components and their variants.",
+      userId: "user-05",
+      taskId: "task-12",
+      parentCommentId: null,
+      isEdited: false,
+      createdAt: "2023-03-10T15:40:00Z",
+      updatedAt: "2023-03-10T15:40:00Z",
+    },
+    {
+      id: "comment-23",
+      content:
+        "Great job on the component library! The documentation is very thorough.",
+      userId: "user-11",
+      taskId: "task-12",
+      parentCommentId: "comment-22",
+      isEdited: false,
+      createdAt: "2023-03-11T10:15:00Z",
+      updatedAt: "2023-03-11T10:15:00Z",
+    },
+    {
+      id: "comment-24",
+      content:
+        "Initial designs for the solar panel dashboard are ready for review.",
+      userId: "user-05",
+      taskId: "task-13",
+      parentCommentId: null,
+      isEdited: false,
+      createdAt: "2023-03-20T14:30:00Z",
+      updatedAt: "2023-03-20T14:30:00Z",
+    },
+    {
+      id: "comment-25",
+      content:
+        "The designs look great! Can we add a heat map visualization for panel efficiency?",
+      userId: "user-07",
+      taskId: "task-13",
+      parentCommentId: "comment-24",
+      isEdited: false,
+      createdAt: "2023-03-21T09:45:00Z",
+      updatedAt: "2023-03-21T09:45:00Z",
+    },
+    {
+      id: "comment-26",
+      content:
+        "Good suggestion. I'll add the heat map visualization in the next iteration.",
+      userId: "user-05",
+      taskId: "task-13",
+      parentCommentId: "comment-25",
+      isEdited: false,
+      createdAt: "2023-03-21T11:20:00Z",
+      updatedAt: "2023-03-21T11:20:00Z",
+    },
+    {
+      id: "comment-27",
+      content:
+        "I've started implementing the real-time data processing pipeline using Apache Kafka.",
+      userId: "user-07",
+      taskId: "task-14",
+      parentCommentId: null,
+      isEdited: false,
+      createdAt: "2023-04-10T13:45:00Z",
+      updatedAt: "2023-04-10T13:45:00Z",
+    },
+    {
+      id: "comment-28",
+      content:
+        "We should consider adding a data buffering mechanism to handle connectivity issues.",
+      userId: "user-12",
+      taskId: "task-14",
+      parentCommentId: "comment-27",
+      isEdited: false,
+      createdAt: "2023-04-11T10:30:00Z",
+      updatedAt: "2023-04-11T10:30:00Z",
+    },
+    {
+      id: "comment-29",
+      content:
+        "Good point. I'll implement a local storage buffer that syncs when connectivity is restored.",
+      userId: "user-07",
+      taskId: "task-14",
+      parentCommentId: "comment-28",
+      isEdited: false,
+      createdAt: "2023-04-11T14:15:00Z",
+      updatedAt: "2023-04-11T14:15:00Z",
+    },
+    {
+      id: "comment-30",
+      content:
+        "I've created initial mockups for the data visualization components.",
+      userId: "user-07",
+      taskId: "task-15",
+      parentCommentId: null,
+      isEdited: false,
+      createdAt: "2023-04-17T11:30:00Z",
+      updatedAt: "2023-04-17T11:30:00Z",
+    },
+    {
+      id: "comment-31",
+      content:
+        "The mockups look good. Let's make sure they're accessible and support dark mode.",
+      userId: "user-05",
+      taskId: "task-15",
+      parentCommentId: "comment-30",
+      isEdited: false,
+      createdAt: "2023-04-18T09:45:00Z",
+      updatedAt: "2023-04-18T09:45:00Z",
+    },
+    {
+      id: "comment-32",
+      content:
+        "I've identified several areas where we can optimize the dashboard performance.",
+      userId: "user-02",
+      taskId: "task-18",
+      parentCommentId: null,
+      isEdited: false,
+      createdAt: "2023-04-26T10:15:00Z",
+      updatedAt: "2023-04-26T10:15:00Z",
+    },
+    {
+      id: "comment-33",
+      content:
+        "We should implement lazy loading for the dashboard widgets and optimize the API calls.",
+      userId: "user-02",
+      taskId: "task-18",
+      parentCommentId: "comment-32",
+      isEdited: false,
+      createdAt: "2023-04-26T10:20:00Z",
+      updatedAt: "2023-04-26T10:20:00Z",
+    },
+    {
+      id: "comment-34",
+      content: "I'll start working on the API documentation using Swagger.",
+      userId: "user-12",
+      taskId: "task-19",
+      parentCommentId: null,
+      isEdited: false,
+      createdAt: "2023-04-28T14:30:00Z",
+      updatedAt: "2023-04-28T14:30:00Z",
+    },
+    {
+      id: "comment-35",
+      content:
+        "I'm planning to use GitHub Actions for our CI/CD pipeline. Any specific requirements?",
+      userId: "user-08",
+      taskId: "task-20",
+      parentCommentId: null,
+      isEdited: false,
+      createdAt: "2023-04-30T15:45:00Z",
+      updatedAt: "2023-04-30T15:45:00Z",
+    },
+    {
+      id: "comment-36",
+      content:
+        "We should include automated testing, linting, and deployment to staging and production environments.",
+      userId: "user-04",
+      taskId: "task-20",
+      parentCommentId: "comment-35",
+      isEdited: false,
+      createdAt: "2023-05-01T09:30:00Z",
+      updatedAt: "2023-05-01T09:30:00Z",
+    },
+    {
+      id: "comment-37",
+      content:
+        "I've completed the initial implementation of the notification system using WebSockets.",
+      userId: "user-03",
+      taskId: "task-21",
+      parentCommentId: null,
+      isEdited: false,
+      createdAt: "2023-04-20T14:30:00Z",
+      updatedAt: "2023-04-20T14:30:00Z",
+    },
+    {
+      id: "comment-38",
+      content:
+        "The implementation looks good, but we should add support for push notifications on mobile devices.",
+      userId: "user-09",
+      taskId: "task-21",
+      parentCommentId: "comment-37",
+      isEdited: false,
+      createdAt: "2023-04-21T10:15:00Z",
+      updatedAt: "2023-04-21T10:15:00Z",
+    },
+    {
+      id: "comment-39",
+      content:
+        "Good point. I've added Firebase Cloud Messaging integration for mobile push notifications.",
+      userId: "user-03",
+      taskId: "task-21",
+      parentCommentId: "comment-38",
+      isEdited: false,
+      createdAt: "2023-04-25T16:30:00Z",
+      updatedAt: "2023-04-25T16:30:00Z",
+    },
+    {
+      id: "comment-40",
+      content:
+        "I've implemented export functionality for CSV and Excel formats. Working on PDF export now.",
+      userId: "user-02",
+      taskId: "task-22",
+      parentCommentId: null,
+      isEdited: false,
+      createdAt: "2023-04-20T11:45:00Z",
+      updatedAt: "2023-04-20T11:45:00Z",
+    },
+    {
+      id: "comment-41",
+      content:
+        "PDF export is now working. I've used jsPDF for generating the reports.",
+      userId: "user-02",
+      taskId: "task-22",
+      parentCommentId: "comment-40",
+      isEdited: false,
+      createdAt: "2023-04-23T15:30:00Z",
+      updatedAt: "2023-04-23T15:30:00Z",
+    },
+    {
+      id: "comment-42",
+      content:
+        "I've created the initial wireframes for the onboarding tutorial. Planning to use Shepherd.js for implementation.",
+      userId: "user-05",
+      taskId: "task-23",
+      parentCommentId: null,
+      isEdited: false,
+      createdAt: "2023-04-15T13:20:00Z",
+      updatedAt: "2023-04-15T13:20:00Z",
+    },
+    {
+      id: "comment-43",
+      content:
+        "The wireframes look great! Make sure we can track which users have completed the tutorial.",
+      userId: "user-09",
+      taskId: "task-23",
+      parentCommentId: "comment-42",
+      isEdited: false,
+      createdAt: "2023-04-16T10:45:00Z",
+      updatedAt: "2023-04-16T10:45:00Z",
+    },
+    {
+      id: "comment-44",
+      content:
+        "I've implemented the tutorial using Shepherd.js. Added user tracking and progress persistence.",
+      userId: "user-05",
+      taskId: "task-23",
+      parentCommentId: "comment-43",
+      isEdited: false,
+      createdAt: "2023-04-25T16:15:00Z",
+      updatedAt: "2023-04-25T16:15:00Z",
+    },
+    {
+      id: "comment-45",
+      content:
+        "The tutorial looks great! Can we add a way for users to access it again later if they need a refresher?",
+      userId: "user-11",
+      taskId: "task-23",
+      parentCommentId: "comment-44",
+      isEdited: false,
+      createdAt: "2023-04-26T11:30:00Z",
+      updatedAt: "2023-04-26T11:30:00Z",
+    },
+    {
+      id: "comment-46",
+      content:
+        "I've implemented Redis caching for the most frequently accessed API endpoints.",
+      userId: "user-12",
+      taskId: "task-24",
+      parentCommentId: null,
+      isEdited: false,
+      createdAt: "2023-04-22T15:45:00Z",
+      updatedAt: "2023-04-22T15:45:00Z",
+    },
+    {
+      id: "comment-47",
+      content:
+        "The caching implementation looks good. What's the cache invalidation strategy?",
+      userId: "user-10",
+      taskId: "task-24",
+      parentCommentId: "comment-46",
+      isEdited: false,
+      createdAt: "2023-04-23T10:30:00Z",
+      updatedAt: "2023-04-23T10:30:00Z",
+    },
+    {
+      id: "comment-48",
+      content:
+        "I'm using a combination of time-based expiration and event-based invalidation when data changes.",
+      userId: "user-12",
+      taskId: "task-24",
+      parentCommentId: "comment-47",
+      isEdited: false,
+      createdAt: "2023-04-24T13:15:00Z",
+      updatedAt: "2023-04-24T13:15:00Z",
+    },
+    {
+      id: "comment-49",
+      content:
+        "I've implemented dark mode support using CSS variables and a theme context in React.",
+      userId: "user-06",
+      taskId: "task-25",
+      parentCommentId: null,
+      isEdited: false,
+      createdAt: "2023-04-25T14:30:00Z",
+      updatedAt: "2023-04-25T14:30:00Z",
+    },
+    {
+      id: "comment-50",
+      content:
+        "The dark mode looks great! Can we also add an auto setting that follows the system preference?",
+      userId: "user-05",
+      taskId: "task-25",
+      parentCommentId: "comment-49",
+      isEdited: false,
+      createdAt: "2023-04-26T11:15:00Z",
+      updatedAt: "2023-04-26T11:15:00Z",
+    },
   ],
   fileAttachments: [
     {
@@ -1285,6 +1811,76 @@ export const mockData: {
       userId: "user-04",
       taskId: "task-11",
       createdAt: "2023-04-12T16:30:00Z",
+    },
+    {
+      id: "file-09",
+      fileName: "notification_system_architecture.pdf",
+      fileUrl: "https://example.com/files/notification_system_architecture.pdf",
+      fileType: "application/pdf",
+      fileSize: 1245678,
+      userId: "user-03",
+      taskId: "task-21",
+      createdAt: "2023-04-15T10:30:00Z",
+    },
+    {
+      id: "file-10",
+      fileName: "notification_demo.mp4",
+      fileUrl: "https://example.com/files/notification_demo.mp4",
+      fileType: "video/mp4",
+      fileSize: 8765432,
+      userId: "user-03",
+      taskId: "task-21",
+      createdAt: "2023-04-25T15:45:00Z",
+    },
+    {
+      id: "file-11",
+      fileName: "data_export_samples.zip",
+      fileUrl: "https://example.com/files/data_export_samples.zip",
+      fileType: "application/zip",
+      fileSize: 3456789,
+      userId: "user-02",
+      taskId: "task-22",
+      createdAt: "2023-04-23T14:30:00Z",
+    },
+    {
+      id: "file-12",
+      fileName: "onboarding_tutorial_wireframes.fig",
+      fileUrl: "https://example.com/files/onboarding_tutorial_wireframes.fig",
+      fileType: "application/octet-stream",
+      fileSize: 2345678,
+      userId: "user-05",
+      taskId: "task-23",
+      createdAt: "2023-04-15T13:15:00Z",
+    },
+    {
+      id: "file-13",
+      fileName: "onboarding_tutorial_demo.mp4",
+      fileUrl: "https://example.com/files/onboarding_tutorial_demo.mp4",
+      fileType: "video/mp4",
+      fileSize: 9876543,
+      userId: "user-05",
+      taskId: "task-23",
+      createdAt: "2023-04-25T16:00:00Z",
+    },
+    {
+      id: "file-14",
+      fileName: "redis_caching_performance_report.pdf",
+      fileUrl: "https://example.com/files/redis_caching_performance_report.pdf",
+      fileType: "application/pdf",
+      fileSize: 1567890,
+      userId: "user-12",
+      taskId: "task-24",
+      createdAt: "2023-04-24T13:00:00Z",
+    },
+    {
+      id: "file-15",
+      fileName: "dark_mode_theme_preview.png",
+      fileUrl: "https://example.com/files/dark_mode_theme_preview.png",
+      fileType: "image/png",
+      fileSize: 876543,
+      userId: "user-06",
+      taskId: "task-25",
+      createdAt: "2023-04-25T14:15:00Z",
     },
   ],
   taskHistory: [
@@ -1648,11 +2244,137 @@ export const mockData: {
       changedBy: "user-03",
       changedAt: "2023-04-22T10:45:00Z",
     },
+    {
+      id: "history-41",
+      taskId: "task-21",
+      fieldChanged: "status",
+      oldValue: "TODO",
+      newValue: "IN_PROGRESS",
+      changedBy: "user-03",
+      changedAt: "2023-04-10T09:00:00Z",
+    },
+    {
+      id: "history-42",
+      taskId: "task-21",
+      fieldChanged: "status",
+      oldValue: "IN_PROGRESS",
+      newValue: "IN_REVIEW",
+      changedBy: "user-03",
+      changedAt: "2023-04-26T15:45:00Z",
+    },
+    {
+      id: "history-43",
+      taskId: "task-22",
+      fieldChanged: "status",
+      oldValue: "TODO",
+      newValue: "IN_PROGRESS",
+      changedBy: "user-02",
+      changedAt: "2023-04-15T09:00:00Z",
+    },
+    {
+      id: "history-44",
+      taskId: "task-22",
+      fieldChanged: "status",
+      oldValue: "IN_PROGRESS",
+      newValue: "IN_REVIEW",
+      changedBy: "user-02",
+      changedAt: "2023-04-24T16:30:00Z",
+    },
+    {
+      id: "history-45",
+      taskId: "task-23",
+      fieldChanged: "status",
+      oldValue: "TODO",
+      newValue: "IN_PROGRESS",
+      changedBy: "user-05",
+      changedAt: "2023-04-12T09:00:00Z",
+    },
+    {
+      id: "history-46",
+      taskId: "task-23",
+      fieldChanged: "status",
+      oldValue: "IN_PROGRESS",
+      newValue: "IN_REVIEW",
+      changedBy: "user-05",
+      changedAt: "2023-04-27T14:30:00Z",
+    },
+    {
+      id: "history-47",
+      taskId: "task-24",
+      fieldChanged: "status",
+      oldValue: "TODO",
+      newValue: "IN_PROGRESS",
+      changedBy: "user-12",
+      changedAt: "2023-04-18T09:00:00Z",
+    },
+    {
+      id: "history-48",
+      taskId: "task-24",
+      fieldChanged: "status",
+      oldValue: "IN_PROGRESS",
+      newValue: "IN_REVIEW",
+      changedBy: "user-12",
+      changedAt: "2023-04-25T16:45:00Z",
+    },
+    {
+      id: "history-49",
+      taskId: "task-25",
+      fieldChanged: "status",
+      oldValue: "TODO",
+      newValue: "IN_PROGRESS",
+      changedBy: "user-06",
+      changedAt: "2023-04-20T09:00:00Z",
+    },
+    {
+      id: "history-50",
+      taskId: "task-25",
+      fieldChanged: "status",
+      oldValue: "IN_PROGRESS",
+      newValue: "IN_REVIEW",
+      changedBy: "user-06",
+      changedAt: "2023-04-27T15:30:00Z",
+    },
+    {
+      id: "history-51",
+      taskId: "task-24",
+      fieldChanged: "actualHours",
+      oldValue: "12",
+      newValue: "18",
+      changedBy: "user-12",
+      changedAt: "2023-04-24T13:30:00Z",
+    },
+    {
+      id: "history-52",
+      taskId: "task-21",
+      fieldChanged: "actualHours",
+      oldValue: "20",
+      newValue: "26",
+      changedBy: "user-03",
+      changedAt: "2023-04-25T14:15:00Z",
+    },
   ],
 };
 
 export const getTaskById = (id: string) => {
   return mockData.tasks.find((task) => task.id === id);
+};
+
+export const getTaskHistoryById = (id: string) => {
+  return mockData.taskHistory.filter((history) => history.taskId === id);
+};
+
+export const getTaskCommentsById = (id: string) => {
+  return mockData.comments.filter((comment) => comment.taskId === id);
+};
+
+export const getTaskAttachmentsById = (id: string) => {
+  return mockData.fileAttachments.filter(
+    (attachment) => attachment.taskId === id
+  );
+};
+
+export const getTaskTagsById = (id: string) => {
+  return mockData.taskTags.filter((tag) => tag.taskId === id);
 };
 
 export default mockData;
