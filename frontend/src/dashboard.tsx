@@ -3,9 +3,10 @@ import { AppSidebar } from "@/components/app-sidebar";
 import TopBar from "@/components/top-bar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { FileManagement } from "./components/file-management";
-
 import TaskBoard from "@/components/task-board";
 import { Outlet, useLocation } from "react-router-dom";
+import { Provider } from "react-redux";
+import { store } from "@/store";
 
 // Create a context for the active tab
 export type TabType = "tasks" | "files";
@@ -20,7 +21,7 @@ export const TabContext = createContext<{
 // Custom hook to use the tab context
 export const useTabContext = () => useContext(TabContext);
 
-function Dashboard() {
+function DashboardContent() {
   const [activeTab, setActiveTab] = useState<TabType>("tasks");
   const location = useLocation();
   const [isTaskPage, setIsTaskPage] = useState(false);
@@ -58,6 +59,15 @@ function Dashboard() {
         </main>
       </SidebarProvider>
     </TabContext.Provider>
+  );
+}
+
+// This wrapper ensures Redux is available throughout the dashboard
+function Dashboard() {
+  return (
+    <Provider store={store}>
+      <DashboardContent />
+    </Provider>
   );
 }
 
