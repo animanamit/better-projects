@@ -34,20 +34,16 @@ function Dashboard() {
       <SidebarProvider>
         <main className="flex flex-col h-screen w-full">
           <TopBar />
-          <div className="flex flex-row h-full">
+          <div className="flex flex-row h-full w-full max-w-screen overflow-hidden">
             <AppSidebar />
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col overflow-x-scroll">
               {/* Content */}
-              <div className="flex-1 overflow-auto">
+              <div className="">
                 {isTaskPage ? (
                   <Outlet />
                 ) : (
                   <>
-                    {activeTab === "tasks" && (
-                      <div className="p-4">
-                        <TaskBoard />
-                      </div>
-                    )}
+                    {activeTab === "tasks" && <TaskBoard />}
 
                     {activeTab === "files" && <FileManagement />}
                   </>

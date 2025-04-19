@@ -254,18 +254,16 @@ export default function TaskBoard() {
   ];
 
   return (
-    <div className="flex flex-col">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-        {columns.map((column) => (
-          <TaskColumn
-            key={column.status}
-            status={column.status}
-            title={column.title}
-            tasks={tasks}
-            onStatusChange={handleStatusChange}
-          />
-        ))}
-      </div>
+    <div className="flex gap-3 overflow-x-scroll">
+      {columns.map((column) => (
+        <TaskColumn
+          key={column.status}
+          status={column.status}
+          title={column.title}
+          tasks={tasks}
+          onStatusChange={handleStatusChange}
+        />
+      ))}
     </div>
   );
 }
