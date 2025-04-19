@@ -13,6 +13,8 @@ import {
 import Dashboard from "@/dashboard.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import TaskPage from "@/task-page.tsx";
+import ProjectPage from "@/project-page.tsx";
+import TeamPage from "@/teams-page.tsx";
 
 // Create a React Query client with optimized settings to reduce requests
 const queryClient = new QueryClient({
@@ -75,6 +77,8 @@ createRoot(document.getElementById("root")!).render(
               }
             >
               <Route path="task/:id" element={<TaskPage />} />
+              <Route path="project/:id" element={<ProjectPage />} />
+              <Route path="team/:id" element={<TeamPage />} />
             </Route>
           </Routes>
         </ClerkProvider>

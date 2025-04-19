@@ -26,7 +26,17 @@ function Dashboard() {
   const [isTaskPage, setIsTaskPage] = useState(false);
 
   useEffect(() => {
-    setIsTaskPage(location.pathname.includes("/task/"));
+    // Update what kind of page we're viewing
+    const onDetailPage = location.pathname.includes("/task/") || 
+                         location.pathname.includes("/project/") ||
+                         location.pathname.includes("/team/");
+    setIsTaskPage(onDetailPage);
+    
+    // If we're back on the dashboard main page, make sure the tab selection works
+    if (location.pathname === "/dashboard") {
+      // Tab selection is already handled by the sidebar clicks
+      // This just ensures the UI is in sync
+    }
   }, [location]);
 
   return (
