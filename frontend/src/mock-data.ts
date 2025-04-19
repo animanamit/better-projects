@@ -981,7 +981,7 @@ export const mockData: {
       id: "task-01",
       title: "Design new user dashboard layout",
       description:
-        "Create a modern, responsive layout for the user dashboard that shows key metrics and recent activity",
+        "Create a modern, responsive layout for the user dashboard that shows key metrics and recent activity. Design should include large, prominent metric cards showing KPIs and a customizable activity feed. Ensure the dashboard is mobile-responsive with thoughtful use of color and typography according to our new brand guidelines. Design deliverables should include complete Figma mockups with component specifications and design documentation explaining the UX decisions. Special attention should be paid to ensuring the design is intuitive and helps users quickly understand their key performance metrics.",
       status: TaskStatus.COMPLETED,
       priority: TaskPriority.HIGH,
       storyPoints: 8,
@@ -1003,7 +1003,7 @@ export const mockData: {
       id: "task-02",
       title: "Implement new dashboard UI components",
       description:
-        "Develop React components for the new dashboard design, including activity feed, metrics cards, and navigation",
+        "Develop React components for the new dashboard design, including activity feed, metrics cards, and navigation. Build reusable, performant components following our component library standards with proper TypeScript typing. Implement responsive behavior for all screen sizes, with particular attention to the activity feed which requires grid refactoring. Components should be thoroughly unit tested and documented in Storybook. Work closely with the backend team to ensure these components integrate smoothly with the new API endpoints. Use Flexbox layout principles to handle complex responsive layouts, particularly for the activity feed display.",
       status: TaskStatus.COMPLETED,
       priority: TaskPriority.HIGH,
       storyPoints: 13,
@@ -1025,7 +1025,7 @@ export const mockData: {
       id: "task-03",
       title: "Create API endpoints for dashboard data",
       description:
-        "Develop backend API endpoints to provide data for the new dashboard components",
+        "Develop backend API endpoints to provide data for the new dashboard components. Implement RESTful endpoints that supply metrics, activity feeds, and user-specific dashboard configuration options. Ensure endpoints are optimized for performance with appropriate caching strategies and database indexes. Data returned should be properly formatted for direct consumption by frontend components. Include comprehensive error handling and logging. Document all endpoints using Swagger or equivalent API documentation tools. Implement appropriate authentication and authorization checks for all data access. Consider data pagination for larger datasets to improve performance.",
       status: TaskStatus.COMPLETED,
       priority: TaskPriority.HIGH,
       storyPoints: 8,
@@ -1047,7 +1047,7 @@ export const mockData: {
       id: "task-04",
       title: "Integrate dashboard UI with API",
       description:
-        "Connect the frontend dashboard components to the backend API endpoints",
+        "Connect the frontend dashboard components to the backend API endpoints to create a fully functional user dashboard. Implement data fetching logic with proper error handling, loading states, and data refresh mechanisms. Set up Redux store or Context API for state management as appropriate. Ensure all async operations are properly handled with loading indicators and error messages for users. Implement client-side filtering and sorting capabilities where needed. Add appropriate data caching to minimize unnecessary API calls and improve performance. Test integration thoroughly across different browsers and devices to ensure consistent functionality.",
       status: TaskStatus.COMPLETED,
       priority: TaskPriority.HIGH,
       storyPoints: 5,
@@ -1069,7 +1069,7 @@ export const mockData: {
       id: "task-05",
       title: "Write unit tests for dashboard components",
       description:
-        "Develop comprehensive unit tests for all new dashboard React components",
+        "Develop comprehensive unit tests for all new dashboard React components to ensure reliability and prevent regressions. Create test cases covering both standard functionality and edge cases with at least 90% code coverage (current coverage is at 87%). Tests should verify component rendering, user interactions, state changes, and error handling across various scenarios. Use Jest for test framework and React Testing Library for component testing. Mock external dependencies appropriately to isolate component logic for testing. Include tests for accessibility features to ensure all components meet required standards. Document any untested edge cases with explanations for future reference.",
       status: TaskStatus.COMPLETED,
       priority: TaskPriority.MEDIUM,
       storyPoints: 5,
@@ -1091,7 +1091,7 @@ export const mockData: {
       id: "task-06",
       title: "Implement user settings page",
       description:
-        "Create a new page for users to manage their account settings and preferences",
+        "Create a new page for users to manage their account settings and preferences. Design and implement a comprehensive settings interface covering profile management, notification preferences, connected accounts, and third-party integrations. Work with the backend team to create new API endpoints for OAuth connections, scope management, connection status testing, and token revocation. Ensure the page has an intuitive layout with clear navigation between different settings categories. Implement robust form validation with helpful error messages. Include ability to test connections to third-party services in real-time. Follow accessibility best practices for all form elements and interactive components.",
       status: TaskStatus.IN_PROGRESS,
       priority: TaskPriority.MEDIUM,
       storyPoints: 8,
@@ -1113,7 +1113,7 @@ export const mockData: {
       id: "task-07",
       title: "Fix navigation menu responsiveness bug",
       description:
-        "Fix issue where navigation menu doesn't display correctly on mobile devices",
+        "Fix issue where navigation menu doesn't display correctly on mobile devices. Investigate and resolve the media query breakpoint problems that are causing incorrect menu rendering at various screen sizes. Ensure the navigation remains functional and accessible across all supported device types, browsers, and screen orientations. Test extensively on different mobile devices to verify the fix works consistently. Pay special attention to transition animations between menu states to ensure smooth user experience. Update component documentation with any changes to responsive behavior or API. Coordinate with the design team to ensure the implemented fix aligns with intended responsive design principles.",
       status: TaskStatus.TODO,
       priority: TaskPriority.HIGH,
       storyPoints: 3,
@@ -1135,7 +1135,7 @@ export const mockData: {
       id: "task-08",
       title: "Design API architecture",
       description:
-        "Create comprehensive architecture documentation for the new API system",
+        "Create comprehensive architecture documentation for the new API system that will power our modernized backend services. Design a resilient microservices structure with clearly defined boundaries and communication patterns. Include detailed specifications for event-driven communication between services, API gateway configurations, and data flow diagrams. Document authentication and authorization mechanisms across the entire system. Create a comprehensive service map with dependencies clearly identified. Outline scaling strategies, failover mechanisms, and disaster recovery approaches. Provide detailed recommendations for technology stack with justifications. Include sections on monitoring, logging, and observability. Consider compliance requirements across different geographical regions in the architectural decisions.",
       status: TaskStatus.COMPLETED,
       priority: TaskPriority.HIGHEST,
       storyPoints: 13,
@@ -1157,7 +1157,7 @@ export const mockData: {
       id: "task-09",
       title: "Implement authentication microservice",
       description:
-        "Develop a new microservice to handle user authentication and authorization",
+        "Develop a new microservice to handle user authentication and authorization that supports multiple authentication methods including JWT, OAuth 2.0, and API keys. Implement robust role-based access control with hierarchical roles and attribute-based access control for special cases. Design the system to be compatible with the upcoming zero-trust architecture implementation. Address dependency conflicts with rate limiting packages by implementing a custom Redis-based rate limiting solution with configurable limits. Ensure the authentication service can detect and prevent common attack vectors. Implement proper token validation and expiration handling to fix identified security vulnerabilities. Create comprehensive service-to-service authentication with mutual TLS and short-lived JWT tokens to replace the current shared API keys.",
       status: TaskStatus.IN_PROGRESS,
       priority: TaskPriority.HIGH,
       storyPoints: 13,
@@ -1179,7 +1179,7 @@ export const mockData: {
       id: "task-10",
       title: "Configure Kubernetes deployment",
       description:
-        "Set up Kubernetes configurations for deploying the new microservices architecture",
+        "Set up Kubernetes configurations for deploying the new microservices architecture in our cloud environment. Create deployment manifests, service definitions, and ingress controllers for all microservices. Implement resource limits and requests for all containers based on load testing results. Configure Horizontal Pod Autoscaler (HPA) for auto-scaling capabilities. Implement network policies that restrict pod-to-pod communication following the principle of least privilege to enhance security. Configure persistent storage solutions for stateful services to ensure data persistence across pod restarts. Tighten security group configurations to restrict traffic to only necessary CIDR blocks and ports, fixing identified issues where the database and application servers currently allow traffic from 0.0.0.0/0. Implement security group auditing tools to prevent similar issues in the future. Document all communication patterns between services in the architecture documents for proper security review.",
       status: TaskStatus.IN_PROGRESS,
       priority: TaskPriority.HIGH,
       storyPoints: 8,
@@ -1201,7 +1201,7 @@ export const mockData: {
       id: "task-11",
       title: "Research test automation frameworks",
       description:
-        "Evaluate and recommend frameworks for automated testing across frontend and backend",
+        "Evaluate and recommend frameworks for automated testing across frontend and backend systems. Conduct detailed analysis comparing popular testing tools like Jest, Cypress, and other automation frameworks for both unit and integration testing. Document core features, limitations, and integration capabilities with our CI/CD pipeline for each option. Develop and present a comparison matrix with clear recommendations for adoption. Prepare detailed integration documentation showing how the recommended frameworks would connect with our GitHub Actions CI/CD pipeline, including configuration examples and best practices. Include specific sections on automated testing, linting, and deployment to staging and production environments. Consider feedback from development teams regarding framework preference and ease of use.",
       status: TaskStatus.COMPLETED,
       priority: TaskPriority.MEDIUM,
       storyPoints: 5,
@@ -1223,7 +1223,7 @@ export const mockData: {
       id: "task-12",
       title: "Implement UI component library",
       description:
-        "Create a reusable UI component library based on the new design system",
+        "Create a reusable UI component library based on the new design system to ensure consistency across all products. Build and document comprehensive set of React components that implement our design guidelines. Create Storybook documentation with examples and usage guidelines for all components. Ensure backward compatibility by creating a compatibility layer that supports both old and new prop structures to prevent breaking changes. Implement and document a formal deprecation policy for the component library that follows semantic versioning principles. Address reported issues with form element props and event handling. Pay special attention to accessibility requirements for all components. Include visual regression testing to prevent unintended UI changes. Create detailed migration guides for teams adopting the new component library.",
       status: TaskStatus.COMPLETED,
       priority: TaskPriority.HIGH,
       storyPoints: 13,
@@ -1244,7 +1244,8 @@ export const mockData: {
     {
       id: "task-13",
       title: "Design solar panel dashboard UI",
-      description: "Create UI design for the solar panel monitoring dashboard",
+      description:
+        "Create UI design for the solar panel monitoring dashboard that provides real-time visibility into panel performance and energy generation metrics. Design an intuitive interface that clearly displays key metrics, alerts, and efficiency data. Include heat map visualizations for panel efficiency as requested during review. Focus on creating a dashboard that helps operators quickly identify underperforming panels or maintenance needs. Create mockups for both desktop and mobile interfaces, ensuring responsive design principles are followed. Collaborate with data scientists to ensure visualizations effectively represent complex data in an understandable format. Design should accommodate various data visualization types including charts, graphs, and geographical representations. Include clear visual indicators for anomalies or concerning trends.",
       status: TaskStatus.COMPLETED,
       priority: TaskPriority.HIGH,
       storyPoints: 8,
@@ -1266,7 +1267,7 @@ export const mockData: {
       id: "task-14",
       title: "Implement real-time data processing",
       description:
-        "Develop system for processing and analyzing real-time data from solar panels",
+        "Develop system for processing and analyzing real-time data from solar panels using Apache Kafka for streaming and Spark for data processing. Address identified performance issues during peak hours when all panels are active, which currently causes delays of up to 45 seconds in dashboard updates. Implement a local storage buffer to handle connectivity issues, ensuring data integrity even during network interruptions. Optimize the processing pipeline during peak loads by refining the Spark jobs with improved partitioning strategy and windowing functions to handle the throughput more efficiently. Implement a better caching strategy for the dashboard to display the most recent available data with timestamps even when processing is delayed. Transition to a specialized time-series database (TimescaleDB) for sensor data, which has demonstrated 10x performance improvement in testing. Use a phased approach for migration, directing new incoming data to TimescaleDB while gradually migrating historical data in the background.",
       status: TaskStatus.IN_PROGRESS,
       priority: TaskPriority.HIGH,
       storyPoints: 13,
@@ -1288,7 +1289,7 @@ export const mockData: {
       id: "task-15",
       title: "Create data visualization components",
       description:
-        "Develop reusable data visualization components for environmental data",
+        "Develop reusable data visualization components for environmental data that will power various dashboards and reports. Create flexible, configurable chart and graph components that can be easily incorporated across the platform. Ensure all visualizations are responsive and accessible, working well across different screen sizes. Design components to support dark mode as discussed in review, ensuring all visualizations remain readable in both light and dark themes. Follow accessibility best practices to make data visualizations perceivable by all users, including those using assistive technologies. Optimize components for performance, especially for large datasets. Create comprehensive documentation and examples showing how to implement and customize each visualization type. Include support for different data formats and transformation utilities.",
       status: TaskStatus.TODO,
       priority: TaskPriority.HIGH,
       storyPoints: 8,
@@ -1310,7 +1311,7 @@ export const mockData: {
       id: "task-16",
       title: "Implement activity log feature",
       description:
-        "Add user activity logging to track actions in the customer portal",
+        "Add user activity logging to track actions in the customer portal for auditing and compliance purposes. Implementation is currently blocked pending finalization of data retention policies. Collaborate with the compliance team to define appropriate data retention timeframes based on data classification: critical (retain 30 days), important (retain 90 days), and routine (retain 1 year). Ensure the implementation considers jurisdictional requirements for data retention including GDPR, CCPA, and HIPAA compliance. Design the logging system to capture sufficient detail for audit purposes while respecting data minimization principles. Implement appropriate access controls for logged data. Create a system that can purge expired logs automatically according to the established retention schedule. Develop documentation for the logging system that clearly explains what is being logged and for how long, to support compliance audits.",
       status: TaskStatus.BLOCKED,
       priority: TaskPriority.MEDIUM,
       storyPoints: 5,
@@ -1332,7 +1333,7 @@ export const mockData: {
       id: "task-17",
       title: "Fix security vulnerability in authentication",
       description:
-        "Address critical security vulnerability identified in the authentication process",
+        "Address critical security vulnerability identified in the authentication process where JWT expiration validation is not being properly enforced. This creates a significant security risk as expired tokens continue to be accepted, allowing potential unauthorized access. Implement proper token validation and expiration handling in line with security best practices. Add comprehensive testing to verify the fix works as expected across all authentication flows. Update documentation to reflect the changes made to token validation processes. Review all related authentication code for similar issues or vulnerabilities. Ensure the fix is implemented in a backward-compatible way to avoid disrupting existing authenticated sessions. Coordinate with the security team for verification that the vulnerability has been properly addressed.",
       status: TaskStatus.IN_PROGRESS,
       priority: TaskPriority.HIGHEST,
       storyPoints: 3,
@@ -1354,7 +1355,7 @@ export const mockData: {
       id: "task-18",
       title: "Performance optimization for dashboard",
       description:
-        "Improve loading time and rendering performance of the customer dashboard",
+        "Improve loading time and rendering performance of the customer dashboard to enhance user experience. Address several identified optimization areas including implementing lazy loading for dashboard widgets and optimizing API calls to reduce initial load time. Create a technical debt roadmap to address underlying performance issues, prioritizing: 1) Upgrading from the deprecated Chart.js v2 library to improve visualization performance, 2) Refactoring class-based React components to use hooks for better performance and maintainability, and 3) Standardizing state management by using Context API with hooks for most cases and Redux only for complex global state requirements. Implement performance monitoring to measure improvements. Document optimization strategies for future reference. Ensure all performance improvements maintain full functionality and visual consistency.",
       status: TaskStatus.TODO,
       priority: TaskPriority.MEDIUM,
       storyPoints: 5,
@@ -1376,7 +1377,7 @@ export const mockData: {
       id: "task-19",
       title: "Write documentation for API endpoints",
       description:
-        "Create comprehensive documentation for all new API endpoints",
+        "Create comprehensive documentation for all new API endpoints to facilitate integration and adoption by consuming services and applications. Use Swagger/OpenAPI specifications to document endpoints, request/response formats, authentication requirements, error codes, and example usage. Include detailed descriptions of all parameters, their valid values, and constraints. Document rate limiting policies and pagination mechanisms. Provide sample code in multiple languages demonstrating how to interact with the API. Include information about versioning strategy and deprecation policies. Ensure documentation is accessible both through a developer portal and as part of the codebase for automatic updates. Set up a process for keeping the documentation synchronized with code changes.",
       status: TaskStatus.TODO,
       priority: TaskPriority.LOW,
       storyPoints: 3,
@@ -1397,7 +1398,8 @@ export const mockData: {
     {
       id: "task-20",
       title: "Create automated deployment pipeline",
-      description: "Set up CI/CD pipeline for automated testing and deployment",
+      description:
+        "Set up CI/CD pipeline for automated testing and deployment using GitHub Actions. Implement comprehensive workflow configurations that cover building, testing, and deploying applications across development, staging, and production environments. Configure automated testing including unit tests, integration tests, and linting as part of the pipeline. Set up appropriate secret management for environment-specific configurations. Implement environment-specific deployment configurations using GitHub Environments with appropriate access controls. Create automated health checks post-deployment with automatic rollback capabilities if deployment fails. Implement blue/green deployment strategy to maintain the previous version until the new version is confirmed stable. Document the entire CI/CD process including troubleshooting guidelines and rollback procedures.",
       status: TaskStatus.TODO,
       priority: TaskPriority.HIGH,
       storyPoints: 8,
@@ -1419,7 +1421,7 @@ export const mockData: {
       id: "task-21",
       title: "Implement user notification system",
       description:
-        "Create a real-time notification system to alert users of important events and updates",
+        "Create a real-time notification system to alert users of important events and updates throughout the platform. Implement WebSocket-based solution for instant delivery of notifications to logged-in users. Add Firebase Cloud Messaging integration for mobile push notifications to ensure notifications reach users on all devices. Design and implement a notification preference system allowing users to control which notifications they receive and how. Create a notification center UI component for displaying and managing notifications. Implement read/unread status tracking and notification dismissal functionality. Ensure notifications are stored persistently for users who are offline when they are generated. Create an API for other services to trigger notifications through a standardized interface. Design the system to scale efficiently as notification volume increases.",
       status: TaskStatus.IN_REVIEW,
       priority: TaskPriority.HIGH,
       storyPoints: 8,
@@ -1441,7 +1443,7 @@ export const mockData: {
       id: "task-22",
       title: "Develop data export functionality",
       description:
-        "Implement feature to allow users to export dashboard data in various formats (CSV, Excel, PDF)",
+        "Implement feature to allow users to export dashboard data in various formats (CSV, Excel, PDF) for offline analysis and reporting. Create a flexible export service that can handle different data types and volumes efficiently. Implement CSV and Excel export using appropriate libraries with options for customizing fields and filtering data before export. Use jsPDF for generating PDF reports with proper formatting, branding, and visualization of charts and tables. Ensure large datasets can be exported without performance issues by implementing streaming or chunked processing. Add progress indicators for lengthy export operations. Implement security checks to ensure users can only export data they have permission to access. Create a consistent user interface for the export functionality across all dashboards and data views.",
       status: TaskStatus.IN_REVIEW,
       priority: TaskPriority.MEDIUM,
       storyPoints: 5,
@@ -1463,7 +1465,7 @@ export const mockData: {
       id: "task-23",
       title: "Create user onboarding tutorial",
       description:
-        "Design and implement an interactive tutorial to guide new users through the platform features",
+        "Design and implement an interactive tutorial to guide new users through the platform features. Use Shepherd.js to create a step-by-step guided tour that highlights key functionality and workflows. Based on user testing feedback, enhance the tutorial with more prominent visual cues including highlighting of interactive elements, animated arrows pointing to action items, clearer 'next step' indicators, and progress indicators so users know how far they are in the tutorial. Implement user tracking to record which users have completed the tutorial and store their progress for resumption if interrupted. Add ability for users to access the tutorial again later as a refresher. Consider implementing both guided tour and self-exploration modes to accommodate different learning preferences. Ensure the tutorial is accessible and works across all supported devices and screen sizes.",
       status: TaskStatus.IN_REVIEW,
       priority: TaskPriority.MEDIUM,
       storyPoints: 8,
@@ -1485,7 +1487,7 @@ export const mockData: {
       id: "task-24",
       title: "Implement data caching layer",
       description:
-        "Add Redis caching to improve API performance and reduce database load",
+        "Add Redis caching to improve API performance and reduce database load across the system. Implement caching for the most frequently accessed API endpoints based on usage analysis. Design and implement an effective cache invalidation strategy that combines time-based expiration with event-based invalidation when underlying data changes to ensure cache consistency. Configure appropriate TTL (Time To Live) values for different data types based on their update frequency and criticality. Implement cache warming strategies for predictable high-load periods. Create monitoring for cache hit/miss rates to measure effectiveness. Ensure the caching implementation gracefully handles Redis outages without affecting system availability. Document caching decisions and patterns for future reference and onboarding of new team members.",
       status: TaskStatus.IN_REVIEW,
       priority: TaskPriority.HIGH,
       storyPoints: 5,
@@ -1507,7 +1509,7 @@ export const mockData: {
       id: "task-25",
       title: "Implement dark mode support",
       description:
-        "Add dark mode theme option across the entire application with user preference persistence",
+        "Add dark mode theme option across the entire application with user preference persistence. Implement a comprehensive theming system using CSS variables and React Context for state management. Create a complete color palette with light and dark versions for all UI elements including backgrounds, text, borders, shadows, and accent colors. Ensure sufficient contrast ratios are maintained in both themes to meet accessibility standards. Implement system preference detection using prefers-color-scheme media query to automatically switch between themes based on user's OS settings. Create wrapper components to handle third-party UI elements that don't automatically respect theme variables, particularly charts, tables, and date pickers. Handle edge cases like images and user-generated content that may not adapt well to dark backgrounds. Add smooth transition animations between theme switches for better user experience.",
       status: TaskStatus.IN_REVIEW,
       priority: TaskPriority.LOW,
       storyPoints: 5,
@@ -1529,7 +1531,7 @@ export const mockData: {
       id: "task-26",
       title: "Design system compliance audit",
       description:
-        "Perform comprehensive audit of all products to ensure compliance with new design system",
+        "Perform comprehensive audit of all products to ensure compliance with the new design system. Develop a detailed audit checklist to ensure consistent evaluation of all UI elements against the design system standards. Create and document a phased approach for the audit, prioritizing customer-facing components like the marketing website and customer portal over internal administrative tools. Address legacy products that may require significant refactoring by developing appropriate migration strategies and timelines. Implement automated tools such as linting rules to help identify inconsistencies with the design system automatically, reducing manual review work. Allocate a percentage of each sprint for design system compliance work to minimize disruption to feature development. Create a visual comparison document showing before/after examples for main UI elements. Establish a process for continuously maintaining compliance with the design system moving forward.",
       status: TaskStatus.TODO,
       priority: TaskPriority.MEDIUM,
       storyPoints: 8,
@@ -1551,7 +1553,7 @@ export const mockData: {
       id: "task-27",
       title: "Cloud architecture planning",
       description:
-        "Design comprehensive cloud infrastructure architecture to support microservices and auto-scaling",
+        "Design comprehensive cloud infrastructure architecture to support microservices and auto-scaling capabilities. Create detailed documentation covering network topology, scaling policies, disaster recovery plans, and multi-region failover for critical services. Include cost projections for different scaling scenarios with detailed analysis of cost optimization strategies. Add a compliance matrix for GDPR, CCPA, HIPAA, and other regional regulatory requirements to ensure the infrastructure meets all legal obligations across different geographical regions. Provide detailed security compliance documentation for different regions. Include multi-region deployment considerations with analysis of latency implications for users in different locations. Create comprehensive network diagrams and service maps for the cloud migration. Develop detailed failover and disaster recovery procedures. Assess and document performance benchmarks for different instance types and configurations to optimize cost-performance balance.",
       status: TaskStatus.COMPLETED,
       priority: TaskPriority.HIGHEST,
       storyPoints: 13,
@@ -1573,7 +1575,7 @@ export const mockData: {
       id: "task-28",
       title: "Create database migration strategy",
       description:
-        "Develop strategy for migrating on-premise databases to cloud with zero data loss",
+        "Develop strategy for migrating on-premise databases to cloud with zero data loss. Design a robust migration approach using shadow-write patterns and progressive data migration to ensure data integrity throughout the process. Address identified data inconsistency issues with many-to-many relationships where join tables have different schemas in source and target databases. Create transformation mappings for data type differences (UUID vs INT), including generating new UUIDs for INT primary keys and maintaining mapping tables. Implement dual-write patterns with schema transformation for handling schema differences during the migration period. Create a comprehensive rollback plan with specific triggers and verification steps to quickly recover from migration issues. Implement a robust verification system using checksum validation and record count comparison to check data integrity across systems during and after migration. Work with DevOps team to secure necessary infrastructure resources, seeking compromise solutions balancing high-availability requirements with cost constraints (e.g., single multi-AZ instance with read replicas).",
       status: TaskStatus.IN_PROGRESS,
       priority: TaskPriority.HIGH,
       storyPoints: 8,
@@ -1595,7 +1597,7 @@ export const mockData: {
       id: "task-29",
       title: "Implement network security zones",
       description:
-        "Configure network security zones and firewall rules for cloud infrastructure",
+        "Configure network security zones and firewall rules for cloud infrastructure to provide robust segmentation and defense-in-depth. Task is currently blocked due to discovered overlapping CIDR blocks between production and development VPCs and conflicting security group rules. A new IP address allocation strategy across all environments is required before proceeding. Work with network team to redesign IP address spaces to eliminate conflicts. Implement VPC peering with appropriate route tables and network ACLs. Create security group rules following the principle of least privilege, explicitly specifying allowed traffic patterns between services. Configure network monitoring and intrusion detection systems. Document all network segmentation boundaries and allowed traffic patterns. Create automated compliance checks to verify security zone configuration meets organizational policy. Coordinate with application teams to ensure application communication patterns are properly understood and accommodated in the network design.",
       status: TaskStatus.BLOCKED,
       priority: TaskPriority.HIGH,
       storyPoints: 8,
@@ -1617,7 +1619,7 @@ export const mockData: {
       id: "task-30",
       title: "Security vulnerability assessment",
       description:
-        "Perform comprehensive security assessment of all systems and applications",
+        "Perform comprehensive security assessment of all systems and applications to identify vulnerabilities and risks. Conduct thorough penetration testing, code review, and configuration analysis. Document all findings categorized by severity: 8 critical, 15 high, 18 medium, and 6 low severity vulnerabilities have been identified. Create immediate remediation plans for critical issues, which include: 1) Outdated TLS protocols in the payment gateway, 2) Insecure direct object references in the user API, 3) SQL injection vulnerability in the search function, and 4) Hardcoded credentials in deployment scripts. Develop a phased remediation approach for remaining issues, with high severity addressed within 2-3 weeks and medium issues within 4-6 weeks. Create detailed executive summary explaining business impact and risk assessment for each critical vulnerability to support executive decision-making. Establish ongoing security testing procedures to prevent similar vulnerabilities in the future. Coordinate with all engineering teams to prioritize security fixes.",
       status: TaskStatus.COMPLETED,
       priority: TaskPriority.HIGHEST,
       storyPoints: 13,
@@ -1639,7 +1641,7 @@ export const mockData: {
       id: "task-31",
       title: "Design zero-trust architecture",
       description:
-        "Create architecture design for implementing zero-trust security model",
+        "Create architecture design for implementing zero-trust security model across all organizational systems. Focus on identity-based access controls and micro-segmentation as foundational elements of the design. Include detailed impact assessment for existing applications, highlighting those with legacy authentication mechanisms that will require substantial changes. Balance security requirements with user experience considerations, particularly for power users who may experience significant workflow disruption from increased authentication steps, session timeouts, and device verification processes. Implement risk-based authentication that adjusts security requirements based on context (familiar devices/networks get longer sessions, fewer re-authentication prompts). Create concept of 'trusted workspaces' for power users needing continuous access, with alternative security measures like device health checks instead of frequent re-authentication. Work closely with UX team to implement security measures in user-friendly ways. Include operational considerations and staffing requirements for managing the new security controls.",
       status: TaskStatus.IN_PROGRESS,
       priority: TaskPriority.HIGH,
       storyPoints: 13,
@@ -1661,7 +1663,7 @@ export const mockData: {
       id: "task-32",
       title: "Implement multi-factor authentication",
       description:
-        "Implement MFA for all user accounts and service authentications",
+        "Implement MFA for all user accounts and service authentications to enhance security posture. Integrate with Auth0 and Time-based One-Time Password (TOTP) standards for flexible authentication options. Design and implement a user-friendly MFA enrollment flow with clear instructions and fallback options for users who lose access to their authentication devices. Address identified inconsistencies in token validation across different application components by implementing an authentication adapter layer that can handle both old and new JWT formats during the transition period. Implement mutual TLS and short-lived JWT tokens for service-to-service authentication to replace current shared API keys. Create detailed documentation for both end-users and administrators. Design the MFA system to be compatible with the organization's zero-trust architecture initiative. Implement appropriate logging and alerting for authentication anomalies or failures that might indicate attack attempts.",
       status: TaskStatus.IN_PROGRESS,
       priority: TaskPriority.HIGH,
       storyPoints: 8,
@@ -1683,7 +1685,7 @@ export const mockData: {
       id: "task-33",
       title: "Research machine learning frameworks",
       description:
-        "Evaluate and recommend ML frameworks for predictive analytics features",
+        "Evaluate and recommend ML frameworks for predictive analytics features that will be implemented in our AI-powered analytics suite. Conduct thorough analysis of TensorFlow, PyTorch, scikit-learn, and cloud-based ML services like AWS SageMaker and Azure ML. Create evaluation matrix comparing features, performance characteristics, learning curves, and integration capabilities of each option. Consider team expertise in different technologies when making recommendations. Assess both self-hosted and cloud-based options, comparing development speed, operational complexity, and cost implications. Document findings in a detailed report with clear recommendations and rationales. Include implementation examples showing how each framework would handle our predictive analytics use cases. Evaluate frameworks based on their ability to support our specific data science needs for customer behavior analysis, churn prediction, and revenue forecasting.",
       status: TaskStatus.TODO,
       priority: TaskPriority.HIGH,
       storyPoints: 8,
@@ -1705,7 +1707,7 @@ export const mockData: {
       id: "task-34",
       title: "Design predictive analytics models",
       description:
-        "Design initial ML models for customer churn prediction and revenue forecasting",
+        "Design initial ML models for customer churn prediction and revenue forecasting as part of our AI analytics suite. Create Jupyter notebooks with exploratory data analysis to identify key features and relationships in the data. Develop initial model prototypes to demonstrate potential accuracy and business value. Prepare a demo showing the core predictive capabilities and potential ROI for presentation to the executive team, emphasizing the competitive advantage this will give us in the market. Schedule a dry run with the CTO before presenting to the CEO. Focus particularly on churn prediction and revenue forecasting capabilities as these have been identified as priorities by the executive team and board. Ensure the models can provide actionable insights rather than just predictions. Create dashboards to visualize model outputs in ways that business stakeholders can easily understand and act upon. Document all modeling assumptions and data requirements.",
       status: TaskStatus.TODO,
       priority: TaskPriority.HIGH,
       storyPoints: 13,
@@ -1727,7 +1729,7 @@ export const mockData: {
       id: "task-35",
       title: "Database schema redesign",
       description:
-        "Redesign patient database schema for improved performance and HIPAA compliance",
+        "Redesign patient database schema for improved performance and HIPAA compliance. Create new data model that optimizes query performance while ensuring proper data protection and compliance with healthcare regulations. Implement denormalization of frequently accessed fields to improve read performance, which has resulted in 65% improvement in patient record retrieval times. Design and implement appropriate indexes to support common query patterns while being mindful of their impact on write operations. Monitor write performance during peak hours, as additional indexes may cause some slowdown for insert operations. Document all schema changes and create migration scripts for production deployment. Implement appropriate data validation constraints to ensure data integrity. Design audit logging for all schema modifications to maintain compliance audit trail. Create comprehensive documentation of the new schema for development teams.",
       status: TaskStatus.COMPLETED,
       priority: TaskPriority.HIGH,
       storyPoints: 13,
@@ -1749,7 +1751,7 @@ export const mockData: {
       id: "task-36",
       title: "Implement patient data encryption",
       description:
-        "Implement end-to-end encryption for all patient data in transit and at rest",
+        "Implement end-to-end encryption for all patient data in transit and at rest to ensure HIPAA compliance and protect sensitive health information. Use AES-256 encryption for all stored data with appropriate key management practices. Conduct thorough penetration testing and cryptographic analysis to verify the security of the implementation. Implement appropriate performance optimizations including caching for frequently accessed data to mitigate the 5-10% performance impact observed from encryption overhead. Create comprehensive documentation of the encryption approach for compliance audits, including encryption algorithms, key management procedures, and access controls. Implement automated key rotation on a 90-day schedule while maintaining previous key versions for decrypting older data when needed. Ensure proper TLS configuration for all data in transit. Create monitoring and alerting for any encryption failures or unauthorized access attempts.",
       status: TaskStatus.COMPLETED,
       priority: TaskPriority.HIGHEST,
       storyPoints: 8,
@@ -1771,7 +1773,7 @@ export const mockData: {
       id: "task-37",
       title: "Design telemedicine interface",
       description:
-        "Create UI design for virtual consultation platform with focus on ease of use for elderly patients",
+        "Create UI design for virtual consultation platform with focus on ease of use for elderly patients. Design a simple, accessible interface with large, high-contrast UI elements and simplified navigation to accommodate users with limited technology experience. Conduct usability testing with a panel of 12 users aged 65-85 and incorporate their feedback into the final design, focusing on improvements like larger touch targets and clearer instructions. Create comprehensive mockups for all key screens and user flows. Pay special attention to making the video calling interface simple and intuitive, with clear indications for microphone and camera controls. Design appropriate error states and help content to assist users who encounter problems. Ensure the interface works well on various devices including tablets and smartphones. Create design specifications and assets for development team implementation.",
       status: TaskStatus.COMPLETED,
       priority: TaskPriority.HIGH,
       storyPoints: 8,
@@ -1793,7 +1795,7 @@ export const mockData: {
       id: "task-38",
       title: "Implement video conferencing API",
       description:
-        "Integrate secure WebRTC-based video conferencing solution for telemedicine consultations",
+        "Integrate secure WebRTC-based video conferencing solution for telemedicine consultations. Implement end-to-end encrypted video and audio communication channels that maintain patient privacy and meet HIPAA requirements. Implement TURN servers for NAT traversal and adaptive bitrate streaming to handle unstable connections. Add fallback to audio-only mode when bandwidth is limited to ensure consultations can continue even in poor network conditions. Address browser compatibility challenges, particularly differences between Safari and Chrome in WebRTC implementation, by creating browser-specific code paths for problematic features like screen sharing and camera switching. Implement appropriate session logging that records metadata but not content to maintain privacy while supporting audit requirements. Work with the security team to conduct comprehensive security review of the implementation. Ensure compliance with all healthcare privacy regulations for video-based patient encounters.",
       status: TaskStatus.IN_PROGRESS,
       priority: TaskPriority.HIGH,
       storyPoints: 13,
@@ -1815,7 +1817,7 @@ export const mockData: {
       id: "task-39",
       title: "Create mobile app wireframes",
       description:
-        "Design wireframes for the mobile app redesign focusing on improved navigation and performance",
+        "Design wireframes for the mobile app redesign focusing on improved navigation and performance to support upcoming marketing campaign scheduled for Q3. Create streamlined navigation flow with new bottom navigation bar and simplified dashboard. Design both phone and tablet-specific layouts, taking advantage of larger screen sizes on tablets while maintaining consistency with the mobile experience. Prepare high-fidelity mockups and clickable prototype for marketing team to use in preparing promotional materials while development is in progress. Coordinate with the security team to prioritize resolution of authentication issues (task-40) that are currently blocking development progress. Present wireframes to CEO and CMO for approval, as this project has executive visibility and is considered critical for Q3 marketing initiatives. Ensure all designs follow the new design system guidelines and maintain brand consistency.",
       status: TaskStatus.COMPLETED,
       priority: TaskPriority.HIGH,
       storyPoints: 5,
@@ -1837,7 +1839,7 @@ export const mockData: {
       id: "task-40",
       title: "Prepare API endpoints for mobile app",
       description:
-        "Develop and optimize API endpoints specifically for mobile app consumption",
+        "Develop and optimize API endpoints specifically for mobile app consumption to support the upcoming app redesign. Task is currently blocked due to authentication issues related to the new zero-trust implementation causing intermittent 401 errors during token refresh. Coordinate with security team to resolve authentication conflicts while allowing mobile development to progress. Optimize response payloads for mobile consumption to reduce data transfer and improve performance on cellular networks. Implement appropriate versioning strategy to support both old and new mobile app versions during the transition period. Create comprehensive API documentation for mobile developers. Implement rate limiting and throttling protections appropriate for mobile use cases. Design endpoints to minimize battery impact on mobile devices. Ensure all endpoints meet security requirements while providing necessary functionality for the new mobile experience.",
       status: TaskStatus.BLOCKED,
       priority: TaskPriority.HIGH,
       storyPoints: 8,
@@ -1859,7 +1861,7 @@ export const mockData: {
       id: "task-41",
       title: "Accessibility audit and improvements",
       description:
-        "Conduct accessibility audit and implement necessary improvements to meet WCAG 2.1 AA standards",
+        "Conduct accessibility audit and implement necessary improvements to meet WCAG 2.1 AA standards across the platform. Test with various assistive technologies including screen readers (NVDA, JAWS, and VoiceOver) and keyboard navigation. Include users with disabilities in the testing panel to gather real-world feedback. Address identified issues including: 1) Insufficient color contrast in several UI components, 2) Missing alt text for images, 3) Improper heading hierarchy, 4) Form fields without proper labels, and 5) Custom components not being properly keyboard accessible. Implement fixes for all identified issues, paying special attention to data tables which present unique accessibility challenges by implementing proper headers, captions, and ARIA attributes. Create documentation on accessibility requirements and best practices for development teams. Implement automated accessibility testing as part of the CI/CD pipeline to prevent regression.",
       status: TaskStatus.TODO,
       priority: TaskPriority.MEDIUM,
       storyPoints: 8,
@@ -1881,7 +1883,7 @@ export const mockData: {
       id: "task-42",
       title: "Create executive dashboard for CTO",
       description:
-        "Develop custom executive dashboard with key engineering metrics and project status",
+        "Develop custom executive dashboard with key engineering metrics and project status for the CTO. Focus on project delivery metrics, system performance, security posture, and engineering team productivity with particular emphasis on technical debt visibility as specifically requested. Implement technical debt tracking using code quality metrics from SonarQube and overdue refactoring tasks as proxy measurements. Add trend visualization for all metrics covering the past 6 months with projections for the next quarter based on current trajectories. Implement drill-down capabilities for each metric to allow exploration of underlying data. Add export functionality for any view as PDF or PowerPoint to support board presentations. Create comprehensive data visualization that clearly communicates the status of key engineering initiatives and potential risks. Schedule demo with the CTO to gather feedback before finalizing. Ensure the dashboard updates automatically with the latest data.",
       status: TaskStatus.IN_PROGRESS,
       priority: TaskPriority.HIGH,
       storyPoints: 5,
@@ -1903,7 +1905,7 @@ export const mockData: {
       id: "task-43",
       title: "Implement CI/CD for microservices",
       description:
-        "Set up continuous integration and deployment pipeline for all microservices",
+        "Set up continuous integration and deployment pipeline for all microservices to streamline and automate the release process. Implement GitHub Actions workflows for building, testing, and deploying each microservice. Configure environment-specific secrets and configuration files using GitHub Environments with appropriate access controls for each deployment target. Implement automated health checks post-deployment with automatic rollback if they fail to ensure service reliability. Set up blue/green deployment strategy to maintain the previous version as a fallback until the new version is confirmed stable.",
       status: TaskStatus.IN_REVIEW,
       priority: TaskPriority.HIGH,
       storyPoints: 8,
@@ -1925,7 +1927,7 @@ export const mockData: {
       id: "task-44",
       title: "Implement service mesh for microservices",
       description:
-        "Configure Istio service mesh for microservices monitoring, traffic management and security",
+        "Configure Istio service mesh for microservices to provide enhanced monitoring, traffic management, and security capabilities. Implement service discovery, load balancing, and circuit breaking functionality to improve system resilience. Set up mutual TLS between all services to ensure encrypted communication and enable advanced traffic routing capabilities for canary deployments and A/B testing. Configure distributed tracing with Jaeger to gain visibility into service dependencies and request flows. Implement fine-grained access control policies for all services and create comprehensive monitoring dashboards that provide insights into service performance, error rates, and latency. Ensure that the service mesh adds minimal performance overhead by properly tuning the Envoy proxies and optimizing resource allocation.",
       status: TaskStatus.IN_REVIEW,
       priority: TaskPriority.HIGH,
       storyPoints: 13,
@@ -1947,7 +1949,7 @@ export const mockData: {
       id: "task-45",
       title: "Prepare AI analytics product pitch",
       description:
-        "Create presentation for executive team on AI-powered analytics suite business value",
+        "Create a comprehensive business presentation for the executive team highlighting the value proposition, ROI potential, and implementation roadmap for our new AI-powered analytics suite. Include detailed projections of how the predictive analytics capabilities will improve customer retention, optimize revenue streams, and provide actionable business intelligence. Develop compelling case studies and simulations showcasing how the AI models can identify churn risks weeks before traditional methods and accurately forecast revenue trends. Create visually impactful slides with clear data visualizations comparing current analytics capabilities versus the AI-enhanced approach. Include a phased implementation timeline with resource requirements, key milestones, and success metrics. Prepare detailed answers to potential questions about data privacy, model accuracy, and technical infrastructure needs. Coordinate with product management to align messaging with the overall company strategy and vision.",
       status: TaskStatus.COMPLETED,
       priority: TaskPriority.HIGH,
       storyPoints: 3,
@@ -1969,7 +1971,7 @@ export const mockData: {
       id: "task-46",
       title: "Implement encryption key management",
       description:
-        "Develop secure key management system for patient data encryption",
+        "Develop a comprehensive and secure key management system to protect patient data encryption keys, ensuring HIPAA compliance and defense-in-depth security. Implement a hierarchical key structure with master keys, data encryption keys, and key encryption keys stored securely in AWS KMS with strict access controls and audit logging. Configure automatic key rotation on a 90-day schedule while maintaining previous key versions to ensure continued access to historical encrypted data. Implement a secure key derivation function for generating cryptographically strong keys and establish strict separation of duties for key management operations. Create comprehensive logging for all key operations including creation, rotation, and access attempts. Design and implement key recovery procedures for emergency situations and implement key usage metrics and alerts to detect anomalous patterns. Develop thorough documentation for the key management architecture, policies, and procedures for compliance audits and security reviews.",
       status: TaskStatus.COMPLETED,
       priority: TaskPriority.HIGHEST,
       storyPoints: 8,
@@ -1991,7 +1993,7 @@ export const mockData: {
       id: "task-47",
       title: "Design patient data export feature",
       description:
-        "Create feature for patients to export their medical records in standard formats",
+        "Create a comprehensive data export feature enabling patients to download their medical records in standard healthcare formats while maintaining HIPAA compliance and data security. Implement export functionality supporting PDF, CSV, and HL7 FHIR R4 formats with proper data formatting and structure. Ensure compatibility with the US Core Implementation Guide profiles to maximize interoperability with other healthcare systems. Design an intuitive user interface allowing patients to select specific date ranges, record types, and export formats. Implement granular data selection controls to support data minimization principles, only exporting data relevant to the specific request. Create a secure authentication process requiring identity verification before export, and implement comprehensive audit logging of all export activities for compliance purposes. Add appropriate data classification and PHI handling notices in exported documents, and ensure all exports are encrypted during generation and transmission. Develop comprehensive documentation of the export process and security measures for compliance audits.",
       status: TaskStatus.IN_PROGRESS,
       priority: TaskPriority.MEDIUM,
       storyPoints: 5,
@@ -2013,7 +2015,7 @@ export const mockData: {
       id: "task-48",
       title: "Implement secure file sharing",
       description:
-        "Develop secure system for doctors to share medical files with patients through telemedicine platform",
+        "Develop a robust and HIPAA-compliant system allowing healthcare providers to securely share medical files with patients through the telemedicine platform. Implement end-to-end encryption for all shared files using industry-standard cryptographic algorithms and secure key management. Create a tiered file expiration system where standard files expire after 30 days, sensitive files after 7 days, and highly sensitive files after 24 hours, with options for users to set custom expiration dates within these maximums. Develop a notification system alerting both senders and recipients at 7 days, 3 days, and 24 hours before file expiration, with options to extend access if needed. Implement chunked uploads with resumable transfer capabilities to handle large medical imaging files efficiently, along with client-side compression for applicable file types. Create a comprehensive audit trail logging when files are shared, accessed, and expired for compliance purposes. Design an intuitive user interface making it easy for healthcare providers to securely share files while maintaining appropriate access controls. Implement appropriate security measures to prevent unauthorized access, including multi-factor authentication for accessing sensitive documents.",
       status: TaskStatus.IN_PROGRESS,
       priority: TaskPriority.HIGH,
       storyPoints: 8,
@@ -2035,7 +2037,7 @@ export const mockData: {
       id: "task-49",
       title: "Implement appointment scheduling system",
       description:
-        "Develop calendar and scheduling system for telemedicine appointments",
+        "Develop a comprehensive calendar and scheduling system for telemedicine appointments that seamlessly connects healthcare providers with patients. Create an intuitive calendar interface with time slot selection functionality that clearly displays provider availability and allows patients to book, reschedule, or cancel appointments easily. Implement intelligent time zone handling that stores all appointments in UTC while displaying times in each user's local time zone, with clear indicators when provider and patient are in different regions. Develop a secure calendar integration system using tokenized calendar URLs that allow users to see their appointments in preferred calendar applications without exposing protected health information. Create appointment reminder notifications delivered via email, SMS, and in-app messages at configurable intervals. Implement appointment type categorization with appropriate duration settings and buffer times between appointments. Add waitlist functionality for desired time slots and provider schedule management tools with customizable availability patterns. Ensure all components are thoroughly tested, with particular attention to database connection handling during high-volume scheduling periods.",
       status: TaskStatus.IN_PROGRESS,
       priority: TaskPriority.HIGH,
       storyPoints: 8,
@@ -2057,7 +2059,7 @@ export const mockData: {
       id: "task-50",
       title: "Optimize API response times",
       description:
-        "Identify and fix performance bottlenecks in API services to improve response times",
+        "Identify and fix performance bottlenecks in API services to significantly improve response times across the platform. Conduct thorough profiling and analysis to identify the root causes of performance issues, particularly focusing on database query patterns, serialization efficiency, and caching strategies. Address N+1 query problems in high-traffic endpoints by implementing eager loading patterns, resulting in dramatic performance improvements. Create and optimize database indexes for frequently filtered fields while carefully balancing read performance improvements against potential write operation impacts. Implement efficient JSON serialization methods to reduce processing overhead and data payload sizes. Deploy Redis caching for frequently accessed and relatively static data with appropriate invalidation strategies combining time-based expiration and event-driven cache updates. Explore GraphQL implementation for front-end APIs to reduce over-fetching and under-fetching problems, potentially using a hybrid REST/GraphQL approach targeting data-heavy interfaces first. Document all performance optimizations, measuring before and after response times to quantify improvements, and establish performance testing as part of the standard development workflow.",
       status: TaskStatus.IN_PROGRESS,
       priority: TaskPriority.HIGH,
       storyPoints: 5,
@@ -4298,7 +4300,6 @@ export const mockData: {
       id: "comment-195",
       content:
         "The real-time data processing for solar panels is showing some performance issues during peak hours. We're seeing increased latency in data updates.",
-      userId: "user-07",
       userId: "user-07",
       taskId: "task-14",
       parentCommentId: null,
