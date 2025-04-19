@@ -1,24 +1,26 @@
 import { useState } from "react";
-import { useUser } from "@clerk/clerk-react";
+// import { useUser } from "@clerk/clerk-react";
 import { FileUploader } from "./file-uploader";
 import { FileAttachment } from "@/mock-data";
 
 export function FileManagement() {
-  const { isSignedIn } = useUser();
+  // Mock signed in state for personal website deployment
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const isSignedIn = true; // Hardcoded to true
   const [recentUploads, setRecentUploads] = useState<FileAttachment[]>([]);
 
   const handleUploadComplete = (file: FileAttachment) => {
     setRecentUploads((prev) => [file, ...prev.slice(0, 4)]);
   };
 
-  if (!isSignedIn) {
+  /* if (!isSignedIn) {
     return (
       <div className="p-8 text-center">
         <h2 className="text-xl font-semibold mb-2">File Management</h2>
         <p className="text-gray-600">Please sign in to manage your files.</p>
       </div>
     );
-  }
+  } */
 
   return (
     <div className="p-6">

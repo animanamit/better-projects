@@ -1,23 +1,39 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import { useUser } from "@clerk/clerk-react";
-import { type Task } from "@/mock-data";
+
+// import { useUser } from "@clerk/clerk-react";
+import { type Task, mockData } from "@/mock-data";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchTasks, createTask } from "@/lib/api";
+// API calls commented out and replaced with mock data for personal website deployment
+// import { fetchTasks, createTask } from "@/lib/api";
 
 export function CreateTask() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const { user } = useUser();
+  // Mock user for personal website deployment
+  const user = {
+    id: "user-01",
+    primaryEmailAddress: { emailAddress: "demo@example.com" },
+    fullName: "Demo User",
+  };
   const queryClient = useQueryClient();
   const userId = user?.id;
 
-  // Query for tasks (optimized to reduce edge requests)
+  // Mock fetchTasks function for personal website
+  const mockFetchTasks = async () => {
+    // Simulate API delay
+    await new Promise((r) => setTimeout(r, 500));
+    return mockData.tasks
+      .filter(
+        (task) => task.assigneeId === userId || task.reporterId === userId
+      )
+      .slice(0, 5);
+  };
+
+  // Query for tasks using mock data
   const { data: tasks = [] } = useQuery({
     queryKey: ["tasks", userId],
-    queryFn: () =>
-      fetchTasks(userId!, user?.primaryEmailAddress?.emailAddress || ""),
-    enabled: !!userId && !!user?.primaryEmailAddress?.emailAddress,
+    queryFn: mockFetchTasks,
     staleTime: Infinity,
     retry: false,
     refetchOnWindowFocus: false,
@@ -25,19 +41,44 @@ export function CreateTask() {
     refetchOnReconnect: false,
   });
 
-  // Mutation for creating tasks (optimized to reduce invalidations)
+  // Mock createTask function for personal website
+  const mockCreateTask = async (data: {
+    title: string;
+    description: string;
+    userId: string;
+    userEmail: string;
+    userName?: string;
+  }): Promise<Task> => {
+    // Simulate API delay
+    await new Promise((r) => setTimeout(r, 600));
+
+    // Create a mock task
+    return {
+      id: `task-${Date.now()}`,
+      title: data.title,
+      description: data.description,
+      status: "TODO" as any,
+      priority: "MEDIUM" as any,
+      projectId: "proj-01", // Default project
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      numComments: 0,
+    };
+  };
+
+  // Mutation for creating tasks using mock function
   const { mutate, isPending } = useMutation({
-    mutationFn: createTask,
+    mutationFn: mockCreateTask,
     onSuccess: (newTask) => {
       // Reset form
       setTitle("");
       setDescription("");
 
       // Instead of invalidating the entire query, let's update the cache directly
-      queryClient.setQueryData(
-        ["tasks", userId], 
-        (oldData: Task[] = []) => [newTask, ...oldData]
-      );
+      queryClient.setQueryData(["tasks", userId], (oldData: Task[] = []) => [
+        newTask,
+        ...oldData,
+      ]);
     },
     retry: false,
   });
@@ -55,9 +96,9 @@ export function CreateTask() {
     });
   };
 
-  if (!userId) {
-    return <div>Please sign in to create tasks</div>;
-  }
+  // if (!userId) {
+  //   return <div>Please sign in to create tasks</div>;
+  // }
 
   return (
     <div className="p-4">

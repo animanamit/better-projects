@@ -1,4 +1,5 @@
-import { UserButton } from "@clerk/clerk-react";
+// Clerk auth commented out for personal website deployment
+// import { UserButton } from "@clerk/clerk-react";
 
 const TopBar = () => {
   return (
@@ -6,7 +7,10 @@ const TopBar = () => {
       <div className="flex items-center justify-between h-fit py-2 text-white px-4 rounded-xl bg-orange-600 ">
         <div className="text-md font-bold">Task Manager</div>
         <div className="flex items-center justify-center">
-          <UserButton />
+          {/* User button replaced with mock avatar for personal website */}
+          <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-orange-600 font-bold">
+            D
+          </div>
         </div>
       </div>
     </div>

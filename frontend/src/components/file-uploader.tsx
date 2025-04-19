@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import { useUser } from "@clerk/clerk-react";
+// Clerk auth commented out for personal website deployment
+// import { useUser } from "@clerk/clerk-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -13,8 +14,9 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { uploadFile, getFiles, deleteFile } from "@/lib/api";
-import { FileAttachment } from "@/mock-data";
+// Real API calls commented out for personal website deployment
+// import { uploadFile, getFiles, deleteFile } from "@/lib/api";
+import { FileAttachment, mockData } from "@/mock-data";
 
 interface FileUploaderProps {
   taskId?: string;
@@ -22,7 +24,13 @@ interface FileUploaderProps {
 }
 
 export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
-  const { user } = useUser();
+  // Mock user for personal website deployment
+  const user = { 
+    id: "user-01", 
+    primaryEmailAddress: { emailAddress: "demo@example.com" },
+    fullName: "Demo User"
+  };
+  
   const [files, setFiles] = useState<FileAttachment[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -55,25 +63,28 @@ export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
     disabled: isUploading,
   });
 
+  // Mock file fetching for personal website deployment
   const fetchFiles = useCallback(async () => {
-    if (!user?.id) return;
-
-    try {
-      const fetchedFiles = await getFiles({
-        userId: user.id,
-        taskId,
-      });
-      setFiles(fetchedFiles);
-    } catch (err) {
-      console.error("Error fetching files:", err);
-      setError("Failed to fetch files");
-    }
+    // Simulate API delay
+    await new Promise((r) => setTimeout(r, 500));
+    
+    // Filter mock files based on taskId or userId
+    const fetchedFiles = mockData.fileAttachments
+      .filter((f) => {
+        if (taskId && f.taskId === taskId) return true;
+        if (user?.id && f.userId === user.id) return true;
+        return false;
+      })
+      .slice(0, 5);
+    
+    setFiles(fetchedFiles);
   }, [user?.id, taskId]);
 
   useEffect(() => {
     fetchFiles();
   }, [fetchFiles]);
 
+  // Mock file upload function for personal website deployment
   async function handleFileUpload() {
     if (!user?.id || !user.primaryEmailAddress?.emailAddress) {
       setError("User information not available");
@@ -95,15 +106,21 @@ export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
         setUploadProgress((prev) => Math.min(prev + 10, 90));
       }, 300);
 
-      const uploadedFile = await uploadFile({
-        file: selectedFile,
+      // Simulate API delay
+      await new Promise((r) => setTimeout(r, 800));
+      
+      // Create a mock file upload response
+      const uploadedFile: FileAttachment = {
+        id: `file-${Date.now()}`,
+        fileName: fileTitle.trim() || selectedFile.name,
+        fileUrl: URL.createObjectURL(selectedFile),
+        fileType: selectedFile.type,
+        fileSize: selectedFile.size,
         userId: user.id,
-        userEmail: user.primaryEmailAddress.emailAddress,
-        userName: user.fullName || undefined,
-        taskId,
-        title: fileTitle.trim() || selectedFile.name,
+        taskId: taskId || null,
+        createdAt: new Date().toISOString(),
         description: fileDescription.trim() || undefined,
-      });
+      };
 
       clearInterval(progressInterval);
       setUploadProgress(100);
@@ -132,9 +149,12 @@ export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
     }
   }
 
+  // Mock file delete function for personal website deployment
   async function handleDeleteFile(fileId: string) {
     try {
-      await deleteFile(fileId);
+      // Simulate API delay
+      await new Promise((r) => setTimeout(r, 300));
+      
       // Remove deleted file from the list
       setFiles((prev) => prev.filter((file) => file.id !== fileId));
     } catch (err) {

@@ -2,14 +2,15 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
-import {
-  ClerkProvider,
-  SignedIn,
-  SignedOut,
-  SignIn,
-  SignUp,
-} from "@clerk/clerk-react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+// Clerk auth commented out for personal website deployment
+// import {
+//   ClerkProvider,
+//   SignedIn,
+//   SignedOut,
+//   SignIn,
+//   SignUp,
+// } from "@clerk/clerk-react";
 import Dashboard from "@/dashboard.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import TaskPage from "@/task-page.tsx";
@@ -37,51 +38,36 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <ClerkProvider
-          publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}
-          signUpFallbackRedirectUrl="/dashboard"
-          signInFallbackRedirectUrl="/dashboard"
-        >
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<App />} />
-            <Route
-              path="/sign-in"
-              element={<SignIn routing="path" path="/sign-in" />}
-            />
-            <Route
-              path="/sign-up"
-              element={<SignUp routing="path" path="/sign-up" />}
-            />
-            <Route
-              path="/sign-in/sso-callback"
-              element={<SignIn routing="path" path="/sign-in" />}
-            />
-            <Route
-              path="/sign-up/sso-callback"
-              element={<SignUp routing="path" path="/sign-up" />}
-            />
+        {/* Clerk provider removed for personal website deployment */}
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={<App />} />
+          
+          {/* Auth routes commented out for personal website deployment */}
+          {/* <Route
+            path="/sign-in"
+            element={<SignIn routing="path" path="/sign-in" />}
+          />
+          <Route
+            path="/sign-up"
+            element={<SignUp routing="path" path="/sign-up" />}
+          />
+          <Route
+            path="/sign-in/sso-callback"
+            element={<SignIn routing="path" path="/sign-in" />}
+          />
+          <Route
+            path="/sign-up/sso-callback"
+            element={<SignUp routing="path" path="/sign-up" />}
+          /> */}
 
-            {/* Protected routes */}
-            <Route
-              path="/dashboard"
-              element={
-                <>
-                  <SignedIn>
-                    <Dashboard />
-                  </SignedIn>
-                  <SignedOut>
-                    <Navigate to="/sign-in" />
-                  </SignedOut>
-                </>
-              }
-            >
-              <Route path="task/:id" element={<TaskPage />} />
-              <Route path="project/:id" element={<ProjectPage />} />
-              <Route path="team/:id" element={<TeamPage />} />
-            </Route>
-          </Routes>
-        </ClerkProvider>
+          {/* Dashboard routes - now directly accessible without auth */}
+          <Route path="/dashboard" element={<Dashboard />}>
+            <Route path="task/:id" element={<TaskPage />} />
+            <Route path="project/:id" element={<ProjectPage />} />
+            <Route path="team/:id" element={<TeamPage />} />
+          </Route>
+        </Routes>
       </BrowserRouter>
     </QueryClientProvider>
   </StrictMode>
