@@ -1,13 +1,29 @@
-import { mockData, TaskStatus } from "@/mock-data";
+import { mockData, TaskPriority, TaskStatus } from "@/mock-data";
 
 // Available AI models on OpenRouter
 export const aiModels = [
-  { id: "anthropic/claude-3-haiku", name: "Claude 3 Haiku", provider: "Anthropic" },
-  { id: "anthropic/claude-3-sonnet", name: "Claude 3 Sonnet", provider: "Anthropic" },
-  { id: "anthropic/claude-3-opus", name: "Claude 3 Opus", provider: "Anthropic" },
+  {
+    id: "anthropic/claude-3-haiku",
+    name: "Claude 3 Haiku",
+    provider: "Anthropic",
+  },
+  {
+    id: "anthropic/claude-3-sonnet",
+    name: "Claude 3 Sonnet",
+    provider: "Anthropic",
+  },
+  {
+    id: "anthropic/claude-3-opus",
+    name: "Claude 3 Opus",
+    provider: "Anthropic",
+  },
   { id: "openai/gpt-4o", name: "GPT-4o", provider: "OpenAI" },
   { id: "openai/gpt-3.5-turbo", name: "GPT-3.5 Turbo", provider: "OpenAI" },
-  { id: "meta-llama/llama-3-70b-instruct", name: "Llama 3 70B", provider: "Meta" },
+  {
+    id: "meta-llama/llama-3-70b-instruct",
+    name: "Llama 3 70B",
+    provider: "Meta",
+  },
 ];
 
 // Default model to use
@@ -58,14 +74,14 @@ export const generateProjectSummary = async (
 ): Promise<EnhancedAIResponse> => {
   // Check the cache first (unless forcing refresh)
   const cacheKey = projectId;
-  
+
   if (!forceRefresh) {
     const cachedData = summaryCache.project.get(cacheKey);
-    
+
     if (
-      cachedData && 
-      cachedData.model === model && 
-      (Date.now() - cachedData.timestamp) < CACHE_EXPIRATION
+      cachedData &&
+      cachedData.model === model &&
+      Date.now() - cachedData.timestamp < CACHE_EXPIRATION
     ) {
       console.log(`Returning cached project summary for ${projectId}`);
       return {
@@ -73,77 +89,159 @@ export const generateProjectSummary = async (
         isLoading: false,
         error: null,
         isCached: true,
-        generatedAt: cachedData.timestamp
+        generatedAt: cachedData.timestamp,
       };
     }
   }
-  
+
   if (USE_MOCK_DATA) {
     // Simulate API delay
     await new Promise((r) => setTimeout(r, 1000));
-    
+
     // Find the project
-    const project = mockData.projects.find(p => p.id === projectId);
+    const project = mockData.projects.find((p) => p.id === projectId);
     if (!project) {
       return {
         summary: "",
         isLoading: false,
         error: "Project not found",
-        isCached: false
+        isCached: false,
       };
     }
-    
+
     // Get tasks for this project
-    const projectTasks = mockData.tasks.filter(task => task.projectId === projectId);
-    
+    const projectTasks = mockData.tasks.filter(
+      (task) => task.projectId === projectId
+    );
+
     // Calculate task statistics
     const totalTasks = projectTasks.length;
-    const completedTasks = projectTasks.filter(t => t.status === TaskStatus.COMPLETED).length;
-    const inProgressTasks = projectTasks.filter(t => t.status === TaskStatus.IN_PROGRESS).length;
-    const todoTasks = projectTasks.filter(t => t.status === TaskStatus.TODO).length;
-    const blockedTasks = projectTasks.filter(t => t.status === TaskStatus.BLOCKED).length;
-    
+    const completedTasks = projectTasks.filter(
+      (t) => t.status === TaskStatus.COMPLETED
+    ).length;
+    const inProgressTasks = projectTasks.filter(
+      (t) => t.status === TaskStatus.IN_PROGRESS
+    ).length;
+    const todoTasks = projectTasks.filter(
+      (t) => t.status === TaskStatus.TODO
+    ).length;
+    const blockedTasks = projectTasks.filter(
+      (t) => t.status === TaskStatus.BLOCKED
+    ).length;
+
     // Get team information
-    const team = project.teamId ? mockData.teams.find(t => t.id === project.teamId) : null;
-    
-    // Generate mock summary
-    const summary = `## Project Summary: ${project.name}
-      
-Status: ${project.status.toUpperCase()}
-Progress: ${totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0}% complete
+    const team = project.teamId
+      ? mockData.teams.find((t) => t.id === project.teamId)
+      : null;
+
+    // Generate mock summary with enhanced markdown formatting
+    const summary = `# Executive Overview: ${project.name}
+
+Status: **${project.status.toUpperCase()}** | Progress: **${
+      totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
+    }%** complete
 
 ${project.description || "No description provided."}
 
-### Tasks:
-- Completed: ${completedTasks}/${totalTasks} (${totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0}%)
-- In Progress: ${inProgressTasks}
-- Todo: ${todoTasks}
-- Blocked: ${blockedTasks}
+## For Executive Leadership
+This project is currently ${
+      totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
+    }% complete and is ${
+      project.targetEndDate
+        ? new Date(project.targetEndDate) > new Date()
+          ? "**on track**"
+          : "**behind schedule**"
+        : "**timeline undefined**"
+    } relative to target completion. Resource allocation is appropriate with ${
+      team
+        ? `the ${team.name} team fully engaged`
+        : "no team currently assigned"
+    }.
 
-${team ? `### Team: ${team.name}\nThis project is assigned to the ${team.name} team.` : "No team assigned to this project."}
+> The project's strategic value remains high, with expected market impact in Q3 along with a 15-20% improvement in customer engagement metrics.
 
-### Recent Activity:
-The team has ${completedTasks > 0 ? `completed ${completedTasks} tasks` : "not completed any tasks yet"} and has ${inProgressTasks} tasks currently in progress.
-${blockedTasks > 0 ? `⚠️ There are ${blockedTasks} blocked tasks that need attention.` : ""}
+## For Product Management
+User story completion rate is **${
+      totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
+    }%** with ${completedTasks} features delivered to date. Initial user testing shows positive reception, with usability scores ${
+      completedTasks > 5 ? "exceeding" : "meeting"
+    } targets.
 
-### Timeline:
-${project.startDate ? `Start Date: ${new Date(project.startDate).toLocaleDateString()}` : "No start date specified."}
-${project.targetEndDate ? `Target End Date: ${new Date(project.targetEndDate).toLocaleDateString()}` : "No target end date specified."}`;
+${
+  blockedTasks > 0
+    ? `There are **${blockedTasks} blocked tasks** that require product owner attention, primarily related to requirement clarification.`
+    : "All features have clear requirements and no product-level blockers exist."
+}
+
+## For Engineering Leadership
+Technical implementation is ${
+      inProgressTasks > todoTasks ? "proceeding well" : "in early stages"
+    } with **${inProgressTasks} tasks** actively in development. The architecture decisions have proven sound, with no major refactoring required.
+
+Code quality metrics show ${
+      completedTasks > 3 ? "strong" : "acceptable"
+    } test coverage and code review thoroughness. ${
+      blockedTasks > 0
+        ? `Technical challenges exist around ${blockedTasks} specific implementation areas.`
+        : "No significant technical blockers have been identified."
+    }
+
+## Current Focus Areas
+1. **Task completion** - Focus on the ${inProgressTasks} in-progress tasks
+2. **Quality assurance** - Comprehensive testing of the ${completedTasks} completed features
+${
+  blockedTasks > 0
+    ? `3. **Blocker resolution** - Addressing the ${blockedTasks} blocked tasks`
+    : `3. **Planning** - Preparing for the next phase of development`
+}
+
+## Risk Management
+* **${blockedTasks > 0 ? "High" : "Low"} risk**: Development blockers - ${
+      blockedTasks > 0
+        ? `${blockedTasks} tasks currently delayed, requiring intervention`
+        : "No current blockers, developers are progressing smoothly"
+    }
+* **Medium risk**: Timeline pressure - ${
+      project.targetEndDate
+        ? `Target date of ${new Date(
+            project.targetEndDate
+          ).toLocaleDateString()} requires focused execution`
+        : "Undefined target date creates scheduling uncertainty"
+    }
+* **Low risk**: Resource constraints - ${
+      team
+        ? `${team.name} team is adequately staffed`
+        : "Team assignment pending, which may impact velocity"
+    }
+
+### Timeline
+${
+  project.startDate
+    ? `* **Start Date**: ${new Date(project.startDate).toLocaleDateString()}`
+    : "* **Start Date**: Not yet specified"
+}
+${
+  project.targetEndDate
+    ? `* **Target Completion**: ${new Date(
+        project.targetEndDate
+      ).toLocaleDateString()}`
+    : "* **Target Completion**: Not yet specified"
+}`;
 
     // Update cache with new summary
     const now = Date.now();
     summaryCache.project.set(cacheKey, {
       summary,
       timestamp: now,
-      model
+      model,
     });
-    
+
     return {
       summary,
       isLoading: false,
       error: null,
       isCached: false,
-      generatedAt: now
+      generatedAt: now,
     };
   }
 
@@ -156,7 +254,7 @@ ${project.targetEndDate ? `Target End Date: ${new Date(project.targetEndDate).to
       body: JSON.stringify({
         projectId,
         model,
-        forceRefresh
+        forceRefresh,
       }),
     });
 
@@ -166,21 +264,21 @@ ${project.targetEndDate ? `Target End Date: ${new Date(project.targetEndDate).to
     }
 
     const data = await response.json();
-    
+
     // Update cache with API response
     const now = Date.now();
     summaryCache.project.set(cacheKey, {
       summary: data.summary,
       timestamp: now,
-      model
+      model,
     });
-    
+
     return {
       summary: data.summary,
       isLoading: false,
       error: null,
       isCached: false,
-      generatedAt: now
+      generatedAt: now,
     };
   } catch (error) {
     console.error("Error generating project summary:", error);
@@ -188,7 +286,7 @@ ${project.targetEndDate ? `Target End Date: ${new Date(project.targetEndDate).to
       summary: "",
       isLoading: false,
       error: (error as Error).message,
-      isCached: false
+      isCached: false,
     };
   }
 };
@@ -201,14 +299,14 @@ export const generateTeamSummary = async (
 ): Promise<EnhancedAIResponse> => {
   // Check the cache first (unless forcing refresh)
   const cacheKey = teamId;
-  
+
   if (!forceRefresh) {
     const cachedData = summaryCache.team.get(cacheKey);
-    
+
     if (
-      cachedData && 
-      cachedData.model === model && 
-      (Date.now() - cachedData.timestamp) < CACHE_EXPIRATION
+      cachedData &&
+      cachedData.model === model &&
+      Date.now() - cachedData.timestamp < CACHE_EXPIRATION
     ) {
       console.log(`Returning cached team summary for ${teamId}`);
       return {
@@ -216,89 +314,151 @@ export const generateTeamSummary = async (
         isLoading: false,
         error: null,
         isCached: true,
-        generatedAt: cachedData.timestamp
+        generatedAt: cachedData.timestamp,
       };
     }
   }
-  
+
   if (USE_MOCK_DATA) {
     // Simulate API delay
     await new Promise((r) => setTimeout(r, 1000));
-    
+
     // Find the team
-    const team = mockData.teams.find(t => t.id === teamId);
+    const team = mockData.teams.find((t) => t.id === teamId);
     if (!team) {
       return {
         summary: "",
         isLoading: false,
         error: "Team not found",
-        isCached: false
+        isCached: false,
       };
     }
-    
+
     // Get team members
-    const teamMembers = mockData.teamMembers.filter(tm => tm.teamId === teamId);
-    
-    // Get projects assigned to this team
-    const teamProjects = mockData.projects.filter(p => p.teamId === teamId);
-    
-    // Get all tasks for this team's projects
-    const allTeamTasks = mockData.tasks.filter(task => 
-      teamProjects.some(p => p.id === task.projectId)
+    const teamMembers = mockData.teamMembers.filter(
+      (tm) => tm.teamId === teamId
     );
-    
+
+    // Get projects assigned to this team
+    const teamProjects = mockData.projects.filter((p) => p.teamId === teamId);
+
+    // Get all tasks for this team's projects
+    const allTeamTasks = mockData.tasks.filter((task) =>
+      teamProjects.some((p) => p.id === task.projectId)
+    );
+
     // Calculate task statistics
     const totalTasks = allTeamTasks.length;
-    const completedTasks = allTeamTasks.filter(t => t.status === TaskStatus.COMPLETED).length;
-    const inProgressTasks = allTeamTasks.filter(t => t.status === TaskStatus.IN_PROGRESS).length;
-    const todoTasks = allTeamTasks.filter(t => t.status === TaskStatus.TODO).length;
-    const blockedTasks = allTeamTasks.filter(t => t.status === TaskStatus.BLOCKED).length;
-    
-    // Generate mock summary
-    const summary = `## Team Summary: ${team.name}
+    const completedTasks = allTeamTasks.filter(
+      (t) => t.status === TaskStatus.COMPLETED
+    ).length;
+    const inProgressTasks = allTeamTasks.filter(
+      (t) => t.status === TaskStatus.IN_PROGRESS
+    ).length;
+    // const todoTasks = allTeamTasks.filter(t => t.status === TaskStatus.TODO).length;
+    const blockedTasks = allTeamTasks.filter(
+      (t) => t.status === TaskStatus.BLOCKED
+    ).length;
+
+    // Generate mock summary with proper markdown formatting
+    const summary = `# Team Performance Report: ${team.name}
       
 ${team.description || "No team description provided."}
 
-### Team Composition:
-- ${teamMembers.length} team members
-${teamMembers.length > 0 ? teamMembers.map(tm => {
-  const user = mockData.users.find(u => u.id === tm.userId);
-  return `- ${user?.name || user?.email || "Unknown user"} (${tm.role})`;
-}).join('\n') : "No team members assigned."}
+## For the CEO
+This team is responsible for **${
+      teamProjects.length
+    } active projects** representing approximately 40% of our current development pipeline. Their work has contributed to an estimated **18% increase in feature delivery** compared to last quarter.
 
-### Projects:
-- ${teamProjects.length} active projects
-${teamProjects.length > 0 ? teamProjects.map(p => {
-  const projectTasks = mockData.tasks.filter(t => t.projectId === p.id);
-  const projectCompletedTasks = projectTasks.filter(t => t.status === TaskStatus.COMPLETED).length;
-  const progress = projectTasks.length > 0 ? Math.round((projectCompletedTasks / projectTasks.length) * 100) : 0;
-  return `- ${p.name}: ${progress}% complete (${p.status})`;
-}).join('\n') : "No projects assigned to this team."}
+> Team productivity is trending upward with a ${
+      completedTasks > 5 ? "strong" : "moderate"
+    } completion rate of ${
+      totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
+    }% on assigned tasks.
 
-### Task Overview:
-- Completed: ${completedTasks}/${totalTasks} (${totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0}%)
-- In Progress: ${inProgressTasks}
-- Todo: ${todoTasks}
-- Blocked: ${blockedTasks}
+## For the CTO
+The team demonstrates ${
+      completedTasks > inProgressTasks ? "excellent" : "good"
+    } technical execution with **${completedTasks} completed tasks** this cycle. Code quality metrics show consistent test coverage and code review practices.
 
-### This Week's Focus:
-The team is currently focused on ${inProgressTasks > 0 ? `${inProgressTasks} tasks in progress` : "getting started with new tasks"}.
-${blockedTasks > 0 ? `⚠️ There are ${blockedTasks} blocked tasks that need attention.` : ""}`;
+${
+  blockedTasks > 0
+    ? `There are currently **${blockedTasks} blocked tasks** that require technical intervention, primarily related to integration points with external systems.`
+    : "No significant technical blockers exist at this time."
+}
+
+## For the Director of Product
+Cross-functional collaboration is ${
+      teamMembers.length > 3 ? "strong" : "developing"
+    }, with the team actively engaging stakeholders throughout the development process. Requirements gathering has improved by an estimated 25% since last quarter.
+
+${
+  inProgressTasks > 0
+    ? `The team is making good progress on ${inProgressTasks} in-flight tasks, with estimated completion in the next sprint cycle.`
+    : "The team is preparing to begin the next set of prioritized features."
+}
+
+## Current Focus & Capacity
+* Project planning: **30%** of capacity - ${
+      teamProjects.length > 0 ? "Active" : "Not started"
+    }
+* Feature development: **${inProgressTasks > 0 ? 50 : 30}%** of capacity - ${
+      inProgressTasks > 0 ? "In progress" : "Planning phase"
+    }
+* Testing and QA: **${completedTasks > 0 ? 20 : 10}%** of capacity - ${
+      completedTasks > 0 ? "Active" : "Not started"
+    }
+${blockedTasks > 0 ? `* Addressing blockers: **20%** of capacity - Urgent` : ""}
+
+## Team Composition
+${
+  teamMembers.length > 0
+    ? teamMembers
+        .map((tm, i) => {
+          const user = mockData.users.find((u) => u.id === tm.userId);
+          return `${i + 1}. **${
+            user?.name || user?.email || "Unknown user"
+          }** - ${tm.role}`;
+        })
+        .join("\n")
+    : "No team members assigned at this time."
+}
+
+## Project Portfolio
+${
+  teamProjects.length > 0
+    ? teamProjects
+        .map((p) => {
+          const projectTasks = mockData.tasks.filter(
+            (t) => t.projectId === p.id
+          );
+          const projectCompletedTasks = projectTasks.filter(
+            (t) => t.status === TaskStatus.COMPLETED
+          ).length;
+          const progress =
+            projectTasks.length > 0
+              ? Math.round((projectCompletedTasks / projectTasks.length) * 100)
+              : 0;
+          return `* **${p.name}**: ${progress}% complete (${p.status})`;
+        })
+        .join("\n")
+    : "No projects currently assigned to this team."
+}`;
 
     // Update cache with new summary
     const now = Date.now();
     summaryCache.team.set(cacheKey, {
       summary,
       timestamp: now,
-      model
+      model,
     });
-    
+
     return {
       summary,
       isLoading: false,
       error: null,
       isCached: false,
-      generatedAt: now
+      generatedAt: now,
     };
   }
 
@@ -311,7 +471,7 @@ ${blockedTasks > 0 ? `⚠️ There are ${blockedTasks} blocked tasks that need a
       body: JSON.stringify({
         teamId,
         model,
-        forceRefresh
+        forceRefresh,
       }),
     });
 
@@ -321,21 +481,21 @@ ${blockedTasks > 0 ? `⚠️ There are ${blockedTasks} blocked tasks that need a
     }
 
     const data = await response.json();
-    
+
     // Update cache with API response
     const now = Date.now();
     summaryCache.team.set(cacheKey, {
       summary: data.summary,
       timestamp: now,
-      model
+      model,
     });
-    
+
     return {
       summary: data.summary,
       isLoading: false,
       error: null,
       isCached: false,
-      generatedAt: now
+      generatedAt: now,
     };
   } catch (error) {
     console.error("Error generating team summary:", error);
@@ -343,7 +503,7 @@ ${blockedTasks > 0 ? `⚠️ There are ${blockedTasks} blocked tasks that need a
       summary: "",
       isLoading: false,
       error: (error as Error).message,
-      isCached: false
+      isCached: false,
     };
   }
 };
@@ -356,14 +516,14 @@ export const generateTaskSummary = async (
 ): Promise<EnhancedAIResponse> => {
   // Check the cache first (unless forcing refresh)
   const cacheKey = taskId;
-  
+
   if (!forceRefresh) {
     const cachedData = summaryCache.task.get(cacheKey);
-    
+
     if (
-      cachedData && 
-      cachedData.model === model && 
-      (Date.now() - cachedData.timestamp) < CACHE_EXPIRATION
+      cachedData &&
+      cachedData.model === model &&
+      Date.now() - cachedData.timestamp < CACHE_EXPIRATION
     ) {
       console.log(`Returning cached task summary for ${taskId}`);
       return {
@@ -371,94 +531,231 @@ export const generateTaskSummary = async (
         isLoading: false,
         error: null,
         isCached: true,
-        generatedAt: cachedData.timestamp
+        generatedAt: cachedData.timestamp,
       };
     }
   }
-  
+
   if (USE_MOCK_DATA) {
     // Simulate API delay
     await new Promise((r) => setTimeout(r, 1000));
-    
+
     // Find the task
-    const task = mockData.tasks.find(t => t.id === taskId);
+    const task = mockData.tasks.find((t) => t.id === taskId);
     if (!task) {
       return {
         summary: "",
         isLoading: false,
         error: "Task not found",
-        isCached: false
+        isCached: false,
       };
     }
-    
+
     // Get project information
-    const project = mockData.projects.find(p => p.id === task.projectId);
-    
+    const project = mockData.projects.find((p) => p.id === task.projectId);
+
     // Get assignee information
-    const assignee = task.assigneeId ? mockData.users.find(u => u.id === task.assigneeId) : null;
-    
+    const assignee = task.assigneeId
+      ? mockData.users.find((u) => u.id === task.assigneeId)
+      : null;
+
     // Get task comments
-    const taskComments = mockData.taskComments.filter(tc => tc.taskId === taskId);
-    
+    const taskComments = mockData.comments.filter((tc) => tc.taskId === taskId);
+
     // Get task history
-    const taskHistory = mockData.taskHistory.filter(th => th.taskId === taskId);
-    
+    const taskHistory = mockData.taskHistory.filter(
+      (th) => th.taskId === taskId
+    );
+
     // Get task attachments
-    const taskAttachments = mockData.fileAttachments.filter(fa => fa.taskId === taskId);
-    
+    const taskAttachments = mockData.fileAttachments.filter(
+      (fa) => fa.taskId === taskId
+    );
+
     // Calculate time metrics
     const createdAt = task.createdAt ? new Date(task.createdAt) : null;
     const now = new Date();
-    const daysOpen = createdAt ? Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24)) : 0;
-    
-    // Generate mock summary
-    const summary = `## Task Summary: ${task.title}
-      
-Status: ${task.status.replace(/_/g, " ")}
-${task.priority ? `Priority: ${task.priority}` : ""}
-${project ? `Project: ${project.name}` : ""}
+    const daysOpen = createdAt
+      ? Math.floor(
+          (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24)
+        )
+      : 0;
+
+    // Generate mock summary with rich markdown formatting
+    const summary = `# Executive Summary: ${task.title}
+
+Status: **${task.status.replace(/_/g, " ")}** | ${
+      task.priority ? `Priority: **${task.priority}**` : ""
+    } | ${project ? `Project: **${project.name}**` : ""}
 
 ${task.description || "No description provided."}
 
-### Key Information:
-${assignee ? `- Assigned to: ${assignee.name || assignee.email}` : "- Unassigned"}
-- Open for: ${daysOpen} days
-${task.storyPoints ? `- Story Points: ${task.storyPoints}` : ""}
-${task.estimatedHours ? `- Estimated Hours: ${task.estimatedHours}h` : ""}
-${task.actualHours ? `- Actual Hours: ${task.actualHours}h` : ""}
+${
+  assignee
+    ? `> This task is assigned to **${
+        assignee.name || assignee.email
+      }** and has been open for **${daysOpen} days**.`
+    : "> This task is currently **unassigned** and requires attention."
+}
 
-### Activity:
-- ${taskComments.length} comments
-- ${taskHistory.length} status changes
-- ${taskAttachments.length} attachments
+## For the Product Owner
+This task ${
+      task.status === TaskStatus.COMPLETED
+        ? "has been **successfully completed**"
+        : task.status === TaskStatus.IN_PROGRESS
+        ? "is **in active development**"
+        : task.status === TaskStatus.BLOCKED
+        ? "is currently **blocked**"
+        : "is **awaiting development**"
+    } and represents a ${
+      task.priority === TaskPriority.HIGH ||
+      task.priority === TaskPriority.HIGHEST
+        ? "**critical**"
+        : task.priority === TaskPriority.MEDIUM
+        ? "**moderate**"
+        : "**minor**"
+    } component of the ${project ? project.name : "project"}.
 
-### Recent Updates:
-${taskHistory.length > 0 ? 
-  `Last updated ${new Date(taskHistory[0].changedAt).toLocaleDateString()}: 
-  Changed ${taskHistory[0].fieldChanged} from "${taskHistory[0].oldValue}" to "${taskHistory[0].newValue}"` 
-  : "No recent updates"}
+${
+  taskComments.length > 0
+    ? `Team communication is active with **${taskComments.length} comments**, indicating good collaboration.`
+    : "Communication on this task is limited, suggesting a need for more team engagement."
+}
 
-### Next Steps:
-${task.status === TaskStatus.TODO ? "This task is ready to be started." : ""}
-${task.status === TaskStatus.IN_PROGRESS ? "This task is currently in progress." : ""}
-${task.status === TaskStatus.IN_REVIEW ? "This task is waiting for review." : ""}
-${task.status === TaskStatus.BLOCKED ? "⚠️ This task is currently blocked and needs attention." : ""}
-${task.status === TaskStatus.COMPLETED ? "✅ This task has been completed." : ""}`;
+## For the CTO
+The technical implementation ${
+      task.status === TaskStatus.COMPLETED
+        ? "has been completed successfully"
+        : task.status === TaskStatus.IN_PROGRESS
+        ? "is progressing according to design specifications"
+        : task.status === TaskStatus.BLOCKED
+        ? "has encountered technical challenges"
+        : "is planned and ready for development"
+    }.
+
+${
+  task.storyPoints
+    ? `Complexity is estimated at **${
+        task.storyPoints
+      } story points**, indicating a ${
+        task.storyPoints > 5
+          ? "significant"
+          : task.storyPoints > 2
+          ? "moderate"
+          : "small"
+      } technical footprint.`
+    : ""
+}
+
+${
+  task.status === TaskStatus.BLOCKED
+    ? `**Technical blockers**: This task requires intervention to resolve integration issues with existing systems.`
+    : ""
+}
+
+## For Team Leadership
+Resource allocation appears ${
+      assignee ? "appropriate" : "incomplete, as the task remains unassigned"
+    } for this ${
+      task.priority === TaskPriority.HIGH ||
+      task.priority === TaskPriority.HIGHEST
+        ? "high-priority"
+        : task.priority === TaskPriority.MEDIUM
+        ? "medium-priority"
+        : "low-priority"
+    } task.
+
+${
+  task.estimatedHours
+    ? `Time estimation is **${task.estimatedHours}h** ${
+        task.actualHours
+          ? `with **${task.actualHours}h** already invested (${Math.round(
+              (task.actualHours / task.estimatedHours) * 100
+            )}% of estimate)`
+          : "with no time tracked yet"
+      }.`
+    : "No time estimation has been provided for this task."
+}
+
+${
+  taskHistory.length > 0
+    ? `**Activity tracking**: The task shows healthy progress with ${taskHistory.length} recorded status changes.`
+    : "**Activity tracking**: Limited history suggests this task may need more attention."
+}
+
+## Risk Assessment
+* **${
+      task.status === TaskStatus.BLOCKED
+        ? "High"
+        : task.status === TaskStatus.IN_PROGRESS
+        ? "Medium"
+        : "Low"
+    } risk**: Completion timeline - ${
+      task.status === TaskStatus.BLOCKED
+        ? "Currently blocked with no clear resolution timeline"
+        : task.status === TaskStatus.IN_PROGRESS
+        ? "Progress being made but requires monitoring"
+        : task.status === TaskStatus.COMPLETED
+        ? "Successfully completed with no lingering concerns"
+        : "Not yet started but appears straightforward"
+    }
+
+* **${
+      taskAttachments.length === 0 ? "Medium" : "Low"
+    } risk**: Documentation - ${
+      taskAttachments.length > 0
+        ? `Well-documented with ${taskAttachments.length} supporting files`
+        : "Limited documentation could impact knowledge transfer"
+    }
+
+## Key Metrics
+* **Duration**: Open for ${daysOpen} days
+${task.storyPoints ? `* **Complexity**: ${task.storyPoints} story points` : ""}
+${task.estimatedHours ? `* **Estimated effort**: ${task.estimatedHours}h` : ""}
+${task.actualHours ? `* **Actual effort**: ${task.actualHours}h` : ""}
+* **Engagement**: ${taskComments.length} comments, ${
+      taskHistory.length
+    } status updates, ${taskAttachments.length} attachments
+
+## Recent Activity
+${
+  taskHistory.length > 0
+    ? `Last updated on **${new Date(
+        taskHistory[0].changedAt
+      ).toLocaleDateString()}**:  
+  Changed **${taskHistory[0].fieldChanged}** from "${
+        taskHistory[0].oldValue
+      }" to "${taskHistory[0].newValue}"`
+    : "No recent updates recorded for this task."
+}
+
+## Next Steps
+${
+  task.status === TaskStatus.TODO
+    ? "1. **Assign resources** to this task\n2. **Begin development** according to specifications\n3. **Update status** once work has commenced"
+    : task.status === TaskStatus.IN_PROGRESS
+    ? "1. **Continue development** of remaining features\n2. **Document progress** regularly\n3. **Prepare for review** once implementation is complete"
+    : task.status === TaskStatus.IN_REVIEW
+    ? "1. **Complete review process** with appropriate stakeholders\n2. **Address feedback** from reviewers\n3. **Prepare for release** once approved"
+    : task.status === TaskStatus.BLOCKED
+    ? "1. **Identify and resolve blockers** preventing progress\n2. **Escalate if necessary** to appropriate leadership\n3. **Resume development** once obstacles are cleared"
+    : "1. **Verify completeness** against acceptance criteria\n2. **Document lessons learned** for future reference\n3. **Close related items** if applicable"
+}`;
 
     // Update cache with new summary
     const currentTime = Date.now();
     summaryCache.task.set(cacheKey, {
       summary,
       timestamp: currentTime,
-      model
+      model,
     });
-    
+
     return {
       summary,
       isLoading: false,
       error: null,
       isCached: false,
-      generatedAt: currentTime
+      generatedAt: currentTime,
     };
   }
 
@@ -471,7 +768,7 @@ ${task.status === TaskStatus.COMPLETED ? "✅ This task has been completed." : "
       body: JSON.stringify({
         taskId,
         model,
-        forceRefresh
+        forceRefresh,
       }),
     });
 
@@ -481,21 +778,21 @@ ${task.status === TaskStatus.COMPLETED ? "✅ This task has been completed." : "
     }
 
     const data = await response.json();
-    
+
     // Update cache with API response
     const now = Date.now();
     summaryCache.task.set(cacheKey, {
       summary: data.summary,
       timestamp: now,
-      model
+      model,
     });
-    
+
     return {
       summary: data.summary,
       isLoading: false,
       error: null,
       isCached: false,
-      generatedAt: now
+      generatedAt: now,
     };
   } catch (error) {
     console.error("Error generating task summary:", error);
@@ -503,7 +800,7 @@ ${task.status === TaskStatus.COMPLETED ? "✅ This task has been completed." : "
       summary: "",
       isLoading: false,
       error: (error as Error).message,
-      isCached: false
+      isCached: false,
     };
   }
 };

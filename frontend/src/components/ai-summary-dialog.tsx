@@ -108,31 +108,314 @@ function useTextStreaming(fullText: string, isActive: boolean, streamingSpeed = 
   return { streamedText, isComplete, skipToEnd };
 }
 
-// Component to render streamed Markdown
+// Component to render streamed Markdown with enhanced styling
 const StreamedMarkdown = ({ text, isComplete }: { text: string, isComplete: boolean }) => {
   const renderedContent = useMemo(() => {
     // Only process if there is text
     if (!text) return null;
     
-    return text.split("\n").map((line, index) => {
-      if (line.startsWith("##")) {
-        return <h2 key={index} className="text-xl font-bold mt-4">{line.replace("##", "").trim()}</h2>;
-      } else if (line.startsWith("###")) {
-        return <h3 key={index} className="text-lg font-bold mt-3">{line.replace("###", "").trim()}</h3>;
-      } else if (line.startsWith("-")) {
-        return <li key={index} className="ml-4">{line.substring(1).trim()}</li>;
-      } else if (line.startsWith("*")) {
-        return <li key={index} className="ml-4">{line.trim()}</li>;
-      } else if (line.trim() === "") {
-        return <div key={index} className="my-2"></div>;
-      } else {
-        return <p key={index}>{line}</p>;
+    // Process the text to identify sections, lists, etc.
+    const lines = text.split('\n');
+    const result = [];
+    let currentListItems: React.ReactNode[] = [];
+    let inCodeBlock = false;
+    let currentCodeBlock = '';
+    
+    lines.forEach((line, index) => {
+      // Handle code blocks with triple backticks
+      if (line.trim().startsWith('```')) {
+        if (inCodeBlock) {
+          // End of code block
+          result.push(
+            <pre key={`code-${index}`} className="bg-gray-50 rounded-md p-3 overflow-x-auto text-sm font-mono my-3 border border-gray-200">
+              {currentCodeBlock}
+            </pre>
+          );
+          currentCodeBlock = '';
+          inCodeBlock = false;
+        } else {
+          // Start of code block
+          inCodeBlock = true;
+        }
+        return;
+      }
+      
+      if (inCodeBlock) {
+        // Inside code block - collect the content
+        currentCodeBlock += line + '\n';
+        return;
+      }
+      
+      // Handle lists - if the previous line was a list and this isn't, we end the list
+      if ((line.trim().startsWith('-') || line.trim().startsWith('*') || line.trim().match(/^\d+\.\s/))) {
+        // Handle bullet and numbered lists
+        let content = line.trim();
+        let itemContent;
+        let listStyle = '';
+        
+        // Special case: Check if this is a line that should be a subheading instead of a list item
+        // Look for patterns like "Customer Portal Development - " or "High Risk:"
+        if (
+          (content.match(/^[\*\-]\s+([A-Z][A-Za-z\s]+)(Development|Risk|Module|Strategy|Implementation|Integration)(\s+-|\s*:)/)) ||
+          (content.match(/^[\*\-]\s+(High|Medium|Low)\s+Risk:/))
+        ) {
+          // This should be a subheading, not a list item
+          let heading = content.substring(1).trim();
+          
+          // If we have existing list items, finish that list first
+          if (currentListItems.length > 0) {
+            result.push(
+              <ul key={`list-${index}`} className="my-3 list-disc">
+                {currentListItems}
+              </ul>
+            );
+            currentListItems = [];
+          }
+          
+          // Add this as a subheading instead
+          result.push(
+            <h4 key={index} className="font-semibold text-base mt-3 mb-1 text-gray-700">
+              {formatInlineMarkdown(heading)}
+            </h4>
+          );
+          
+          // Skip the rest of the list processing
+          return;
+        }
+        
+        // Normal list processing
+        if (content.startsWith('-')) {
+          itemContent = content.substring(1).trim();
+          listStyle = 'list-disc';
+        } else if (content.startsWith('*')) {
+          itemContent = content.substring(1).trim();
+          listStyle = 'list-disc';
+        } else { // Numbered list
+          itemContent = content.replace(/^\d+\.\s/, '').trim();
+          listStyle = 'list-decimal';
+        }
+        
+        // Check for bold, italic, and links within list items
+        itemContent = formatInlineMarkdown(itemContent);
+        
+        currentListItems.push(
+          <li key={`list-item-${index}`} className="ml-5 mb-1">{itemContent}</li>
+        );
+      } else if (currentListItems.length > 0) {
+        // End the previous list if this line is not a list item
+        result.push(
+          <ul key={`list-${index}`} className="my-3 list-disc">
+            {currentListItems}
+          </ul>
+        );
+        currentListItems = [];
+      }
+      
+      // If we're not adding to a list, process other markdown elements
+      if (!line.trim().startsWith('-') && !line.trim().startsWith('*') && !line.trim().match(/^\d+\.\s/)) {
+        if (line.startsWith('# ')) {
+          // H1 header
+          result.push(
+            <h1 key={index} className="text-2xl font-bold mt-5 mb-3 border-b pb-2 text-gray-800">
+              {formatInlineMarkdown(line.replace('# ', '').trim())}
+            </h1>
+          );
+        } else if (line.startsWith('## ')) {
+          // H2 header
+          result.push(
+            <h2 key={index} className="text-xl font-bold mt-4 mb-2 text-gray-800">
+              {formatInlineMarkdown(line.replace('## ', '').trim())}
+            </h2>
+          );
+        } else if (line.startsWith('### ')) {
+          // H3 header
+          result.push(
+            <h3 key={index} className="text-lg font-bold mt-3 mb-2 text-gray-700">
+              {formatInlineMarkdown(line.replace('### ', '').trim())}
+            </h3>
+          );
+        } else if (line.startsWith('#### ')) {
+          // H4 header
+          result.push(
+            <h4 key={index} className="text-base font-bold mt-3 mb-1 text-gray-700">
+              {formatInlineMarkdown(line.replace('#### ', '').trim())}
+            </h4>
+          );
+        } else if (line.startsWith('> ')) {
+          // Blockquote
+          result.push(
+            <blockquote key={index} className="border-l-4 border-gray-300 pl-4 italic my-3 text-gray-600">
+              {formatInlineMarkdown(line.replace('> ', '').trim())}
+            </blockquote>
+          );
+        } else if (line.trim() === '') {
+          // Empty line
+          result.push(<div key={index} className="my-2" />);
+        } else {
+          // Regular paragraph
+          result.push(
+            <p key={index} className="my-2 text-gray-600">
+              {formatInlineMarkdown(line)}
+            </p>
+          );
+        }
       }
     });
+    
+    // If we have list items at the end, add them
+    if (currentListItems.length > 0) {
+      result.push(
+        <ul key="final-list" className="my-3 list-disc">
+          {currentListItems}
+        </ul>
+      );
+    }
+    
+    return result;
   }, [text]);
   
+  // Function to format inline markdown (bold, italic, links) and handle colon-separated labels
+  function formatInlineMarkdown(text: string): React.ReactNode {
+    if (!text) return text;
+    
+    // Handle repeated label pattern (e.g., "Label:Label: Content")
+    // This fixes issues with "Business Impact:Business Impact:" style repetition
+    const labelRepeatRegex = /^([A-Za-z\s]+):([A-Za-z\s]+):\s/;
+    const labelMatch = text.match(labelRepeatRegex);
+    if (labelMatch && labelMatch[1] === labelMatch[2]) {
+      // If we detect a repeated label pattern, fix it
+      text = text.replace(labelRepeatRegex, `**${labelMatch[1]}**: `);
+    } else {
+      // Handle regular label pattern (e.g., "Label: Content")
+      const singleLabelRegex = /^([A-Za-z\s]+):\s/;
+      const singleMatch = text.match(singleLabelRegex);
+      if (singleMatch) {
+        text = text.replace(singleLabelRegex, `**${singleMatch[1]}**: `);
+      }
+    }
+    
+    // Split the text into parts with React elements for formatting
+    const parts: React.ReactNode[] = [];
+    let currentText = '';
+    let inBold = false;
+    let inItalic = false;
+    let linkText = '';
+    let linkUrl = '';
+    let inLinkText = false;
+    let inLinkUrl = false;
+    
+    // Simple parsing to handle basic inline markdown
+    for (let i = 0; i < text.length; i++) {
+      const char = text[i];
+      const nextChar = i < text.length - 1 ? text[i + 1] : '';
+      
+      // Handle bold with ** or __
+      if ((char === '*' && nextChar === '*') || (char === '_' && nextChar === '_')) {
+        if (inBold) {
+          // End bold
+          if (currentText) {
+            parts.push(<strong key={`bold-${i}`}>{currentText}</strong>);
+          }
+          currentText = '';
+          inBold = false;
+          i++; // Skip the next character too (second * or _)
+        } else {
+          // Start bold
+          if (currentText) {
+            parts.push(currentText);
+          }
+          currentText = '';
+          inBold = true;
+          i++; // Skip the next character too (second * or _)
+        }
+        continue;
+      }
+      
+      // Handle italic with * or _
+      if ((char === '*' || char === '_') && nextChar !== char) {
+        if (inItalic) {
+          // End italic
+          if (currentText) {
+            parts.push(<em key={`italic-${i}`}>{currentText}</em>);
+          }
+          currentText = '';
+          inItalic = false;
+        } else {
+          // Start italic
+          if (currentText) {
+            parts.push(currentText);
+          }
+          currentText = '';
+          inItalic = true;
+        }
+        continue;
+      }
+      
+      // Handle links [text](url)
+      if (char === '[' && !inLinkText && !inLinkUrl) {
+        if (currentText) {
+          parts.push(currentText);
+        }
+        currentText = '';
+        inLinkText = true;
+        continue;
+      }
+      
+      if (char === ']' && inLinkText && !inLinkUrl) {
+        linkText = currentText;
+        currentText = '';
+        
+        // Check if next characters are (
+        if (nextChar === '(') {
+          inLinkText = false;
+          inLinkUrl = true;
+          i++; // Skip the ( character
+        } else {
+          // Not a proper link, revert
+          currentText = '[' + linkText + ']';
+          linkText = '';
+          inLinkText = false;
+        }
+        continue;
+      }
+      
+      if (char === ')' && inLinkUrl) {
+        linkUrl = currentText;
+        currentText = '';
+        inLinkUrl = false;
+        
+        // Add the link
+        parts.push(
+          <a key={`link-${i}`} href={linkUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+            {linkText}
+          </a>
+        );
+        
+        linkText = '';
+        linkUrl = '';
+        continue;
+      }
+      
+      // Add character to current text
+      currentText += char;
+    }
+    
+    // Add any remaining text
+    if (currentText) {
+      if (inBold) {
+        parts.push(<strong>{currentText}</strong>);
+      } else if (inItalic) {
+        parts.push(<em>{currentText}</em>);
+      } else {
+        parts.push(currentText);
+      }
+    }
+    
+    return parts.length > 0 ? parts : text;
+  }
+  
   return (
-    <div className="prose prose-sm max-w-none">
+    <div className="prose prose-sm max-w-none px-1">
       {renderedContent}
       {!isComplete && (
         <span className="inline-block animate-pulse w-2 h-4 bg-orange-500 ml-1"></span>

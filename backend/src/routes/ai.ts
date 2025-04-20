@@ -229,9 +229,37 @@ router.post("/task-summary", async (req, res) => {
     const { taskId, model, forceRefresh } = req.body;
     
     const prompt = `Please generate an insightful summary of this task with ID ${taskId}. 
-    The summary should include sections targeted at different stakeholders (Product Owner, CTO, Team Leadership).
-    Include an executive summary at the top, and insights about timeline, blockers, risks, and next steps if applicable.
-    Format the response in Markdown with clear section headers.`;
+
+The summary should include sections targeted at different stakeholders (Product Owner, CTO, Team Leadership).
+Include an executive summary at the top, and insights about timeline, blockers, risks, and next steps if applicable.
+
+FORMAT REQUIREMENTS:
+- Use proper Markdown formatting with clear headings using # for main title, ## for sections, and ### for subsections
+- Use bullet points with - or * for lists
+- Use bold (**text**) for emphasis on important points
+- Use blockquotes (> text) for highlighting key insights or warnings
+- Use numbered lists (1. 2. 3.) for sequential steps or prioritized items
+- Include 1-2 key statistics or metrics for each stakeholder section if possible
+- Format any code snippets or technical details in code blocks using \`\`\` (triple backticks)
+
+RESPONSE STRUCTURE (follow this format):
+# Executive Summary: [Task Title]
+
+Brief overview of the task status and importance (2-3 sentences)
+
+## For the Product Owner
+Insights relevant to product strategy, timeline, and business value
+
+## For the CTO
+Technical insights, architecture decisions, and impact on the system
+
+## For Team Leadership
+Resource allocation, team coordination, and performance insights
+
+## Risk Assessment
+* **Risk level**: Description and mitigation strategy
+
+Format your response in clear, professional language appropriate for a business context.`;
     
     const summary = await getOrGenerateSummary(
       "task", 
@@ -253,10 +281,45 @@ router.post("/project-summary", async (req, res) => {
   try {
     const { projectId, model, forceRefresh } = req.body;
     
-    const prompt = `Please generate an insightful summary of this project with ID ${projectId}. 
-    The summary should include sections targeted at different stakeholders (Executive Leadership, Product Management, Engineering Leadership).
-    Include an executive overview at the top, and insights about progress, risks, and focus areas.
-    Format the response in Markdown with clear section headers.`;
+    const prompt = `Please generate an insightful summary of this project with ID ${projectId}.
+
+The summary should include sections targeted at different stakeholders (Executive Leadership, Product Management, Engineering Leadership).
+Include an executive overview at the top, and insights about progress, risks, and focus areas.
+
+FORMAT REQUIREMENTS:
+- Use proper Markdown formatting with clear headings using # for main title, ## for sections, and ### for subsections
+- Use bullet points with - or * for lists
+- Use bold (**text**) for emphasis on important points
+- Use blockquotes (> text) for highlighting key insights or warnings
+- Use numbered lists (1. 2. 3.) for sequential steps or prioritized items
+- Include 1-2 key statistics or metrics for each stakeholder section if possible
+- Format any code snippets or technical details in code blocks using \`\`\` (triple backticks)
+
+RESPONSE STRUCTURE (follow this format):
+# Executive Overview: [Project Name]
+
+Brief overview of project status, timeline, and strategic importance (2-3 sentences)
+
+## For Executive Leadership
+High-level insights on business impact, resource utilization, and strategic alignment
+
+## For Product Management
+Features, user feedback, market fit, and roadmap insights
+
+## For Engineering Leadership
+Technical progress, architecture decisions, and team performance
+
+## Current Focus Areas
+1. [Area 1] - Brief description and owner
+2. [Area 2] - Brief description and owner
+3. [Area 3] - Brief description and owner
+
+## Risk Management
+* **High risk**: Description and mitigation strategy
+* **Medium risk**: Description and mitigation strategy
+* **Low risk**: Description and mitigation strategy
+
+Format your response in clear, professional language appropriate for a business context.`;
     
     const summary = await getOrGenerateSummary(
       "project", 
@@ -278,10 +341,43 @@ router.post("/team-summary", async (req, res) => {
   try {
     const { teamId, model, forceRefresh } = req.body;
     
-    const prompt = `Please generate an insightful summary of this team with ID ${teamId}. 
-    The summary should include sections targeted at different stakeholders (CEO, CTO, Director of Product).
-    Include insights about team performance, focus areas, capacity, and development needs.
-    Format the response in Markdown with clear section headers.`;
+    const prompt = `Please generate an insightful summary of this team with ID ${teamId}.
+
+The summary should include sections targeted at different stakeholders (CEO, CTO, Director of Product).
+Include insights about team performance, focus areas, capacity, and development needs.
+
+FORMAT REQUIREMENTS:
+- Use proper Markdown formatting with clear headings using # for main title, ## for sections, and ### for subsections
+- Use bullet points with - or * for lists
+- Use bold (**text**) for emphasis on important points
+- Use blockquotes (> text) for highlighting key insights or warnings
+- Use numbered lists (1. 2. 3.) for sequential steps or prioritized items
+- Include 1-2 key statistics or metrics for each stakeholder section if possible
+- Format any code snippets or technical details in code blocks using \`\`\` (triple backticks)
+
+RESPONSE STRUCTURE (follow this format):
+# Team Performance Report: [Team Name]
+
+Brief overview of the team composition, responsibilities, and general performance (2-3 sentences)
+
+## For the CEO
+Strategic value, contribution to business goals, and ROI insights
+
+## For the CTO
+Technical capabilities, code quality metrics, and innovation impact
+
+## For the Director of Product
+Delivery metrics, collaboration quality, and product impact insights
+
+## Current Focus & Capacity
+* Project A: [percentage]% of capacity - Status
+* Project B: [percentage]% of capacity - Status
+* Project C: [percentage]% of capacity - Status
+
+## Development Needs
+Identified skill gaps, growth opportunities, and recommended investments
+
+Format your response in clear, professional language appropriate for a business context.`;
     
     const summary = await getOrGenerateSummary(
       "team", 
