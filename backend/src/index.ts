@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import taskRoutes from "./routes/tasks";
 import fileRoutes from "./routes/files";
+import aiRoutes from "./routes/ai";
 import { verifyWebhook } from "@clerk/express/webhooks";
 import * as path from "path";
 import { prisma } from "./prisma";
@@ -161,6 +162,7 @@ app.post("/api/webhooks", (req: any, res: any) => {
 // Routes
 app.use("/api/tasks", taskRoutes);
 app.use("/api/files", fileRoutes);
+app.use("/api/ai", aiRoutes);
 
 const port = process.env.PORT || 3001; // Changed to 3001 to avoid conflicts
 

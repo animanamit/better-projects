@@ -11,6 +11,7 @@ import { useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -19,8 +20,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-import { useState } from "react";
+import AISummaryDialog from "@/components/ai-summary-dialog";
+import { AIContext } from "./App";
+import { useState, useContext } from "react";
 
 // Style maps for task statuses and priorities
 const statusColorMap: Record<TaskStatus, { bg: string; text: string }> = {
@@ -306,6 +308,8 @@ const TaskPage = () => {
   const [taskHistory, setTaskHistory] = useState(getTaskHistoryById(id));
   const taskComments = getTaskCommentsById(id);
   const taskAttachments = getTaskAttachmentsById(id);
+  const { selectedModel } = useContext(AIContext);
+  const [showAISummary, setShowAISummary] = useState(false);
 
   // Get user information for comments
   const getUserInfo = (userId: string) => {
@@ -403,11 +407,27 @@ const TaskPage = () => {
                 )}
               </div>
 
-              <div className="w-52 my-2">
-                <StatusSelector
-                  currentStatus={task.status}
-                  onStatusChange={handleStatusChange}
-                />
+              <div className="flex items-center gap-3">
+                <div className="w-52 my-2">
+                  <StatusSelector
+                    currentStatus={task.status}
+                    onStatusChange={handleStatusChange}
+                  />
+                </div>
+                
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="h-8 gap-2 border-orange-200 text-orange-600 hover:bg-orange-50"
+                  onClick={() => setShowAISummary(true)}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                    <path d="M12 17h.01"></path>
+                  </svg>
+                  Generate AI Summary
+                </Button>
               </div>
             </div>
 
@@ -509,6 +529,15 @@ const TaskPage = () => {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* AI Summary Dialog */}
+      <AISummaryDialog
+        isOpen={showAISummary}
+        onClose={() => setShowAISummary(false)}
+        itemId={task.id}
+        summaryType="task"
+        selectedModel={selectedModel}
+      />
     </div>
   );
 };

@@ -3,7 +3,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import TopBar from "@/components/top-bar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { FileManagement } from "./components/file-management";
-
+import { AIContext } from "./App";
 import TaskBoard from "@/components/task-board";
 import { Outlet, useLocation } from "react-router-dom";
 
@@ -24,6 +24,7 @@ function Dashboard() {
   const [activeTab, setActiveTab] = useState<TabType>("tasks");
   const location = useLocation();
   const [isTaskPage, setIsTaskPage] = useState(false);
+  const { selectedModel, setSelectedModel } = useContext(AIContext);
 
   useEffect(() => {
     // Update what kind of page we're viewing
@@ -39,11 +40,19 @@ function Dashboard() {
     }
   }, [location]);
 
+  // Add debug logging for model selection
+  useEffect(() => {
+    console.log("Dashboard rendering with selected model:", selectedModel);
+  }, [selectedModel]);
+
   return (
     <TabContext.Provider value={{ activeTab, setActiveTab }}>
       <SidebarProvider>
         <main className="flex flex-col h-screen w-full">
-          <TopBar />
+          <TopBar 
+            selectedModel={selectedModel}
+            setSelectedModel={setSelectedModel}
+          />
           <div className="flex flex-row h-full w-full max-w-screen overflow-hidden">
             <AppSidebar />
             <div className="flex-1 flex flex-col overflow-x-scroll">

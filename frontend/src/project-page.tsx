@@ -2,10 +2,13 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { mockData, TaskStatus, TaskPriority } from "@/mock-data";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useTabContext } from "@/dashboard";
+import AISummaryDialog from "@/components/ai-summary-dialog";
+import { AIContext } from "./App";
 
 // Status color map from task-page
 const statusColorMap: Record<TaskStatus, { bg: string; text: string }> = {
@@ -234,6 +237,8 @@ const ProjectPage = () => {
   const navigate = useNavigate();
   const { activeTab } = useTabContext();
   const [project, setProject] = useState(null);
+  const { selectedModel } = useContext(AIContext);
+  const [showAISummary, setShowAISummary] = useState(false);
   
   // Update project when id changes
   useEffect(() => {
@@ -333,6 +338,20 @@ const ProjectPage = () => {
                   </div>
                 )}
               </div>
+
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="gap-2 border-orange-200 text-orange-600 hover:bg-orange-50"
+                onClick={() => setShowAISummary(true)}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                  <path d="M12 17h.01"></path>
+                </svg>
+                Generate Project AI Summary
+              </Button>
             </div>
           </div>
         </CardHeader>
@@ -420,6 +439,15 @@ const ProjectPage = () => {
           )}
         </TabsContent>
       </Tabs>
+      
+      {/* AI Summary Dialog */}
+      <AISummaryDialog
+        isOpen={showAISummary}
+        onClose={() => setShowAISummary(false)}
+        itemId={project.id}
+        summaryType="project"
+        selectedModel={selectedModel}
+      />
     </div>
   );
 };
