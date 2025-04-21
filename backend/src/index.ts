@@ -1,173 +1,193 @@
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-import taskRoutes from "./routes/tasks";
-import fileRoutes from "./routes/files";
-import aiRoutes from "./routes/ai";
+import Fastify from 'fastify';
+import cors from '@fastify/cors';
+import swagger from '@fastify/swagger';
+import swaggerUi from '@fastify/swagger-ui';
+import sensible from '@fastify/sensible';
+import dotenv from 'dotenv';
+import * as path from 'path';
+import { prisma } from './prisma';
 import { verifyWebhook } from "@clerk/express/webhooks";
-import * as path from "path";
-import { prisma } from "./prisma";
+
+// Import routes
+import taskRoutes from './routes/tasks';
+import fileRoutes from './routes/files';
+import aiRoutes from './routes/ai';
 
 // Load environment variables with proper path
-dotenv.config({ path: path.resolve(__dirname, "../.env") });
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
-const app = express();
+// Create Fastify instance
+const fastify = Fastify({
+  logger: true // Enable built-in logging
+});
 
-// Configure allowed origins for CORS
-const allowedOrigins = [
-  "http://localhost:5173", // Local development
-  process.env.FRONTEND_URL, // Production frontend
-].filter(Boolean); // Remove undefined values
-
-// Enable CORS for allowed origins
-app.use(
-  cors({
-    origin: "*", // Allow all origins for development simplicity
+// Register plugins and start server
+async function setup() {
+  // CORS setup - Configure allowed origins
+  await fastify.register(cors, {
+    origin: '*', // Allow all origins for development simplicity
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "Cache-Control",
-      "Pragma",
-      "Access-Control-Allow-Origin",
-      "svix-id",
-      "svix-signature",
-      "svix-timestamp",
+      'Content-Type',
+      'Authorization',
+      'Cache-Control',
+      'Pragma',
+      'Access-Control-Allow-Origin',
+      'svix-id',
+      'svix-signature',
+      'svix-timestamp',
     ],
-    exposedHeaders: ["svix-id", "svix-signature", "svix-timestamp"],
-  })
-);
+    exposedHeaders: ['svix-id', 'svix-signature', 'svix-timestamp'],
+  });
 
-// Setup JSON parsing for all routes except webhook
-// This must come after the webhook route setup
-app.use((req: any, res: any, next: express.NextFunction) => {
-  if (req.path === "/api/webhooks") {
-    return next();
-  }
-  express.json()(req, res, next);
-});
+  // Register sensible for better error handling
+  await fastify.register(sensible);
 
-// Health check endpoint
-app.get("/health", (req: any, res: any) => {
-  res.status(200).json({ status: "ok", message: "Server is running" });
-});
+  // API documentation with Swagger
+  await fastify.register(swagger, {
+    openapi: {
+      info: {
+        title: 'Better Projects API',
+        description: 'API documentation for Better Projects',
+        version: '1.0.0'
+      },
+    }
+  });
+  
+  // Register Swagger UI
+  await fastify.register(swaggerUi, {
+    routePrefix: '/documentation',
+  });
 
-// Setup raw body parsing for webhook endpoint
-app.use("/api/webhooks", express.raw({ type: "application/json" }));
+  // Custom logging decorator
+  fastify.addHook('onRequest', async (request, reply) => {
+    request.log.info(`${request.method} ${request.url} received`);
+  });
 
-// Add a debugging middleware to log all requests
-app.use((req: any, res: any, next: any) => {
-  console.log(`${req.method} ${req.path} received`);
-  next();
-});
+  // Health check endpoint
+  fastify.get('/health', async (request, reply) => {
+    return { status: 'ok', message: 'Server is running' };
+  });
 
-// Webhook route
-app.post("/api/webhooks", (req: any, res: any) => {
-  try {
-    console.log("Webhook received at:", new Date().toISOString());
-    console.log("Webhook headers:", req.headers);
+  // Register route modules
+  await fastify.register(taskRoutes, { prefix: '/api/tasks' });
+  await fastify.register(fileRoutes, { prefix: '/api/files' });
+  await fastify.register(aiRoutes, { prefix: '/api/ai' });
 
-    // Verify webhook signature
-    verifyWebhook(req as any, {
-      signingSecret: process.env.CLERK_WEBHOOK_SIGNING_SECRET,
-    })
-      .then(async (evt) => {
-        // Process webhook event
-        const { id } = evt.data;
-        const eventType = evt.type;
-        console.log(`Processed webhook with ID ${id} and type ${eventType}`);
+  // Add webhook handling with raw body support
+  // This is more complex due to Clerk webhook verification needing Express request format
+  // We'll need a custom implementation here
+  fastify.addContentTypeParser('application/json', { parseAs: 'buffer' }, (req, body, done) => {
+    done(null, body);
+  });
 
-        // Handle different event types
-        if (eventType === "user.created" || eventType === "user.updated") {
-          // Extract user data from the webhook payload
-          const userData = evt.data;
-          const {
-            id: clerkUserId,
-            email_addresses,
-            first_name,
-            last_name,
-          } = userData;
+  fastify.post('/api/webhooks', async (request, reply) => {
+    try {
+      console.log("Webhook received at:", new Date().toISOString());
+      console.log("Webhook headers:", request.headers);
 
-          // Get primary email if available
-          const primaryEmail =
-            email_addresses && email_addresses.length > 0
-              ? email_addresses[0].email_address
-              : null;
+      // Convert Fastify request to Express-like for Clerk compatibility
+      const expressLikeRequest = {
+        headers: request.headers,
+        body: request.body
+      };
 
-          // Create a name from first and last name if available
-          const name =
-            [first_name, last_name].filter(Boolean).join(" ") || null;
+      // Verify webhook signature
+      const evt = await verifyWebhook(expressLikeRequest as any, {
+        signingSecret: process.env.CLERK_WEBHOOK_SIGNING_SECRET,
+      });
 
-          if (!primaryEmail) {
-            console.error("No email found for user:", clerkUserId);
-            return;
-          }
+      // Process webhook event
+      const { id } = evt.data;
+      const eventType = evt.type;
+      console.log(`Processed webhook with ID ${id} and type ${eventType}`);
 
-          try {
-            // Use Prisma upsert to either create or update the user
-            const user = await prisma.user.upsert({
-              where: {
-                clerkId: clerkUserId,
-              },
-              update: {
-                email: primaryEmail,
-                name: name,
-              },
-              create: {
-                clerkId: clerkUserId,
-                email: primaryEmail,
-                name: name,
-              },
-            });
+      // Handle different event types
+      if (eventType === "user.created" || eventType === "user.updated") {
+        // Extract user data from the webhook payload
+        const userData = evt.data;
+        const {
+          id: clerkUserId,
+          email_addresses,
+          first_name,
+          last_name,
+        } = userData;
 
-            console.log(
-              `User ${user.id} upserted successfully with clerk ID: ${clerkUserId}`
-            );
-          } catch (error) {
-            console.error("Error syncing user to database:", error);
-            // Still return 200 to Clerk so it doesn't retry indefinitely
-          }
-        } else if (eventType === "session.created") {
-          // Handle login events
-          const { user_id } = evt.data;
+        // Get primary email if available
+        const primaryEmail =
+          email_addresses && email_addresses.length > 0
+            ? email_addresses[0].email_address
+            : null;
 
-          try {
-            // Log the login event - note that our schema doesn't track login timestamps
-            // You could add this field to the User model if needed
-            console.log("User logged in:", user_id);
+        // Create a name from first and last name if available
+        const name =
+          [first_name, last_name].filter(Boolean).join(" ") || null;
 
-            // You could add login tracking here if you extend your schema:
-            // await prisma.user.update({
-            //   where: { clerkId: user_id },
-            //   data: { lastLoginAt: new Date() }
-            // });
-          } catch (error) {
-            console.error("Error processing login event:", error);
-          }
+        if (!primaryEmail) {
+          console.error("No email found for user:", clerkUserId);
+          return { status: 'error', message: 'No email found' };
         }
 
-        res.status(200).send("Webhook received");
-      })
-      .catch((err) => {
-        console.error("Error verifying webhook:", err);
-        res.status(400).send("Error verifying webhook");
-      });
+        try {
+          // Use Prisma upsert to either create or update the user
+          const user = await prisma.user.upsert({
+            where: {
+              clerkId: clerkUserId,
+            },
+            update: {
+              email: primaryEmail,
+              name: name,
+            },
+            create: {
+              clerkId: clerkUserId,
+              email: primaryEmail,
+              name: name,
+            },
+          });
+
+          console.log(
+            `User ${user.id} upserted successfully with clerk ID: ${clerkUserId}`
+          );
+        } catch (error) {
+          console.error("Error syncing user to database:", error);
+          // Still return 200 to Clerk so it doesn't retry indefinitely
+        }
+      } else if (eventType === "session.created") {
+        // Handle login events
+        const { user_id } = evt.data;
+
+        try {
+          // Log the login event
+          console.log("User logged in:", user_id);
+        } catch (error) {
+          console.error("Error processing login event:", error);
+        }
+      }
+
+      return { status: 'success', message: 'Webhook received' };
+    } catch (err) {
+      console.error("Error processing webhook:", err);
+      return reply.status(400).send({ error: "Error verifying webhook" });
+    }
+  });
+
+  // Start the server
+  const port = parseInt(process.env.PORT || '3001');
+  try {
+    await fastify.listen({ port, host: '0.0.0.0' });
+    console.log(`Server is running on port ${port}`);
+    console.log(`Health check: http://localhost:${port}/health`);
+    console.log(`API Documentation: http://localhost:${port}/documentation`);
+    console.log(`Webhook endpoint: http://localhost:${port}/api/webhooks`);
   } catch (err) {
-    console.error("Unexpected error in webhook handler:", err);
-    res.status(500).send("Server error");
+    fastify.log.error(err);
+    process.exit(1);
   }
-});
+}
 
-// Routes
-app.use("/api/tasks", taskRoutes);
-app.use("/api/files", fileRoutes);
-app.use("/api/ai", aiRoutes);
-
-const port = process.env.PORT || 3001; // Changed to 3001 to avoid conflicts
-
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-  console.log(`Health check: http://localhost:${port}/health`);
-  console.log(`Webhook endpoint: http://localhost:${port}/api/webhooks`);
+// Run the server
+setup().catch(err => {
+  console.error('Error starting server:', err);
+  process.exit(1);
 });

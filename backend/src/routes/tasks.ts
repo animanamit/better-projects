@@ -1,8 +1,24 @@
-import { Router, Request, Response } from "express";
-import { prisma } from "../prisma";
+import { FastifyInstance, FastifyPluginAsync } from 'fastify';
+import { prisma } from '../prisma';
 
-// Create a router instance
-const router = Router();
+// Type definitions for request parameters
+interface TaskParams {
+  id: string;
+}
+
+// Type definition for query parameters
+interface TaskQueryByUser {
+  userId: string;
+}
+
+// Type definitions for creating a task
+interface CreateTaskBody {
+  title: string;
+  description?: string;
+  userId: string;
+  userEmail: string;
+  userName?: string;
+}
 
 // Helper function to make sure a user exists in database (creating if needed)
 async function ensureUserExists(clerkId: string, email: string, name?: string) {
@@ -31,76 +47,170 @@ async function ensureUserExists(clerkId: string, email: string, name?: string) {
   }
 }
 
-// GET /tasks - Get all tasks for a user
-router.get("/", async (req: any, res: any) => {
-  try {
-    const { userId } = req.query;
-
-    if (!userId || typeof userId !== "string") {
-      return res.status(400).json({ error: "User ID is required" });
+// Define the tasks plugin
+const taskRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
+  // Schema for GET /tasks - Get all tasks for a user
+  const getUserTasksSchema = {
+    querystring: {
+      type: 'object',
+      required: ['userId'],
+      properties: {
+        userId: { type: 'string' }
+      }
+    },
+    response: {
+      200: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            title: { type: 'string' },
+            description: { type: ['string', 'null'] },
+            status: { type: 'string' },
+            userId: { type: 'string' },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' }
+          }
+        }
+      }
     }
+  };
 
-    const tasks = await prisma.task.findMany({
-      where: {
-        userId,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+  // GET /tasks - Get all tasks for a user
+  fastify.get<{
+    Querystring: TaskQueryByUser
+  }>('/', { schema: getUserTasksSchema }, async (request, reply) => {
+    try {
+      const { userId } = request.query;
 
-    res.json(tasks);
-  } catch (error) {
-    console.error("Error fetching tasks:", error);
-    res.status(500).json({ error: "Failed to fetch tasks" });
-  }
-});
+      if (!userId) {
+        throw fastify.httpErrors.badRequest('User ID is required');
+      }
 
-// POST /tasks - Create a new task
-router.post("/", async (req: any, res: any) => {
-  try {
-    const { title, description, userId, userEmail, userName } = req.body;
-
-    if (!title || !userId || !userEmail) {
-      return res.status(400).json({
-        error: "Title, userId, and userEmail are required",
+      const tasks = await prisma.task.findMany({
+        where: {
+          userId,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
       });
+
+      return tasks;
+    } catch (error) {
+      request.log.error("Error fetching tasks:", error);
+      // Using @fastify/sensible's httpErrors
+      throw fastify.httpErrors.internalServerError('Failed to fetch tasks');
     }
+  });
 
-    // Ensure the user exists in our database
-    await ensureUserExists(userId, userEmail, userName);
-
-    const task = await prisma.task.create({
-      data: {
-        title,
-        description,
-        userId,
-        status: "todo",
-      },
-    });
-
-    res.status(201).json(task);
-  } catch (error) {
-    console.error("Error creating task:", error);
-    res.status(500).json({ error: "Failed to create task" });
-  }
-});
-
-router.get("/task/:id", async (req: any, res: any) => {
-  try {
-    const { id } = req.params;
-    const task = await prisma.task.findUnique({
-      where: { id },
-    });
-
-    if (!task) {
-      return res.status(404).json({ error: "Task not found" });
+  // Schema for POST /tasks - Create a task
+  const createTaskSchema = {
+    body: {
+      type: 'object',
+      required: ['title', 'userId', 'userEmail'],
+      properties: {
+        title: { type: 'string' },
+        description: { type: 'string' },
+        userId: { type: 'string' },
+        userEmail: { type: 'string', format: 'email' },
+        userName: { type: 'string' }
+      }
+    },
+    response: {
+      201: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          title: { type: 'string' },
+          description: { type: ['string', 'null'] },
+          status: { type: 'string' },
+          userId: { type: 'string' },
+          createdAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time' }
+        }
+      }
     }
+  };
 
-    res.json(task);
-  } catch (error) {
-    console.error("Error fetching task:", error);
-    res.status(500).json({ error: "Failed to fetch task" });
-  }
-});
-export default router;
+  // POST /tasks - Create a new task
+  fastify.post<{
+    Body: CreateTaskBody
+  }>('/', { schema: createTaskSchema }, async (request, reply) => {
+    try {
+      const { title, description, userId, userEmail, userName } = request.body;
+
+      if (!title || !userId || !userEmail) {
+        throw fastify.httpErrors.badRequest('Title, userId, and userEmail are required');
+      }
+
+      // Ensure the user exists in our database
+      await ensureUserExists(userId, userEmail, userName);
+
+      const task = await prisma.task.create({
+        data: {
+          title,
+          description,
+          userId,
+          status: 'todo',
+        },
+      });
+
+      return reply.status(201).send(task);
+    } catch (error) {
+      request.log.error("Error creating task:", error);
+      throw fastify.httpErrors.internalServerError('Failed to create task');
+    }
+  });
+
+  // Schema for GET /tasks/:id - Get a task by ID
+  const getTaskByIdSchema = {
+    params: {
+      type: 'object',
+      required: ['id'],
+      properties: {
+        id: { type: 'string' }
+      }
+    },
+    response: {
+      200: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          title: { type: 'string' },
+          description: { type: ['string', 'null'] },
+          status: { type: 'string' },
+          userId: { type: 'string' },
+          createdAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time' }
+        }
+      }
+    }
+  };
+
+  // GET /tasks/task/:id - Get a task by ID
+  fastify.get<{
+    Params: TaskParams
+  }>('/task/:id', { schema: getTaskByIdSchema }, async (request, reply) => {
+    try {
+      const { id } = request.params;
+      const task = await prisma.task.findUnique({
+        where: { id },
+      });
+
+      if (!task) {
+        throw fastify.httpErrors.notFound('Task not found');
+      }
+
+      return task;
+    } catch (error) {
+      request.log.error("Error fetching task:", error);
+      // If it's already an HTTP error (like notFound), it will be passed through
+      if ((error as any).statusCode) throw error;
+      throw fastify.httpErrors.internalServerError('Failed to fetch task');
+    }
+  });
+};
+
+export default taskRoutes;

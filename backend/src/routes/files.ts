@@ -1,115 +1,78 @@
-import express, { Router, Request, Response } from "express";
-import { prisma } from "../prisma";
-import multer from "multer";
+// For now, we're keeping file upload functionality with basic support
+// but we'll need to replace multer with @fastify/multipart later
+import { FastifyInstance, FastifyPluginAsync } from 'fastify';
+import { prisma } from '../prisma';
+import type { FastifyRequest } from 'fastify';
 import {
-  uploadFile,
   generateUniqueFilename,
   getPresignedUploadUrl,
   getPresignedDownloadUrl,
   deleteFile,
 } from "../s3";
 
-// Create a router instance
-const router = Router();
+// Type definitions
+interface GetUploadUrlBody {
+  fileName: string;
+  contentType: string;
+  userId: string;
+  userEmail: string;
+  userName?: string;
+  taskId?: string;
+  title?: string;
+  description?: string;
+}
 
-// Configure multer for memory storage
-const storage = multer.memoryStorage();
-const upload = multer({
-  storage,
-  limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
-  },
-});
+interface FileIdParam {
+  id: string;
+}
 
-// Helper function to ensure a user exists
-// async function ensureUserExists(clerkId: string, email: string, name?: string) {
-//   try {
-//     // Check if user exists
-//     let user = await prisma.user.findUnique({
-//       where: { clerkId },
-//     });
+interface FileCompleteBody {
+  fileSize: number;
+  fileUrl: string;
+}
 
-//     // If user doesn't exist, create them
-//     if (!user) {
-//       user = await prisma.user.create({
-//         data: {
-//           clerkId,
-//           email,
-//           name,
-//         },
-//       });
-//       console.log(`Created new user with clerkId: ${clerkId}`);
-//     }
+interface FileQueryParams {
+  userId?: string;
+  taskId?: string;
+}
 
-//     return user;
-//   } catch (error) {
-//     console.error("Error ensuring user exists:", error);
-//     throw error;
-//   }
-// }
+// Define the files plugin
+const fileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
+  // Since we're temporarily skipping direct file upload functionality,
+  // we'll focus on implementing the presigned URL approach
 
-// POST /files/upload - Upload a file directly
-router.post(
-  "/upload",
-  upload.single("file"),
-  async (req: Request, res: Response): Promise<void> => {
-    try {
-      const file = req.file;
-      const { userId, userEmail, userName, taskId, title, description } = req.body;
-
-      if (!file) {
-        res.status(400).json({ error: "No file provided" });
-        return;
+  // Schema for POST /files/get-upload-url - Get a presigned URL for direct upload
+  const getUploadUrlSchema = {
+    body: {
+      type: 'object',
+      required: ['fileName', 'contentType', 'userId', 'userEmail'],
+      properties: {
+        fileName: { type: 'string' },
+        contentType: { type: 'string' },
+        userId: { type: 'string' },
+        userEmail: { type: 'string', format: 'email' },
+        userName: { type: 'string' },
+        taskId: { type: 'string' },
+        title: { type: 'string' },
+        description: { type: 'string' }
       }
-
-      if (!userId || !userEmail) {
-        res.status(400).json({
-          error: "userId and userEmail are required",
-        });
-        return;
+    },
+    response: {
+      200: {
+        type: 'object',
+        properties: {
+          uploadUrl: { type: 'string' },
+          fileId: { type: 'string' },
+          fileKey: { type: 'string' }
+        }
       }
-
-      // Ensure the user exists in our database
-      // await ensureUserExists(userId, userEmail, userName);
-
-      // Generate a unique filename
-      const uniqueFilename = generateUniqueFilename(file.originalname);
-
-      // Upload file to S3
-      const fileUrl = await uploadFile(
-        file.buffer,
-        uniqueFilename,
-        file.mimetype,
-        "uploads"
-      );
-
-      // Store file metadata in database
-      const fileAttachment = await prisma.fileAttachment.create({
-        data: {
-          fileName: title || file.originalname, // Use the title if provided
-          originalFileName: file.originalname, // Always store the original filename
-          description: description || null, // Optional description
-          fileKey: `uploads/${uniqueFilename}`,
-          fileUrl,
-          fileType: file.mimetype,
-          fileSize: file.size,
-          userId,
-          taskId,
-        },
-      });
-
-      res.status(201).json(fileAttachment);
-    } catch (error) {
-      console.error("Error uploading file:", error);
-      res.status(500).json({ error: "Failed to upload file" });
     }
-  }
-);
+  };
 
-// POST /files/get-upload-url - Get a presigned URL for direct upload
-router.post(
-  "/get-upload-url",
-  async (req: Request, res: Response): Promise<void> => {
+  // POST /files/get-upload-url - Get a presigned URL for direct upload
+  fastify.post<{
+    Body: GetUploadUrlBody
+  }>('/get-upload-url', { schema: getUploadUrlSchema }, async (request, reply) => {
     try {
       const { 
         fileName, 
@@ -120,17 +83,11 @@ router.post(
         taskId,
         title,
         description 
-      } = req.body;
+      } = request.body;
 
       if (!fileName || !contentType || !userId || !userEmail) {
-        res.status(400).json({
-          error: "fileName, contentType, userId, and userEmail are required",
-        });
-        return;
+        throw fastify.httpErrors.badRequest("fileName, contentType, userId, and userEmail are required");
       }
-
-      // Ensure the user exists in our database
-      // await ensureUserExists(userId, userEmail, userName);
 
       // Generate a unique filename
       const uniqueFilename = generateUniqueFilename(fileName);
@@ -157,31 +114,66 @@ router.post(
         },
       });
 
-      res.status(200).json({
+      return {
         uploadUrl: url,
         fileId: fileAttachment.id,
         fileKey: key,
-      });
+      };
     } catch (error) {
-      console.error("Error generating upload URL:", error);
-      res.status(500).json({ error: "Failed to generate upload URL" });
+      request.log.error("Error generating upload URL:", error);
+      throw fastify.httpErrors.internalServerError("Failed to generate upload URL");
     }
-  }
-);
+  });
 
-// PUT /files/:id/complete - Complete a client-side upload
-router.put(
-  "/:id/complete",
-  async (req: Request, res: Response): Promise<void> => {
+  // Schema for PUT /files/:id/complete - Complete a client-side upload
+  const completeUploadSchema = {
+    params: {
+      type: 'object',
+      required: ['id'],
+      properties: {
+        id: { type: 'string' }
+      }
+    },
+    body: {
+      type: 'object',
+      required: ['fileSize', 'fileUrl'],
+      properties: {
+        fileSize: { type: 'number' },
+        fileUrl: { type: 'string' }
+      }
+    },
+    response: {
+      200: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          fileName: { type: 'string' },
+          originalFileName: { type: 'string' },
+          description: { type: ['string', 'null'] },
+          fileKey: { type: 'string' },
+          fileUrl: { type: 'string' },
+          fileType: { type: 'string' },
+          fileSize: { type: 'number' },
+          userId: { type: 'string' },
+          taskId: { type: ['string', 'null'] },
+          createdAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time' }
+        }
+      }
+    }
+  };
+
+  // PUT /files/:id/complete - Complete a client-side upload
+  fastify.put<{
+    Params: FileIdParam,
+    Body: FileCompleteBody
+  }>('/:id/complete', { schema: completeUploadSchema }, async (request, reply) => {
     try {
-      const { id } = req.params;
-      const { fileSize, fileUrl } = req.body;
+      const { id } = request.params;
+      const { fileSize, fileUrl } = request.body;
 
       if (!fileSize || !fileUrl) {
-        res.status(400).json({
-          error: "fileSize and fileUrl are required",
-        });
-        return;
+        throw fastify.httpErrors.badRequest("fileSize and fileUrl are required");
       }
 
       // Update the file record with actual size and URL
@@ -193,119 +185,230 @@ router.put(
         },
       });
 
-      res.status(200).json(fileAttachment);
+      return fileAttachment;
     } catch (error) {
-      console.error("Error completing file upload:", error);
-      res.status(500).json({ error: "Failed to complete file upload" });
+      request.log.error("Error completing file upload:", error);
+      throw fastify.httpErrors.internalServerError("Failed to complete file upload");
     }
-  }
-);
+  });
 
-// GET /files - Get all files for a user or task
-router.get("/", async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { userId, taskId } = req.query;
-
-    if (!userId && !taskId) {
-      res.status(400).json({
-        error: "Either userId or taskId is required",
-      });
-      return;
-    }
-
-    const files = await prisma.fileAttachment.findMany({
-      where: {
-        ...(userId ? { userId: userId as string } : {}),
-        ...(taskId ? { taskId: taskId as string } : {}),
+  // Schema for GET /files - Get all files for a user or task
+  const getFilesSchema = {
+    querystring: {
+      type: 'object',
+      properties: {
+        userId: { type: 'string' },
+        taskId: { type: 'string' }
       },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-
-    res.status(200).json(files);
-  } catch (error) {
-    console.error("Error fetching files:", error);
-    res.status(500).json({ error: "Failed to fetch files" });
-  }
-});
-
-// GET /files/:id - Get a single file by ID
-router.get("/:id", async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { id } = req.params;
-
-    const file = await prisma.fileAttachment.findUnique({
-      where: { id },
-    });
-
-    if (!file) {
-      res.status(404).json({ error: "File not found" });
-      return;
+      oneOf: [
+        { required: ['userId'] },
+        { required: ['taskId'] }
+      ]
+    },
+    response: {
+      200: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            fileName: { type: 'string' },
+            originalFileName: { type: 'string' },
+            description: { type: ['string', 'null'] },
+            fileKey: { type: 'string' },
+            fileUrl: { type: 'string' },
+            fileType: { type: 'string' },
+            fileSize: { type: 'number' },
+            userId: { type: 'string' },
+            taskId: { type: ['string', 'null'] },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' }
+          }
+        }
+      }
     }
+  };
 
-    res.status(200).json(file);
-  } catch (error) {
-    console.error("Error fetching file:", error);
-    res.status(500).json({ error: "Failed to fetch file" });
-  }
-});
-
-// GET /files/:id/download - Get a presigned download URL
-router.get(
-  "/:id/download",
-  async (req: Request, res: Response): Promise<void> => {
+  // GET /files - Get all files for a user or task
+  fastify.get<{
+    Querystring: FileQueryParams
+  }>('/', { schema: getFilesSchema }, async (request, reply) => {
     try {
-      const { id } = req.params;
+      const { userId, taskId } = request.query;
+
+      if (!userId && !taskId) {
+        throw fastify.httpErrors.badRequest("Either userId or taskId is required");
+      }
+
+      const files = await prisma.fileAttachment.findMany({
+        where: {
+          ...(userId ? { userId: userId } : {}),
+          ...(taskId ? { taskId: taskId } : {}),
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+
+      return files;
+    } catch (error) {
+      request.log.error("Error fetching files:", error);
+      throw fastify.httpErrors.internalServerError("Failed to fetch files");
+    }
+  });
+
+  // Schema for GET /files/:id - Get a single file by ID
+  const getFileByIdSchema = {
+    params: {
+      type: 'object',
+      required: ['id'],
+      properties: {
+        id: { type: 'string' }
+      }
+    },
+    response: {
+      200: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          fileName: { type: 'string' },
+          originalFileName: { type: 'string' },
+          description: { type: ['string', 'null'] },
+          fileKey: { type: 'string' },
+          fileUrl: { type: 'string' },
+          fileType: { type: 'string' },
+          fileSize: { type: 'number' },
+          userId: { type: 'string' },
+          taskId: { type: ['string', 'null'] },
+          createdAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time' }
+        }
+      }
+    }
+  };
+
+  // GET /files/:id - Get a single file by ID
+  fastify.get<{
+    Params: FileIdParam
+  }>('/:id', { schema: getFileByIdSchema }, async (request, reply) => {
+    try {
+      const { id } = request.params;
 
       const file = await prisma.fileAttachment.findUnique({
         where: { id },
       });
 
       if (!file) {
-        res.status(404).json({ error: "File not found" });
-        return;
+        throw fastify.httpErrors.notFound("File not found");
+      }
+
+      return file;
+    } catch (error) {
+      request.log.error("Error fetching file:", error);
+      if ((error as any).statusCode) throw error;
+      throw fastify.httpErrors.internalServerError("Failed to fetch file");
+    }
+  });
+
+  // Schema for GET /files/:id/download - Get a presigned download URL
+  const getDownloadUrlSchema = {
+    params: {
+      type: 'object',
+      required: ['id'],
+      properties: {
+        id: { type: 'string' }
+      }
+    },
+    response: {
+      200: {
+        type: 'object',
+        properties: {
+          downloadUrl: { type: 'string' }
+        }
+      }
+    }
+  };
+
+  // GET /files/:id/download - Get a presigned download URL
+  fastify.get<{
+    Params: FileIdParam
+  }>('/:id/download', { schema: getDownloadUrlSchema }, async (request, reply) => {
+    try {
+      const { id } = request.params;
+
+      const file = await prisma.fileAttachment.findUnique({
+        where: { id },
+      });
+
+      if (!file) {
+        throw fastify.httpErrors.notFound("File not found");
       }
 
       // Generate presigned download URL
       const downloadUrl = await getPresignedDownloadUrl(file.fileKey);
 
-      res.status(200).json({ downloadUrl });
+      return { downloadUrl };
     } catch (error) {
-      console.error("Error generating download URL:", error);
-      res.status(500).json({ error: "Failed to generate download URL" });
+      request.log.error("Error generating download URL:", error);
+      if ((error as any).statusCode) throw error;
+      throw fastify.httpErrors.internalServerError("Failed to generate download URL");
     }
-  }
-);
+  });
 
-// DELETE /files/:id - Delete a file
-router.delete("/:id", async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { id } = req.params;
-
-    // Find the file record
-    const file = await prisma.fileAttachment.findUnique({
-      where: { id },
-    });
-
-    if (!file) {
-      res.status(404).json({ error: "File not found" });
-      return;
+  // Schema for DELETE /files/:id - Delete a file
+  const deleteFileSchema = {
+    params: {
+      type: 'object',
+      required: ['id'],
+      properties: {
+        id: { type: 'string' }
+      }
+    },
+    response: {
+      200: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean' }
+        }
+      }
     }
+  };
 
-    // Delete from S3
-    await deleteFile(file.fileKey);
+  // DELETE /files/:id - Delete a file
+  fastify.delete<{
+    Params: FileIdParam
+  }>('/:id', { schema: deleteFileSchema }, async (request, reply) => {
+    try {
+      const { id } = request.params;
 
-    // Delete from database
-    await prisma.fileAttachment.delete({
-      where: { id },
-    });
+      // Find the file record
+      const file = await prisma.fileAttachment.findUnique({
+        where: { id },
+      });
 
-    res.status(200).json({ success: true });
-  } catch (error) {
-    console.error("Error deleting file:", error);
-    res.status(500).json({ error: "Failed to delete file" });
-  }
-});
+      if (!file) {
+        throw fastify.httpErrors.notFound("File not found");
+      }
 
-export default router;
+      // Delete from S3
+      await deleteFile(file.fileKey);
+
+      // Delete from database
+      await prisma.fileAttachment.delete({
+        where: { id },
+      });
+
+      return { success: true };
+    } catch (error) {
+      request.log.error("Error deleting file:", error);
+      if ((error as any).statusCode) throw error;
+      throw fastify.httpErrors.internalServerError("Failed to delete file");
+    }
+  });
+
+  // Note: We're skipping the direct file upload implementation for now
+  // We'll need to implement it later with @fastify/multipart
+
+};
+
+export default fileRoutes;

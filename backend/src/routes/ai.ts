@@ -1,124 +1,172 @@
-// @ts-nocheck - Disable TypeScript checking for this file
-import { Router } from "express";
-import dotenv from "dotenv";
-import * as path from "path";
-import * as fs from "fs";
-import fetch from "node-fetch";
+import { FastifyInstance, FastifyPluginAsync } from 'fastify';
+import dotenv from 'dotenv';
+import * as path from 'path';
+import * as fs from 'fs';
+import fetch from 'node-fetch';
 
 // Load environment variables with proper path
-dotenv.config({ path: path.resolve(__dirname, "../../.env") });
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
-// Create a router instance
-const router = Router();
-
-// Log the OpenRouter API key (just the first few characters)
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "";
-console.log("OpenRouter API Key exists:", OPENROUTER_API_KEY ? "Yes" : "No");
-if (OPENROUTER_API_KEY) {
-  console.log("OpenRouter API Key preview:", OPENROUTER_API_KEY.substring(0, 5) + "...");
+// Type definitions for better TypeScript support
+interface SummaryRequest {
+  model: string;
+  forceRefresh?: boolean;
 }
-const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
-// Simple in-memory cache
-const summaryCache = {
-  task: {}, // taskId -> { summary, timestamp, model }
-  project: {}, // projectId -> { summary, timestamp, model }
-  team: {}, // teamId -> { summary, timestamp, model }
-};
+interface TaskSummaryRequest extends SummaryRequest {
+  taskId: string;
+}
 
-// Cache expiration time (24 hours in milliseconds)
-const CACHE_EXPIRATION = 24 * 60 * 60 * 1000;
+interface ProjectSummaryRequest extends SummaryRequest {
+  projectId: string;
+}
 
-// Helper function to call OpenRouter API
-async function callOpenRouter(prompt, model) {
-  if (!OPENROUTER_API_KEY) {
-    console.warn("No OpenRouter API key found, using mock response");
-    return null;
+interface TeamSummaryRequest extends SummaryRequest {
+  teamId: string;
+}
+
+interface SummaryResponse {
+  summary: string;
+}
+
+interface CacheEntry {
+  summary: string;
+  timestamp: number;
+  model: string;
+}
+
+interface Cache {
+  [key: string]: CacheEntry;
+}
+
+// Define the AI plugin
+const aiRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
+  // Log the OpenRouter API key (just the first few characters)
+  const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
+  console.log('OpenRouter API Key exists:', OPENROUTER_API_KEY ? 'Yes' : 'No');
+  if (OPENROUTER_API_KEY) {
+    console.log(
+      'OpenRouter API Key preview:',
+      OPENROUTER_API_KEY.substring(0, 5) + '...'
+    );
   }
+  const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
-  try {
-    console.log(`Calling OpenRouter with model: ${model}`);
-    
-    const response = await fetch(OPENROUTER_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://better-projects.vercel.app/",
-        "X-Title": "Better Projects - Task Management",
-        "Authorization": `Bearer ${OPENROUTER_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: model,
-        messages: [
-          {
-            role: "system",
-            content: "You are an AI assistant that provides insightful, business-oriented summaries of tasks, projects, and teams. Your summaries should be concise, actionable, and tailored to different stakeholders like product owners, CTOs, and team leaders."
-          },
-          { role: "user", content: prompt }
-        ],
-        temperature: 0.7,
-        max_tokens: 1000
-      })
-    });
+  // Simple in-memory cache
+  const summaryCache: {
+    task: Cache;
+    project: Cache;
+    team: Cache;
+  } = {
+    task: {}, // taskId -> { summary, timestamp, model }
+    project: {}, // projectId -> { summary, timestamp, model }
+    team: {}, // teamId -> { summary, timestamp, model }
+  };
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error("OpenRouter API error:", errorData);
-      throw new Error(`OpenRouter API error: ${errorData.error?.message || "Unknown error"}`);
+  // Cache expiration time (24 hours in milliseconds)
+  const CACHE_EXPIRATION = 24 * 60 * 60 * 1000;
+
+  // Helper function to call OpenRouter API
+  async function callOpenRouter(prompt: string, model: string): Promise<string | null> {
+    if (!OPENROUTER_API_KEY) {
+      console.warn('No OpenRouter API key found, using mock response');
+      return null;
     }
 
-    const data = await response.json();
-    return data.choices[0].message.content;
-  } catch (error) {
-    console.error("Error calling OpenRouter:", error);
-    return null;
-  }
-}
+    try {
+      console.log(`Calling OpenRouter with model: ${model}`);
 
-// Helper function to get cached summary or generate a new one
-async function getOrGenerateSummary(type, id, model, prompt, forceRefresh = false) {
-  const cacheKey = id;
-  const cache = summaryCache[type];
-  
-  // Check if we have a valid cache entry
-  if (
-    !forceRefresh &&
-    cache[cacheKey] &&
-    cache[cacheKey].model === model &&
-    (Date.now() - cache[cacheKey].timestamp) < CACHE_EXPIRATION
-  ) {
-    console.log(`Returning cached ${type} summary for ${id}`);
-    return cache[cacheKey].summary;
-  }
-  
-  // Generate new summary from OpenRouter
-  console.log(`Generating new ${type} summary for ${id} with model ${model}`);
-  const summary = await callOpenRouter(prompt, model);
-  
-  if (summary) {
-    // Update cache
-    cache[cacheKey] = {
-      summary,
-      timestamp: Date.now(),
-      model
-    };
-    return summary;
-  }
-  
-  // If OpenRouter call fails, return mock response or cached response if available
-  if (cache[cacheKey]) {
-    console.log(`Falling back to cached ${type} summary for ${id} after API failure`);
-    return cache[cacheKey].summary;
-  }
-  
-  // Fall back to mock response if all else fails
-  return getMockSummary(type);
-}
+      const response = await fetch(OPENROUTER_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://better-projects.vercel.app/',
+          'X-Title': 'Better Projects - Task Management',
+          Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: [
+            {
+              role: 'system',
+              content:
+                'You are an AI assistant that provides insightful, business-oriented summaries of tasks, projects, and teams. Your summaries should be concise, actionable, and tailored to different stakeholders like product owners, CTOs, and team leaders.',
+            },
+            { role: 'user', content: prompt },
+          ],
+          temperature: 0.7,
+          max_tokens: 1000,
+        }),
+      });
 
-// Mock summaries as fallback if API fails
-function getMockSummary(type) {
-  if (type === "task") {
-    return `## Executive Summary: API Integration for Payment Gateway
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('OpenRouter API error:', errorData);
+        throw new Error(
+          `OpenRouter API error: ${errorData.error?.message || 'Unknown error'}`
+        );
+      }
+
+      const data = await response.json();
+      return data.choices[0].message.content;
+    } catch (error) {
+      console.error('Error calling OpenRouter:', error);
+      return null;
+    }
+  }
+
+  // Helper function to get cached summary or generate a new one
+  async function getOrGenerateSummary(
+    type: 'task' | 'project' | 'team',
+    id: string,
+    model: string,
+    prompt: string,
+    forceRefresh = false
+  ): Promise<string> {
+    const cacheKey = id;
+    const cache = summaryCache[type];
+
+    // Check if we have a valid cache entry
+    if (
+      !forceRefresh &&
+      cache[cacheKey] &&
+      cache[cacheKey].model === model &&
+      Date.now() - cache[cacheKey].timestamp < CACHE_EXPIRATION
+    ) {
+      console.log(`Returning cached ${type} summary for ${id}`);
+      return cache[cacheKey].summary;
+    }
+
+    // Generate new summary from OpenRouter
+    console.log(`Generating new ${type} summary for ${id} with model ${model}`);
+    const summary = await callOpenRouter(prompt, model);
+
+    if (summary) {
+      // Update cache
+      cache[cacheKey] = {
+        summary,
+        timestamp: Date.now(),
+        model,
+      };
+      return summary;
+    }
+
+    // If OpenRouter call fails, return mock response or cached response if available
+    if (cache[cacheKey]) {
+      console.log(
+        `Falling back to cached ${type} summary for ${id} after API failure`
+      );
+      return cache[cacheKey].summary;
+    }
+
+    // Fall back to mock response if all else fails
+    return getMockSummary(type);
+  }
+
+  // Mock summaries as fallback if API fails
+  function getMockSummary(type: 'task' | 'project' | 'team'): string {
+    if (type === 'task') {
+      return `## Executive Summary: API Integration for Payment Gateway
 
 John Doe has been working on this task for 5 days and appears to be making steady progress. Based on the comment history and recent updates, I estimate this task will require another 3-4 days to complete. The complexity lies primarily in handling edge cases for international transactions.
 
@@ -137,8 +185,8 @@ While John is managing well, this task's completion timeline could be accelerate
 * **Mitigation**: A fallback implementation has been prepared in case the primary approach encounters unexpected issues
 
 The team has been proactive in communication, with regular updates in the dedicated Slack channel and comprehensive documentation being maintained throughout the development process.`;
-  } else if (type === "project") {
-    return `## Executive Overview: Mobile App Redesign Project
+    } else if (type === 'project') {
+      return `## Executive Overview: Mobile App Redesign Project
 
 The mobile app redesign project is currently 33% complete and tracking on schedule for the planned July 15th release. The team has successfully completed the user research phase and finalized the design system, with development now in active progress.
 
@@ -168,8 +216,8 @@ The team encountered integration challenges with the analytics SDK last week but
 * **High risk**: Marketing campaign timing – requires coordination with the launch; weekly sync established
 
 The cross-functional collaboration on this project has been exemplary, with design and development teams working closely together and resolving issues quickly.`;
-  } else {
-    return `## Team Performance Report: Engineering Team Alpha
+    } else {
+      return `## Team Performance Report: Engineering Team Alpha
 
 The Engineering Team Alpha consists of 8 engineers led by John Doe, with cross-functional expertise spanning frontend, backend, and DevOps specializations. The team is currently managing 3 active projects and has demonstrated consistent delivery quality over the past quarter.
 
@@ -199,36 +247,89 @@ The team currently has no available bandwidth for new initiatives until mid-July
 The team would benefit from additional expertise in machine learning, which aligns with our Q3 roadmap priorities. I recommend either targeted hiring or providing training opportunities for 1-2 existing team members who have expressed interest in this area.
 
 Team morale remains high, though there's some concern about the upcoming office relocation and its impact on the collaborative environment they've established.`;
+    }
   }
-}
 
-// Diagnostic endpoint
-router.get("/test", (req, res) => {
-  const envVars = {
-    NODE_ENV: process.env.NODE_ENV,
-    OPENROUTER_API_KEY_EXISTS: Boolean(process.env.OPENROUTER_API_KEY),
-    ENV_FILE_PATH: path.resolve(__dirname, "../../.env"),
-    ENV_FILE_EXISTS: fs.existsSync(path.resolve(__dirname, "../../.env")),
-    CURRENT_WORKING_DIR: process.cwd(),
-    CACHE_STATUS: {
-      task: Object.keys(summaryCache.task).length,
-      project: Object.keys(summaryCache.project).length,
-      team: Object.keys(summaryCache.team).length,
+  // Schema for diagnostic endpoint
+  const testSchema = {
+    response: {
+      200: {
+        type: 'object',
+        properties: {
+          message: { type: 'string' },
+          environment: {
+            type: 'object',
+            properties: {
+              NODE_ENV: { type: ['string', 'null'] },
+              OPENROUTER_API_KEY_EXISTS: { type: 'boolean' },
+              ENV_FILE_PATH: { type: 'string' },
+              ENV_FILE_EXISTS: { type: 'boolean' },
+              CURRENT_WORKING_DIR: { type: 'string' },
+              CACHE_STATUS: {
+                type: 'object',
+                properties: {
+                  task: { type: 'number' },
+                  project: { type: 'number' },
+                  team: { type: 'number' }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   };
-  
-  res.json({
-    message: "AI routes are working",
-    environment: envVars,
-  });
-});
 
-// Task summary endpoint
-router.post("/task-summary", async (req, res) => {
-  try {
-    const { taskId, model, forceRefresh } = req.body;
-    
-    const prompt = `Please generate an insightful summary of this task with ID ${taskId}. 
+  // Diagnostic endpoint
+  fastify.get('/test', { schema: testSchema }, (request, reply) => {
+    const envVars = {
+      NODE_ENV: process.env.NODE_ENV,
+      OPENROUTER_API_KEY_EXISTS: Boolean(process.env.OPENROUTER_API_KEY),
+      ENV_FILE_PATH: path.resolve(__dirname, '../../.env'),
+      ENV_FILE_EXISTS: fs.existsSync(path.resolve(__dirname, '../../.env')),
+      CURRENT_WORKING_DIR: process.cwd(),
+      CACHE_STATUS: {
+        task: Object.keys(summaryCache.task).length,
+        project: Object.keys(summaryCache.project).length,
+        team: Object.keys(summaryCache.team).length,
+      },
+    };
+
+    return {
+      message: 'AI routes are working',
+      environment: envVars,
+    };
+  });
+
+  // Schema for task summary endpoint
+  const taskSummarySchema = {
+    body: {
+      type: 'object',
+      required: ['taskId', 'model'],
+      properties: {
+        taskId: { type: 'string' },
+        model: { type: 'string' },
+        forceRefresh: { type: 'boolean', default: false }
+      }
+    },
+    response: {
+      200: {
+        type: 'object',
+        properties: {
+          summary: { type: 'string' }
+        }
+      }
+    }
+  };
+
+  // Task summary endpoint
+  fastify.post<{
+    Body: TaskSummaryRequest
+  }>('/task-summary', { schema: taskSummarySchema }, async (request, reply) => {
+    try {
+      const { taskId, model, forceRefresh } = request.body;
+
+      const prompt = `Please generate an insightful summary of this task with ID ${taskId}. 
 
 The summary should include sections targeted at different stakeholders (Product Owner, CTO, Team Leadership).
 Include an executive summary at the top, and insights about timeline, blockers, risks, and next steps if applicable.
@@ -260,28 +361,51 @@ Resource allocation, team coordination, and performance insights
 * **Risk level**: Description and mitigation strategy
 
 Format your response in clear, professional language appropriate for a business context.`;
-    
-    const summary = await getOrGenerateSummary(
-      "task", 
-      taskId, 
-      model, 
-      prompt, 
-      forceRefresh
-    );
-    
-    return res.json({ summary });
-  } catch (error) {
-    console.error("Error in task-summary endpoint:", error);
-    res.status(500).json({ error: "Failed to generate summary" });
-  }
-});
 
-// Project summary endpoint
-router.post("/project-summary", async (req, res) => {
-  try {
-    const { projectId, model, forceRefresh } = req.body;
-    
-    const prompt = `Please generate an insightful summary of this project with ID ${projectId}.
+      const summary = await getOrGenerateSummary(
+        'task',
+        taskId,
+        model,
+        prompt,
+        forceRefresh
+      );
+
+      return { summary };
+    } catch (error) {
+      request.log.error('Error in task-summary endpoint:', error);
+      throw fastify.httpErrors.internalServerError('Failed to generate summary');
+    }
+  });
+
+  // Schema for project summary endpoint
+  const projectSummarySchema = {
+    body: {
+      type: 'object',
+      required: ['projectId', 'model'],
+      properties: {
+        projectId: { type: 'string' },
+        model: { type: 'string' },
+        forceRefresh: { type: 'boolean', default: false }
+      }
+    },
+    response: {
+      200: {
+        type: 'object',
+        properties: {
+          summary: { type: 'string' }
+        }
+      }
+    }
+  };
+
+  // Project summary endpoint
+  fastify.post<{
+    Body: ProjectSummaryRequest
+  }>('/project-summary', { schema: projectSummarySchema }, async (request, reply) => {
+    try {
+      const { projectId, model, forceRefresh } = request.body;
+
+      const prompt = `Please generate an insightful summary of this project with ID ${projectId}.
 
 The summary should include sections targeted at different stakeholders (Executive Leadership, Product Management, Engineering Leadership).
 Include an executive overview at the top, and insights about progress, risks, and focus areas.
@@ -320,28 +444,51 @@ Technical progress, architecture decisions, and team performance
 * **Low risk**: Description and mitigation strategy
 
 Format your response in clear, professional language appropriate for a business context.`;
-    
-    const summary = await getOrGenerateSummary(
-      "project", 
-      projectId, 
-      model, 
-      prompt, 
-      forceRefresh
-    );
-    
-    return res.json({ summary });
-  } catch (error) {
-    console.error("Error in project-summary endpoint:", error);
-    res.status(500).json({ error: "Failed to generate summary" });
-  }
-});
 
-// Team summary endpoint
-router.post("/team-summary", async (req, res) => {
-  try {
-    const { teamId, model, forceRefresh } = req.body;
-    
-    const prompt = `Please generate an insightful summary of this team with ID ${teamId}.
+      const summary = await getOrGenerateSummary(
+        'project',
+        projectId,
+        model,
+        prompt,
+        forceRefresh
+      );
+
+      return { summary };
+    } catch (error) {
+      request.log.error('Error in project-summary endpoint:', error);
+      throw fastify.httpErrors.internalServerError('Failed to generate summary');
+    }
+  });
+
+  // Schema for team summary endpoint
+  const teamSummarySchema = {
+    body: {
+      type: 'object',
+      required: ['teamId', 'model'],
+      properties: {
+        teamId: { type: 'string' },
+        model: { type: 'string' },
+        forceRefresh: { type: 'boolean', default: false }
+      }
+    },
+    response: {
+      200: {
+        type: 'object',
+        properties: {
+          summary: { type: 'string' }
+        }
+      }
+    }
+  };
+
+  // Team summary endpoint
+  fastify.post<{
+    Body: TeamSummaryRequest
+  }>('/team-summary', { schema: teamSummarySchema }, async (request, reply) => {
+    try {
+      const { teamId, model, forceRefresh } = request.body;
+
+      const prompt = `Please generate an insightful summary of this team with ID ${teamId}.
 
 The summary should include sections targeted at different stakeholders (CEO, CTO, Director of Product).
 Include insights about team performance, focus areas, capacity, and development needs.
@@ -378,29 +525,42 @@ Delivery metrics, collaboration quality, and product impact insights
 Identified skill gaps, growth opportunities, and recommended investments
 
 Format your response in clear, professional language appropriate for a business context.`;
-    
-    const summary = await getOrGenerateSummary(
-      "team", 
-      teamId, 
-      model, 
-      prompt, 
-      forceRefresh
-    );
-    
-    return res.json({ summary });
-  } catch (error) {
-    console.error("Error in team-summary endpoint:", error);
-    res.status(500).json({ error: "Failed to generate summary" });
-  }
-});
 
-// Endpoint to clear cache (admin/debug)
-router.post("/clear-cache", (req, res) => {
-  summaryCache.task = {};
-  summaryCache.project = {};
-  summaryCache.team = {};
-  
-  res.json({ message: "Cache cleared successfully" });
-});
+      const summary = await getOrGenerateSummary(
+        'team',
+        teamId,
+        model,
+        prompt,
+        forceRefresh
+      );
 
-export default router;
+      return { summary };
+    } catch (error) {
+      request.log.error('Error in team-summary endpoint:', error);
+      throw fastify.httpErrors.internalServerError('Failed to generate summary');
+    }
+  });
+
+  // Schema for clear cache endpoint
+  const clearCacheSchema = {
+    response: {
+      200: {
+        type: 'object',
+        properties: {
+          message: { type: 'string' }
+        }
+      }
+    }
+  };
+
+  // Endpoint to clear cache (admin/debug)
+  fastify.post('/clear-cache', { schema: clearCacheSchema }, (request, reply) => {
+    summaryCache.task = {};
+    summaryCache.project = {};
+    summaryCache.team = {};
+
+    return { message: 'Cache cleared successfully' };
+  });
+};
+
+export default aiRoutes;
