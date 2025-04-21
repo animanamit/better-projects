@@ -494,7 +494,7 @@ const AISummaryDialog = ({
   selectedModel,
 }: AISummaryDialogProps) => {
   // React 18 useTransition for non-blocking UI updates
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   const [fullSummary, setFullSummary] = useState("");
   const [isLoading, setIsLoading] = useState(false);

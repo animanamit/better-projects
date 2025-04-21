@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { mockData, TaskStatus, TaskPriority } from "@/mock-data";
 import { useState, useEffect, useContext } from "react";
-import { useTabContext } from "@/dashboard";
 import AISummaryDialog from "@/components/ai-summary-dialog";
 import { AIContext } from "./App";
 
@@ -183,7 +182,9 @@ const ProjectMetadata = ({ project }) => {
 
   return (
     <div className="border rounded-md p-3 bg-gray-50">
-      <h3 className="text-sm font-medium text-gray-500 mb-2">Project Details</h3>
+      <h3 className="text-sm font-medium text-gray-500 mb-2">
+        Project Details
+      </h3>
       <div className="grid grid-cols-2 gap-y-2 gap-x-3">
         {metadata.map((item, index) => (
           <div key={index} className="flex flex-col">
@@ -202,7 +203,7 @@ const TeamMemberList = ({ teamId }) => {
   const teamMembers = mockData.teamMembers.filter(
     (member) => member.teamId === teamId
   );
-  
+
   if (teamMembers.length === 0) {
     return (
       <div className="text-center p-4 text-gray-500 text-sm">
@@ -216,12 +217,14 @@ const TeamMemberList = ({ teamId }) => {
       {teamMembers.map((member) => {
         const user = mockData.users.find((u) => u.id === member.userId);
         if (!user) return null;
-        
+
         return (
           <Card key={member.id} className="flex items-center p-3">
             <UserAvatar user={user} showName={true} />
             <div className="ml-3 flex-1">
-              <div className="text-sm font-medium">{user.name || user.email}</div>
+              <div className="text-sm font-medium">
+                {user.name || user.email}
+              </div>
               <div className="text-xs text-gray-500">{member.role}</div>
             </div>
           </Card>
@@ -235,11 +238,10 @@ const TeamMemberList = ({ teamId }) => {
 const ProjectPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { activeTab } = useTabContext();
   const [project, setProject] = useState(null);
   const { selectedModel } = useContext(AIContext);
   const [showAISummary, setShowAISummary] = useState(false);
-  
+
   // Update project when id changes
   useEffect(() => {
     const foundProject = mockData.projects.find((p) => p.id === id);
@@ -251,12 +253,12 @@ const ProjectPage = () => {
       navigate("/dashboard");
     }
   }, [id, navigate]);
-  
+
   // Function to navigate back to dashboard while preserving the active tab
   const goBackToDashboard = () => {
     navigate("/dashboard");
   };
-  
+
   if (!project) {
     return <div className="p-3">Project not found</div>;
   }
@@ -265,9 +267,9 @@ const ProjectPage = () => {
   const projectTasks = mockData.tasks.filter(
     (task) => task.projectId === project.id
   );
-  
+
   // Get the team for this project
-  const team = project.teamId 
+  const team = project.teamId
     ? mockData.teams.find((team) => team.id === project.teamId)
     : null;
 
@@ -293,7 +295,7 @@ const ProjectPage = () => {
   return (
     <div className="p-3 max-w-7xl mx-auto">
       <div className="mb-3">
-        <button 
+        <button
           onClick={goBackToDashboard}
           className="flex items-center text-gray-600 hover:text-orange-500 transition-colors"
         >
@@ -314,7 +316,7 @@ const ProjectPage = () => {
           <span>Back to Dashboard</span>
         </button>
       </div>
-      
+
       <Card className="mb-4">
         <CardHeader className="p-3">
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
@@ -339,13 +341,23 @@ const ProjectPage = () => {
                 )}
               </div>
 
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 className="gap-2 border-orange-200 text-orange-600 hover:bg-orange-50"
                 onClick={() => setShowAISummary(true)}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <circle cx="12" cy="12" r="10"></circle>
                   <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
                   <path d="M12 17h.01"></path>
@@ -378,11 +390,9 @@ const ProjectPage = () => {
 
       <Tabs defaultValue="tasks" className="w-full">
         <TabsList className="mb-3">
-          <TabsTrigger value="tasks">
-            Tasks ({projectTasks.length})
-          </TabsTrigger>
+          <TabsTrigger value="tasks">Tasks ({projectTasks.length})</TabsTrigger>
           <TabsTrigger value="team">
-            Team {team ? `(${team.name})` : ''}
+            Team {team ? `(${team.name})` : ""}
           </TabsTrigger>
         </TabsList>
 
@@ -439,7 +449,7 @@ const ProjectPage = () => {
           )}
         </TabsContent>
       </Tabs>
-      
+
       {/* AI Summary Dialog */}
       <AISummaryDialog
         isOpen={showAISummary}
