@@ -1,7 +1,16 @@
 import { useEffect, useState, useRef, useMemo, useCallback } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { generateProjectSummary, generateTaskSummary, generateTeamSummary } from "@/lib/ai";
+import {
+  generateProjectSummary,
+  generateTaskSummary,
+  generateTeamSummary,
+} from "@/lib/ai";
 import { useTransition } from "react";
 
 type SummaryType = "project" | "task" | "team";
@@ -15,25 +24,29 @@ interface AISummaryDialogProps {
 }
 
 // Custom hook for streaming text effect
-function useTextStreaming(fullText: string, isActive: boolean, streamingSpeed = 5) {
+function useTextStreaming(
+  fullText: string,
+  isActive: boolean,
+  streamingSpeed = 5
+) {
   const [streamedText, setStreamedText] = useState("");
   const [isComplete, setIsComplete] = useState(false);
   const streamingRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   // Use this to delay streaming for cached results to simulate generation
   const [canStart, setCanStart] = useState(false);
-  
+
   // Set up delayed start for cached results
   useEffect(() => {
     if (isActive && !canStart) {
       const timer = setTimeout(() => {
         setCanStart(true);
       }, 300); // Small delay to make it feel like processing
-      
+
       return () => clearTimeout(timer);
     }
   }, [isActive, canStart]);
-  
+
   // Reset streaming state when full text changes
   useEffect(() => {
     if (fullText !== streamedText && !isActive) {
@@ -46,36 +59,36 @@ function useTextStreaming(fullText: string, isActive: boolean, streamingSpeed = 
       setIsComplete(false);
     }
   }, [fullText, isActive]);
-  
+
   // Start or continue streaming when active
   useEffect(() => {
     if (!isActive || !canStart || isComplete) return;
-    
+
     if (streamingRef.current) {
       clearInterval(streamingRef.current);
     }
-    
+
     let currentLength = streamedText.length;
-    
+
     streamingRef.current = setInterval(() => {
       // Number of chars to add per interval (randomize slightly for natural effect)
       const charsToAdd = Math.floor(Math.random() * 3) + streamingSpeed;
-      
+
       if (currentLength < fullText.length) {
         // Find the next word boundary up to charsToAdd chars ahead
         let nextWordBoundary = currentLength + charsToAdd;
         while (
-          nextWordBoundary < fullText.length && 
-          fullText[nextWordBoundary] !== ' ' && 
-          fullText[nextWordBoundary] !== '\n'
+          nextWordBoundary < fullText.length &&
+          fullText[nextWordBoundary] !== " " &&
+          fullText[nextWordBoundary] !== "\n"
         ) {
           nextWordBoundary++;
         }
-        
+
         const nextText = fullText.substring(0, nextWordBoundary);
         setStreamedText(nextText);
         currentLength = nextText.length;
-        
+
         // Check if we've reached the end
         if (currentLength >= fullText.length) {
           setIsComplete(true);
@@ -86,7 +99,7 @@ function useTextStreaming(fullText: string, isActive: boolean, streamingSpeed = 
         }
       }
     }, 30); // Update interval
-    
+
     return () => {
       if (streamingRef.current) {
         clearInterval(streamingRef.current);
@@ -94,7 +107,7 @@ function useTextStreaming(fullText: string, isActive: boolean, streamingSpeed = 
       }
     };
   }, [fullText, streamedText, isActive, canStart, isComplete, streamingSpeed]);
-  
+
   // Skip to end function
   const skipToEnd = useCallback(() => {
     if (streamingRef.current) {
@@ -104,34 +117,43 @@ function useTextStreaming(fullText: string, isActive: boolean, streamingSpeed = 
     setStreamedText(fullText);
     setIsComplete(true);
   }, [fullText]);
-  
+
   return { streamedText, isComplete, skipToEnd };
 }
 
 // Component to render streamed Markdown with enhanced styling
-const StreamedMarkdown = ({ text, isComplete }: { text: string, isComplete: boolean }) => {
+const StreamedMarkdown = ({
+  text,
+  isComplete,
+}: {
+  text: string;
+  isComplete: boolean;
+}) => {
   const renderedContent = useMemo(() => {
     // Only process if there is text
     if (!text) return null;
-    
+
     // Process the text to identify sections, lists, etc.
-    const lines = text.split('\n');
+    const lines = text.split("\n");
     const result = [];
     let currentListItems: React.ReactNode[] = [];
     let inCodeBlock = false;
-    let currentCodeBlock = '';
-    
+    let currentCodeBlock = "";
+
     lines.forEach((line, index) => {
       // Handle code blocks with triple backticks
-      if (line.trim().startsWith('```')) {
+      if (line.trim().startsWith("```")) {
         if (inCodeBlock) {
           // End of code block
           result.push(
-            <pre key={`code-${index}`} className="bg-gray-50 rounded-md p-3 overflow-x-auto text-sm font-mono my-3 border border-gray-200">
+            <pre
+              key={`code-${index}`}
+              className="bg-gray-50 rounded-md p-3 overflow-x-auto text-sm font-mono my-3 border border-gray-200"
+            >
               {currentCodeBlock}
             </pre>
           );
-          currentCodeBlock = '';
+          currentCodeBlock = "";
           inCodeBlock = false;
         } else {
           // Start of code block
@@ -139,29 +161,35 @@ const StreamedMarkdown = ({ text, isComplete }: { text: string, isComplete: bool
         }
         return;
       }
-      
+
       if (inCodeBlock) {
         // Inside code block - collect the content
-        currentCodeBlock += line + '\n';
+        currentCodeBlock += line + "\n";
         return;
       }
-      
+
       // Handle lists - if the previous line was a list and this isn't, we end the list
-      if ((line.trim().startsWith('-') || line.trim().startsWith('*') || line.trim().match(/^\d+\.\s/))) {
+      if (
+        line.trim().startsWith("-") ||
+        line.trim().startsWith("*") ||
+        line.trim().match(/^\d+\.\s/)
+      ) {
         // Handle bullet and numbered lists
-        let content = line.trim();
+        const content = line.trim();
         let itemContent;
-        let listStyle = '';
-        
+        let listStyle = "";
+
         // Special case: Check if this is a line that should be a subheading instead of a list item
         // Look for patterns like "Customer Portal Development - " or "High Risk:"
         if (
-          (content.match(/^[\*\-]\s+([A-Z][A-Za-z\s]+)(Development|Risk|Module|Strategy|Implementation|Integration)(\s+-|\s*:)/)) ||
-          (content.match(/^[\*\-]\s+(High|Medium|Low)\s+Risk:/))
+          content.match(
+            /^[\*\-]\s+([A-Z][A-Za-z\s]+)(Development|Risk|Module|Strategy|Implementation|Integration)(\s+-|\s*:)/
+          ) ||
+          content.match(/^[\*\-]\s+(High|Medium|Low)\s+Risk:/)
         ) {
           // This should be a subheading, not a list item
-          let heading = content.substring(1).trim();
-          
+          const heading = content.substring(1).trim();
+
           // If we have existing list items, finish that list first
           if (currentListItems.length > 0) {
             result.push(
@@ -171,35 +199,41 @@ const StreamedMarkdown = ({ text, isComplete }: { text: string, isComplete: bool
             );
             currentListItems = [];
           }
-          
+
           // Add this as a subheading instead
           result.push(
-            <h4 key={index} className="font-semibold text-base mt-3 mb-1 text-gray-700">
+            <h4
+              key={index}
+              className="font-semibold text-base mt-3 mb-1 text-gray-700"
+            >
               {formatInlineMarkdown(heading)}
             </h4>
           );
-          
+
           // Skip the rest of the list processing
           return;
         }
-        
+
         // Normal list processing
-        if (content.startsWith('-')) {
+        if (content.startsWith("-")) {
           itemContent = content.substring(1).trim();
-          listStyle = 'list-disc';
-        } else if (content.startsWith('*')) {
+          listStyle = "list-disc";
+        } else if (content.startsWith("*")) {
           itemContent = content.substring(1).trim();
-          listStyle = 'list-disc';
-        } else { // Numbered list
-          itemContent = content.replace(/^\d+\.\s/, '').trim();
-          listStyle = 'list-decimal';
+          listStyle = "list-disc";
+        } else {
+          // Numbered list
+          itemContent = content.replace(/^\d+\.\s/, "").trim();
+          listStyle = "list-decimal";
         }
-        
+
         // Check for bold, italic, and links within list items
         itemContent = formatInlineMarkdown(itemContent);
-        
+
         currentListItems.push(
-          <li key={`list-item-${index}`} className="ml-5 mb-1">{itemContent}</li>
+          <li key={`list-item-${index}`} className="ml-5 mb-1">
+            {itemContent}
+          </li>
         );
       } else if (currentListItems.length > 0) {
         // End the previous list if this line is not a list item
@@ -210,45 +244,64 @@ const StreamedMarkdown = ({ text, isComplete }: { text: string, isComplete: bool
         );
         currentListItems = [];
       }
-      
+
       // If we're not adding to a list, process other markdown elements
-      if (!line.trim().startsWith('-') && !line.trim().startsWith('*') && !line.trim().match(/^\d+\.\s/)) {
-        if (line.startsWith('# ')) {
+      if (
+        !line.trim().startsWith("-") &&
+        !line.trim().startsWith("*") &&
+        !line.trim().match(/^\d+\.\s/)
+      ) {
+        if (line.startsWith("# ")) {
           // H1 header
           result.push(
-            <h1 key={index} className="text-2xl font-bold mt-5 mb-3 border-b pb-2 text-gray-800">
-              {formatInlineMarkdown(line.replace('# ', '').trim())}
+            <h1
+              key={index}
+              className="text-2xl font-bold mt-5 mb-3 border-b pb-2 text-gray-800"
+            >
+              {formatInlineMarkdown(line.replace("# ", "").trim())}
             </h1>
           );
-        } else if (line.startsWith('## ')) {
+        } else if (line.startsWith("## ")) {
           // H2 header
           result.push(
-            <h2 key={index} className="text-xl font-bold mt-4 mb-2 text-gray-800">
-              {formatInlineMarkdown(line.replace('## ', '').trim())}
+            <h2
+              key={index}
+              className="text-xl font-bold mt-4 mb-2 text-gray-800"
+            >
+              {formatInlineMarkdown(line.replace("## ", "").trim())}
             </h2>
           );
-        } else if (line.startsWith('### ')) {
+        } else if (line.startsWith("### ")) {
           // H3 header
           result.push(
-            <h3 key={index} className="text-lg font-bold mt-3 mb-2 text-gray-700">
-              {formatInlineMarkdown(line.replace('### ', '').trim())}
+            <h3
+              key={index}
+              className="text-lg font-bold mt-3 mb-2 text-gray-700"
+            >
+              {formatInlineMarkdown(line.replace("### ", "").trim())}
             </h3>
           );
-        } else if (line.startsWith('#### ')) {
+        } else if (line.startsWith("#### ")) {
           // H4 header
           result.push(
-            <h4 key={index} className="text-base font-bold mt-3 mb-1 text-gray-700">
-              {formatInlineMarkdown(line.replace('#### ', '').trim())}
+            <h4
+              key={index}
+              className="text-base font-bold mt-3 mb-1 text-gray-700"
+            >
+              {formatInlineMarkdown(line.replace("#### ", "").trim())}
             </h4>
           );
-        } else if (line.startsWith('> ')) {
+        } else if (line.startsWith("> ")) {
           // Blockquote
           result.push(
-            <blockquote key={index} className="border-l-4 border-gray-300 pl-4 italic my-3 text-gray-600">
-              {formatInlineMarkdown(line.replace('> ', '').trim())}
+            <blockquote
+              key={index}
+              className="border-l-4 border-gray-300 pl-4 italic my-3 text-gray-600"
+            >
+              {formatInlineMarkdown(line.replace("> ", "").trim())}
             </blockquote>
           );
-        } else if (line.trim() === '') {
+        } else if (line.trim() === "") {
           // Empty line
           result.push(<div key={index} className="my-2" />);
         } else {
@@ -261,7 +314,7 @@ const StreamedMarkdown = ({ text, isComplete }: { text: string, isComplete: bool
         }
       }
     });
-    
+
     // If we have list items at the end, add them
     if (currentListItems.length > 0) {
       result.push(
@@ -270,14 +323,14 @@ const StreamedMarkdown = ({ text, isComplete }: { text: string, isComplete: bool
         </ul>
       );
     }
-    
+
     return result;
   }, [text]);
-  
+
   // Function to format inline markdown (bold, italic, links) and handle colon-separated labels
   function formatInlineMarkdown(text: string): React.ReactNode {
     if (!text) return text;
-    
+
     // Handle repeated label pattern (e.g., "Label:Label: Content")
     // This fixes issues with "Business Impact:Business Impact:" style repetition
     const labelRepeatRegex = /^([A-Za-z\s]+):([A-Za-z\s]+):\s/;
@@ -293,30 +346,33 @@ const StreamedMarkdown = ({ text, isComplete }: { text: string, isComplete: bool
         text = text.replace(singleLabelRegex, `**${singleMatch[1]}**: `);
       }
     }
-    
+
     // Split the text into parts with React elements for formatting
     const parts: React.ReactNode[] = [];
-    let currentText = '';
+    let currentText = "";
     let inBold = false;
     let inItalic = false;
-    let linkText = '';
-    let linkUrl = '';
+    let linkText = "";
+    let linkUrl = "";
     let inLinkText = false;
     let inLinkUrl = false;
-    
+
     // Simple parsing to handle basic inline markdown
     for (let i = 0; i < text.length; i++) {
       const char = text[i];
-      const nextChar = i < text.length - 1 ? text[i + 1] : '';
-      
+      const nextChar = i < text.length - 1 ? text[i + 1] : "";
+
       // Handle bold with ** or __
-      if ((char === '*' && nextChar === '*') || (char === '_' && nextChar === '_')) {
+      if (
+        (char === "*" && nextChar === "*") ||
+        (char === "_" && nextChar === "_")
+      ) {
         if (inBold) {
           // End bold
           if (currentText) {
             parts.push(<strong key={`bold-${i}`}>{currentText}</strong>);
           }
-          currentText = '';
+          currentText = "";
           inBold = false;
           i++; // Skip the next character too (second * or _)
         } else {
@@ -324,82 +380,88 @@ const StreamedMarkdown = ({ text, isComplete }: { text: string, isComplete: bool
           if (currentText) {
             parts.push(currentText);
           }
-          currentText = '';
+          currentText = "";
           inBold = true;
           i++; // Skip the next character too (second * or _)
         }
         continue;
       }
-      
+
       // Handle italic with * or _
-      if ((char === '*' || char === '_') && nextChar !== char) {
+      if ((char === "*" || char === "_") && nextChar !== char) {
         if (inItalic) {
           // End italic
           if (currentText) {
             parts.push(<em key={`italic-${i}`}>{currentText}</em>);
           }
-          currentText = '';
+          currentText = "";
           inItalic = false;
         } else {
           // Start italic
           if (currentText) {
             parts.push(currentText);
           }
-          currentText = '';
+          currentText = "";
           inItalic = true;
         }
         continue;
       }
-      
+
       // Handle links [text](url)
-      if (char === '[' && !inLinkText && !inLinkUrl) {
+      if (char === "[" && !inLinkText && !inLinkUrl) {
         if (currentText) {
           parts.push(currentText);
         }
-        currentText = '';
+        currentText = "";
         inLinkText = true;
         continue;
       }
-      
-      if (char === ']' && inLinkText && !inLinkUrl) {
+
+      if (char === "]" && inLinkText && !inLinkUrl) {
         linkText = currentText;
-        currentText = '';
-        
+        currentText = "";
+
         // Check if next characters are (
-        if (nextChar === '(') {
+        if (nextChar === "(") {
           inLinkText = false;
           inLinkUrl = true;
           i++; // Skip the ( character
         } else {
           // Not a proper link, revert
-          currentText = '[' + linkText + ']';
-          linkText = '';
+          currentText = "[" + linkText + "]";
+          linkText = "";
           inLinkText = false;
         }
         continue;
       }
-      
-      if (char === ')' && inLinkUrl) {
+
+      if (char === ")" && inLinkUrl) {
         linkUrl = currentText;
-        currentText = '';
+        currentText = "";
         inLinkUrl = false;
-        
+
         // Add the link
         parts.push(
-          <a key={`link-${i}`} href={linkUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+          <a
+            key={`link-${i}`}
+            href={linkUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline"
+          >
             {linkText}
           </a>
         );
-        
-        linkText = '';
-        linkUrl = '';
+
+        linkText = "";
+        linkUrl = "";
         continue;
       }
-      
+
       // Add character to current text
       currentText += char;
     }
-    
+
     // Add any remaining text
     if (currentText) {
       if (inBold) {
@@ -410,10 +472,10 @@ const StreamedMarkdown = ({ text, isComplete }: { text: string, isComplete: bool
         parts.push(currentText);
       }
     }
-    
+
     return parts.length > 0 ? parts : text;
   }
-  
+
   return (
     <div className="prose prose-sm max-w-none px-1">
       {renderedContent}
@@ -433,7 +495,7 @@ const AISummaryDialog = ({
 }: AISummaryDialogProps) => {
   // React 18 useTransition for non-blocking UI updates
   const [isPending, startTransition] = useTransition();
-  
+
   const [fullSummary, setFullSummary] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -452,31 +514,43 @@ const AISummaryDialog = ({
     setIsLoading(true);
     setError(null);
     setIsStreaming(false);
-    
+
     try {
       let result;
       switch (summaryType) {
         case "project":
-          result = await generateProjectSummary(itemId, selectedModel, forceRefresh);
+          result = await generateProjectSummary(
+            itemId,
+            selectedModel,
+            forceRefresh
+          );
           break;
         case "task":
-          result = await generateTaskSummary(itemId, selectedModel, forceRefresh);
+          result = await generateTaskSummary(
+            itemId,
+            selectedModel,
+            forceRefresh
+          );
           break;
         case "team":
-          result = await generateTeamSummary(itemId, selectedModel, forceRefresh);
+          result = await generateTeamSummary(
+            itemId,
+            selectedModel,
+            forceRefresh
+          );
           break;
       }
 
       setIsCached(result.isCached || false);
-      
+
       // Use React 18 startTransition for smoother UI
       startTransition(() => {
         setFullSummary(result.summary);
         setIsStreaming(true);
       });
-      
+
       setError(result.error);
-      
+
       if (!result.isCached || forceRefresh) {
         setLastGeneratedAt(new Date());
       } else if (result.generatedAt) {
@@ -501,21 +575,21 @@ const AISummaryDialog = ({
     fetchSummary(true);
   };
 
-  const getTitle = () => {
-    switch (summaryType) {
-      case "project":
-        return "Project AI Summary";
-      case "task":
-        return "Task AI Summary";
-      case "team":
-        return "Team AI Summary";
-    }
-  };
+  // const getTitle = () => {
+  //   switch (summaryType) {
+  //     case "project":
+  //       return "Project AI Summary";
+  //     case "task":
+  //       return "Task AI Summary";
+  //     case "team":
+  //       return "Team AI Summary";
+  //   }
+  // };
 
   // Format the last generated time
   const formatTimestamp = () => {
     if (!lastGeneratedAt) return null;
-    
+
     const now = new Date();
     const diffMs = now.getTime() - lastGeneratedAt.getTime();
     const diffMins = Math.floor(diffMs / 60000);
@@ -523,52 +597,74 @@ const AISummaryDialog = ({
     const diffDays = Math.floor(diffHours / 24);
 
     if (diffDays > 0) {
-      return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+      return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
     } else if (diffHours > 0) {
-      return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+      return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
     } else if (diffMins > 0) {
-      return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+      return `${diffMins} minute${diffMins > 1 ? "s" : ""} ago`;
     } else {
-      return 'Just now';
+      return "Just now";
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[75vw] max-h-[80vh] overflow-y-auto p-8 gap-0">
         <DialogHeader>
           <div className="flex items-center justify-between">
-            <DialogTitle>{getTitle()}</DialogTitle>
-            
+            <DialogTitle></DialogTitle>
+
             <div className="flex items-center gap-2">
               {!isLoading && !error && lastGeneratedAt && (
-                <span className="text-xs text-gray-500">Generated {formatTimestamp()}</span>
+                <span className="text-xs text-gray-500">
+                  Generated {formatTimestamp()}
+                </span>
               )}
-              
+
               {!isLoading && isStreaming && !isComplete && (
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   className="gap-1"
                   onClick={skipToEnd}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <polyline points="13 17 18 12 13 7"></polyline>
                     <polyline points="6 17 11 12 6 7"></polyline>
                   </svg>
                   Skip
                 </Button>
               )}
-              
+
               {!isLoading && !error && (
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   className="gap-1"
                   onClick={handleRefresh}
                   disabled={isLoading || (isStreaming && !isComplete)}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
                     <path d="M21 3v5h-5"></path>
                     <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
@@ -581,12 +677,14 @@ const AISummaryDialog = ({
           </div>
         </DialogHeader>
 
-        <div className="py-4">
+        <div className="pb-4">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mb-4"></div>
               <p className="text-sm text-gray-500">
-                {isCached ? "Generating fresh summary..." : "Generating summary..."}
+                {isCached
+                  ? "Generating fresh summary..."
+                  : "Generating summary..."}
               </p>
             </div>
           ) : error ? (
@@ -594,16 +692,10 @@ const AISummaryDialog = ({
               <p className="font-medium">Error</p>
               <p className="text-sm">{error}</p>
               <div className="flex gap-2 mt-4">
-                <Button 
-                  variant="outline" 
-                  onClick={() => fetchSummary(false)}
-                >
+                <Button variant="outline" onClick={() => fetchSummary(false)}>
                   Try Again
                 </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={onClose}
-                >
+                <Button variant="outline" onClick={onClose}>
                   Close
                 </Button>
               </div>
