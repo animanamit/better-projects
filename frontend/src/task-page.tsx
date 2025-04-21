@@ -287,13 +287,13 @@ const TaskMetadata = ({ task }) => {
   }
 
   return (
-    <div className="border rounded-md p-3 bg-gray-50">
-      <h3 className="text-sm font-medium text-gray-500 mb-2">Task Details</h3>
+    <div className="border rounded-md py-2 px-3 bg-gray-50 shadow-sm">
+      <h3 className="text-base font-bold text-gray-700 mb-2">Task Details</h3>
       <div className="grid grid-cols-2 gap-y-2 gap-x-3">
         {metadata.map((item, index) => (
           <div key={index} className="flex flex-col">
-            <span className="text-xs text-gray-500">{item.label}</span>
-            <span className="text-sm">{item.value}</span>
+            <span className="text-xs font-semibold text-gray-600">{item.label}</span>
+            <span className="text-sm font-medium">{item.value}</span>
           </div>
         ))}
       </div>
@@ -375,40 +375,40 @@ const TaskPage = () => {
   };
 
   return (
-    <div className="p-3 max-w-7xl mx-auto">
-      <Card className="mb-4">
-        <CardHeader className="p-3">
-          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+    <div className="max-w-7xl mx-auto">
+      <Card className="mb-4 border-l-4 border-l-blue-500 shadow-sm">
+        <CardHeader className="py-3 px-4">
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-2">
             <div className="flex-1">
-              <CardTitle className="text-xl font-bold mb-2">
+              <CardTitle className="text-2xl font-bold mb-2">
                 {task.title}
               </CardTitle>
 
               <div className="flex flex-wrap items-center gap-2 mb-2">
-                <div className="flex items-center gap-2 mr-3">
-                  <span className="text-xs text-gray-500">Status:</span>
+                <div className="flex items-center gap-1 mr-2">
+                  <span className="text-xs font-semibold text-gray-600">Status:</span>
                   <StatusBadge status={task.status} />
                 </div>
 
                 {task.priority && (
-                  <div className="flex items-center gap-2 mr-3">
-                    <span className="text-xs text-gray-500">Priority:</span>
+                  <div className="flex items-center gap-1 mr-2">
+                    <span className="text-xs font-semibold text-gray-600">Priority:</span>
                     <PriorityBadge priority={task.priority} />
                   </div>
                 )}
 
                 {project && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-500">Project:</span>
-                    <Badge variant="outline" className="bg-gray-100">
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs font-semibold text-gray-600">Project:</span>
+                    <Badge variant="outline" className="bg-gray-100 font-medium">
                       {project.name}
                     </Badge>
                   </div>
                 )}
               </div>
 
-              <div className="flex items-center gap-3">
-                <div className="w-52 my-2">
+              <div className="flex items-center gap-2">
+                <div className="w-56">
                   <StatusSelector
                     currentStatus={task.status}
                     onStatusChange={handleStatusChange}
@@ -418,10 +418,10 @@ const TaskPage = () => {
                 <Button 
                   variant="outline" 
                   size="sm"
-                  className="h-8 gap-2 border-orange-200 text-orange-600 hover:bg-orange-50"
+                  className="h-8 gap-1 border-orange-200 text-orange-600 hover:bg-orange-50 font-medium"
                   onClick={() => setShowAISummary(true)}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
                     <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
                     <path d="M12 17h.01"></path>
@@ -431,10 +431,10 @@ const TaskPage = () => {
               </div>
             </div>
 
-            <div className="flex flex-row gap-4">
+            <div className="flex flex-row gap-4 bg-gray-50 py-2 px-3 rounded-md">
               {assignee && (
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs text-gray-500">Assignee</span>
+                <div className="flex flex-col">
+                  <span className="text-xs font-semibold text-gray-600">Assignee</span>
                   <div className="flex items-center gap-1">
                     <UserAvatar user={assignee} showName={true} />
                   </div>
@@ -442,8 +442,8 @@ const TaskPage = () => {
               )}
 
               {reporter && (
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs text-gray-500">Reporter</span>
+                <div className="flex flex-col">
+                  <span className="text-xs font-semibold text-gray-600">Reporter</span>
                   <div className="flex items-center gap-1">
                     <UserAvatar user={reporter} showName={true} />
                   </div>
@@ -453,15 +453,15 @@ const TaskPage = () => {
           </div>
         </CardHeader>
 
-        <CardContent className="p-3">
+        <CardContent className="px-4 pb-3 pt-0">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               {task.description && (
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-1">
+                  <h3 className="text-base font-bold text-gray-700 mb-1">
                     Description
                   </h3>
-                  <div className="text-gray-700 whitespace-pre-line text-sm">
+                  <div className="text-gray-700 whitespace-pre-line text-sm bg-gray-50 p-2 rounded-md">
                     {task.description}
                   </div>
                 </div>
@@ -475,20 +475,20 @@ const TaskPage = () => {
 
       <Tabs defaultValue="comments" className="w-full">
         <TabsList className="mb-3">
-          <TabsTrigger value="comments">
+          <TabsTrigger value="comments" className="font-medium text-base">
             Comments ({taskComments.length})
           </TabsTrigger>
-          <TabsTrigger value="history">
+          <TabsTrigger value="history" className="font-medium text-base">
             History ({taskHistory.length})
           </TabsTrigger>
-          <TabsTrigger value="attachments">
+          <TabsTrigger value="attachments" className="font-medium text-base">
             Attachments ({taskAttachments.length})
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="comments" className="space-y-2">
           {taskComments.length === 0 ? (
-            <div className="text-center p-4 text-gray-500 text-sm">
+            <div className="text-center py-3 text-gray-500 font-medium">
               No comments yet
             </div>
           ) : (
@@ -505,7 +505,7 @@ const TaskPage = () => {
 
         <TabsContent value="history" className="space-y-2">
           {taskHistory.length === 0 ? (
-            <div className="text-center p-4 text-gray-500 text-sm">
+            <div className="text-center py-3 text-gray-500 font-medium">
               No history available
             </div>
           ) : (
@@ -517,7 +517,7 @@ const TaskPage = () => {
 
         <TabsContent value="attachments">
           {taskAttachments.length === 0 ? (
-            <div className="text-center p-4 text-gray-500 text-sm">
+            <div className="text-center py-3 text-gray-500 font-medium">
               No attachments
             </div>
           ) : (

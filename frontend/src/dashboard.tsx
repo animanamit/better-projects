@@ -57,7 +57,7 @@ function Dashboard() {
             <AppSidebar />
             <div className="flex-1 flex flex-col overflow-x-scroll">
               {/* Content */}
-              <div className="">
+              <div className="p-2 md:p-4">
                 {isTaskPage ? (
                   <Outlet />
                 ) : (

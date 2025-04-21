@@ -181,15 +181,15 @@ const ProjectMetadata = ({ project }) => {
   }
 
   return (
-    <div className="border rounded-md p-3 bg-gray-50">
-      <h3 className="text-sm font-medium text-gray-500 mb-2">
+    <div className="border rounded-md py-2 px-3 bg-gray-50 shadow-sm">
+      <h3 className="text-base font-bold text-gray-700 mb-2">
         Project Details
       </h3>
       <div className="grid grid-cols-2 gap-y-2 gap-x-3">
         {metadata.map((item, index) => (
           <div key={index} className="flex flex-col">
-            <span className="text-xs text-gray-500">{item.label}</span>
-            <span className="text-sm">{item.value}</span>
+            <span className="text-xs font-semibold text-gray-600">{item.label}</span>
+            <span className="text-sm font-medium">{item.value}</span>
           </div>
         ))}
       </div>
@@ -293,11 +293,11 @@ const ProjectPage = () => {
   };
 
   return (
-    <div className="p-3 max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto">
       <div className="mb-3">
         <button
           onClick={goBackToDashboard}
-          className="flex items-center text-gray-600 hover:text-orange-500 transition-colors"
+          className="flex items-center text-gray-600 hover:text-orange-500 transition-colors font-medium"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -317,24 +317,24 @@ const ProjectPage = () => {
         </button>
       </div>
 
-      <Card className="mb-4">
-        <CardHeader className="p-3">
-          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+      <Card className="mb-4 border-l-4 border-l-green-500 shadow-sm">
+        <CardHeader className="py-3 px-4">
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-2">
             <div className="flex-1">
-              <CardTitle className="text-xl font-bold mb-2">
+              <CardTitle className="text-2xl font-bold mb-2">
                 {project.name}
               </CardTitle>
 
               <div className="flex flex-wrap items-center gap-2 mb-2">
-                <div className="flex items-center gap-2 mr-3">
-                  <span className="text-xs text-gray-500">Status:</span>
+                <div className="flex items-center gap-1 mr-2">
+                  <span className="text-xs font-semibold text-gray-600">Status:</span>
                   <ProjectStatusBadge status={project.status} />
                 </div>
 
                 {team && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-500">Team:</span>
-                    <Badge variant="outline" className="bg-gray-100">
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs font-semibold text-gray-600">Team:</span>
+                    <Badge variant="outline" className="bg-gray-100 font-medium">
                       {team.name}
                     </Badge>
                   </div>
@@ -344,13 +344,13 @@ const ProjectPage = () => {
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-2 border-orange-200 text-orange-600 hover:bg-orange-50"
+                className="gap-1 border-orange-200 text-orange-600 hover:bg-orange-50 font-medium"
                 onClick={() => setShowAISummary(true)}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
+                  width="14"
+                  height="14"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -368,15 +368,15 @@ const ProjectPage = () => {
           </div>
         </CardHeader>
 
-        <CardContent className="p-3">
+        <CardContent className="px-4 pb-3 pt-0">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               {project.description && (
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-1">
+                  <h3 className="text-base font-bold text-gray-700 mb-1">
                     Description
                   </h3>
-                  <div className="text-gray-700 whitespace-pre-line text-sm">
+                  <div className="text-gray-700 whitespace-pre-line text-sm bg-gray-50 p-2 rounded-md">
                     {project.description}
                   </div>
                 </div>
@@ -390,23 +390,23 @@ const ProjectPage = () => {
 
       <Tabs defaultValue="tasks" className="w-full">
         <TabsList className="mb-3">
-          <TabsTrigger value="tasks">Tasks ({projectTasks.length})</TabsTrigger>
-          <TabsTrigger value="team">
+          <TabsTrigger value="tasks" className="font-medium text-base">Tasks ({projectTasks.length})</TabsTrigger>
+          <TabsTrigger value="team" className="font-medium text-base">
             Team {team ? `(${team.name})` : ""}
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="tasks">
           {projectTasks.length === 0 ? (
-            <div className="text-center p-4 text-gray-500 text-sm">
+            <div className="text-center py-3 text-gray-500 font-medium">
               No tasks for this project
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* TODO tasks */}
-              <div>
-                <h3 className="text-sm font-medium mb-2 flex items-center">
-                  <div className="w-2 h-2 rounded-full bg-slate-300 mr-2"></div>
+              <div className="bg-gray-50 py-2 px-3 rounded-md border">
+                <h3 className="text-base font-bold mb-2 flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-slate-300 mr-2"></div>
                   TODO ({tasksByStatus[TaskStatus.TODO].length})
                 </h3>
                 {tasksByStatus[TaskStatus.TODO].map((task) => (
@@ -415,9 +415,9 @@ const ProjectPage = () => {
               </div>
 
               {/* IN PROGRESS tasks */}
-              <div>
-                <h3 className="text-sm font-medium mb-2 flex items-center">
-                  <div className="w-2 h-2 rounded-full bg-blue-400 mr-2"></div>
+              <div className="bg-gray-50 py-2 px-3 rounded-md border">
+                <h3 className="text-base font-bold mb-2 flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-blue-400 mr-2"></div>
                   IN PROGRESS ({tasksByStatus[TaskStatus.IN_PROGRESS].length})
                 </h3>
                 {tasksByStatus[TaskStatus.IN_PROGRESS].map((task) => (
@@ -426,9 +426,9 @@ const ProjectPage = () => {
               </div>
 
               {/* COMPLETED tasks */}
-              <div>
-                <h3 className="text-sm font-medium mb-2 flex items-center">
-                  <div className="w-2 h-2 rounded-full bg-green-400 mr-2"></div>
+              <div className="bg-gray-50 py-2 px-3 rounded-md border">
+                <h3 className="text-base font-bold mb-2 flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-green-400 mr-2"></div>
                   COMPLETED ({tasksByStatus[TaskStatus.COMPLETED].length})
                 </h3>
                 {tasksByStatus[TaskStatus.COMPLETED].map((task) => (
@@ -443,7 +443,7 @@ const ProjectPage = () => {
           {team ? (
             <TeamMemberList teamId={team.id} />
           ) : (
-            <div className="text-center p-4 text-gray-500 text-sm">
+            <div className="text-center py-3 text-gray-500 font-medium">
               No team assigned to this project
             </div>
           )}
