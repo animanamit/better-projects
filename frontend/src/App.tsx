@@ -1,11 +1,11 @@
-// import { SignedIn, SignedOut } from "@clerk/clerk-react";
+"use client";
+
 import { Navigate } from "react-router";
 import { useState, createContext, useEffect } from "react";
 import { defaultModel } from "@/lib/ai";
 
 export const AIContext = createContext({
   selectedModel: defaultModel,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setSelectedModel: (model: string) => {},
 });
 
@@ -19,22 +19,34 @@ function App() {
 
   return (
     <AIContext.Provider value={{ selectedModel, setSelectedModel }}>
-      <main>
-        {/* <SignedIn> */}
+      <main className="bg-[#f8f8f8] min-h-screen">
         <Navigate to="/dashboard" />
-        {/* </SignedIn> */}
-        {/* <SignedOut> */}
-        <div className="flex flex-col items-center justify-center min-h-screen">
-          <h1 className="text-3xl font-normal mb-4">Welcome to Task Manager</h1>
-          <p className="text-lg mb-8">Please sign in to continue</p>
-          <a
-            href="/sign-in"
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-          >
-            Sign In
-          </a>
+        <div className="flex flex-col items-center justify-center min-h-screen p-6">
+          <div className="max-w-md w-full bg-white rounded-lg p-8 shadow-sm">
+            <div className="mb-6">
+              <div className="text-xs text-black/70 mb-2">UNIT 2025</div>
+              <h1 className="text-2xl font-normal mb-1">Task Manager</h1>
+              <p className="text-sm text-black/70">Status: Disconnected</p>
+            </div>
+
+            <div className="space-y-4">
+              <a
+                href="/sign-in"
+                className="w-full flex items-center justify-center py-2 px-4 bg-black text-white rounded-md hover:bg-black/90 transition-colors text-sm"
+              >
+                Sign In
+              </a>
+
+              <div className="text-xs text-black/50 pt-4">
+                <div className="flex justify-between">
+                  <span>1. SIGN IN</span>
+                  <span>2. PROJECTS</span>
+                  <span>3. TASKS</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        {/* </SignedOut> */}
       </main>
     </AIContext.Provider>
   );

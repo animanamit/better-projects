@@ -96,17 +96,14 @@ export function CreateTask() {
     });
   };
 
-  // if (!userId) {
-  //   return <div>Please sign in to create tasks</div>;
-  // }
-
   return (
     <div className="p-4">
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <h1 className="text-xl font-normal mb-4">Create Task</h1>
+      <form onSubmit={handleSubmit} className="space-y-3">
         <div>
           <label
             htmlFor="title"
-            className="block text-sm font-normal text-gray-700"
+            className="block text-sm font-normal text-black/70 mb-1"
           >
             Title
           </label>
@@ -115,14 +112,14 @@ export function CreateTask() {
             id="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="w-full px-3 py-2 bg-white text-sm"
             required
           />
         </div>
         <div>
           <label
             htmlFor="description"
-            className="block text-sm font-normal text-gray-700"
+            className="block text-sm font-normal text-black/70 mb-1"
           >
             Description
           </label>
@@ -130,32 +127,37 @@ export function CreateTask() {
             id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="w-full px-3 py-2 bg-white text-sm"
             rows={3}
           />
         </div>
         <button
           type="submit"
           disabled={isPending}
-          className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-normal text-white shadow-sm hover:bg-indigo-700 
-focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          className="px-4 py-2 bg-black text-white text-sm hover:bg-black/90 disabled:opacity-50"
         >
           {isPending ? "Creating..." : "Create Task"}
         </button>
       </form>
 
-      <div className="mt-8">
-        <h2 className="text-lg font-normal text-gray-900">Tasks</h2>
-        <ul className="mt-4 space-y-4">
-          {tasks.map((task: Task) => (
-            <li key={task.id} className="rounded-lg border p-4">
-              <h3 className="font-normal">{task.title}</h3>
-              {task.description && (
-                <p className="text-gray-600">{task.description}</p>
-              )}
-            </li>
-          ))}
-        </ul>
+      <div className="mt-6">
+        <h2 className="text-base font-normal text-black/80 mb-3">Your Tasks</h2>
+        {tasks.length === 0 ? (
+          <div className="text-sm text-black/60 py-3">No tasks yet</div>
+        ) : (
+          <div className="space-y-2">
+            {tasks.map((task: Task) => (
+              <div key={task.id} className="bg-white p-3">
+                <h3 className="font-normal text-sm">{task.title}</h3>
+                {task.description && (
+                  <p className="text-sm text-black/60 mt-1">
+                    {task.description}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

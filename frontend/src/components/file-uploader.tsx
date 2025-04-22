@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 // Clerk auth commented out for personal website deployment
@@ -7,16 +9,9 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { Progress } from "./ui/progress";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
 // Real API calls commented out for personal website deployment
 // import { uploadFile, getFiles, deleteFile } from "@/lib/api";
-import { FileAttachment, mockData } from "@/mock-data";
+import { type FileAttachment, mockData } from "@/mock-data";
 
 interface FileUploaderProps {
   taskId?: string;
@@ -167,13 +162,13 @@ export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
     <div className="space-y-4">
       {/* Drop zone */}
       {!selectedFile ? (
-        <Card className="border-dashed">
+        <div className="border border-dashed border-black/20">
           <div
             {...getRootProps()}
             className={`p-6 cursor-pointer text-center transition-colors ${
               isUploading
-                ? "bg-gray-100 cursor-not-allowed"
-                : "hover:bg-gray-50"
+                ? "bg-[#f0f0f0] cursor-not-allowed"
+                : "hover:bg-[#f0f0f0]"
             }`}
           >
             <input {...getInputProps()} />
@@ -188,7 +183,7 @@ export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="mb-2 text-gray-500"
+                className="mb-2 text-black/50"
               >
                 <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path>
                 <path d="M12 12v9"></path>
@@ -197,15 +192,15 @@ export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
               <p className="text-sm font-normal">
                 Drop file here or click to upload
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-black/50">
                 Supports images, PDF, Word, Excel, and text files (Max 10MB)
               </p>
             </div>
           </div>
-        </Card>
+        </div>
       ) : (
-        <Card>
-          <CardHeader className="pb-3">
+        <div className="bg-white p-4">
+          <div className="pb-3">
             <div className="flex items-center space-x-3">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -217,28 +212,26 @@ export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="text-gray-500"
+                className="text-black/50"
               >
                 <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
                 <polyline points="14 2 14 8 20 8" />
               </svg>
-              <CardTitle className="text-md font-normal">
-                {selectedFile.name}
-              </CardTitle>
-              <span className="text-xs text-gray-500">
+              <div className="text-sm font-normal">{selectedFile.name}</div>
+              <span className="text-xs text-black/50">
                 ({formatFileSize(selectedFile.size)})
               </span>
               {!isUploading && (
                 <Button
                   variant="ghost"
-                  size="icon"
+                  size="sm"
                   onClick={(e) => {
                     e.preventDefault();
                     setSelectedFile(null);
                     setFileTitle("");
                     setFileDescription("");
                   }}
-                  className="ml-auto h-8 w-8"
+                  className="ml-auto h-7 w-7 p-0"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -258,29 +251,38 @@ export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
                 </Button>
               )}
             </div>
-          </CardHeader>
-          <CardContent>
+          </div>
+          <div>
             {isUploading ? (
               <div className="w-full">
                 <div className="text-sm mb-1">
                   Uploading... {uploadProgress}%
                 </div>
-                <Progress value={uploadProgress} className="w-full h-2" />
+                <Progress value={uploadProgress} className="w-full h-1" />
               </div>
             ) : (
               <>
                 <div className="space-y-3">
                   <div className="space-y-1">
-                    <Label htmlFor="file-title">File Title</Label>
+                    <Label
+                      htmlFor="file-title"
+                      className="text-xs text-black/70"
+                    >
+                      File Title
+                    </Label>
                     <Input
                       id="file-title"
                       value={fileTitle}
                       onChange={(e) => setFileTitle(e.target.value)}
                       placeholder="Enter a title for your file"
+                      className="h-8 text-sm"
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label htmlFor="file-description">
+                    <Label
+                      htmlFor="file-description"
+                      className="text-xs text-black/70"
+                    >
                       Description (optional)
                     </Label>
                     <Textarea
@@ -288,33 +290,34 @@ export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
                       value={fileDescription}
                       onChange={(e) => setFileDescription(e.target.value)}
                       placeholder="Add a description"
-                      className="resize-none min-h-24"
+                      className="resize-none min-h-20 text-sm"
                     />
                   </div>
                 </div>
               </>
             )}
-          </CardContent>
+          </div>
 
           {!isUploading && (
-            <CardFooter className="flex justify-end pt-0">
+            <div className="flex justify-end pt-3">
               <Button
                 onClick={(e) => {
                   e.preventDefault();
                   handleFileUpload();
                 }}
+                className="h-8 text-sm bg-black text-white hover:bg-black/90"
               >
                 Upload File
               </Button>
-            </CardFooter>
+            </div>
           )}
-        </Card>
+        </div>
       )}
 
       {/* Error message */}
       {error && (
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="py-3 text-sm text-red-600">
+        <div className="bg-[#FFF0F0] p-3">
+          <div className="py-1 text-sm text-[#E11D48]">
             <div className="flex items-center space-x-2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -326,7 +329,7 @@ export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="text-red-600"
+                className="text-[#E11D48]"
               >
                 <circle cx="12" cy="12" r="10"></circle>
                 <line x1="12" y1="8" x2="12" y2="12"></line>
@@ -334,51 +337,51 @@ export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
               </svg>
               <span>{error}</span>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* File list */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm">
+      <div className="bg-white">
+        <div className="pb-2 pt-3 px-3">
+          <div className="text-sm font-normal">
             {taskId ? "Files for this task" : "Your files"}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+          </div>
+        </div>
+        <div>
           {files.length === 0 ? (
-            <p className="text-sm text-gray-500">No files yet</p>
+            <p className="text-sm text-black/50 p-3">No files yet</p>
           ) : (
-            <div className="rounded-md overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-muted/50">
+            <div className="overflow-hidden">
+              <table className="min-w-full divide-y divide-[#f0f0f0]">
+                <thead className="bg-[#f8f8f8]">
                   <tr>
-                    <th className="px-4 py-2 text-left text-xs font-normal text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-2 text-left text-xs font-normal text-black/50 uppercase tracking-wider">
                       Name
                     </th>
-                    <th className="px-4 py-2 text-left text-xs font-normal text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-2 text-left text-xs font-normal text-black/50 uppercase tracking-wider">
                       Type
                     </th>
-                    <th className="px-4 py-2 text-left text-xs font-normal text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-2 text-left text-xs font-normal text-black/50 uppercase tracking-wider">
                       Size
                     </th>
-                    <th className="px-4 py-2 text-left text-xs font-normal text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-2 text-left text-xs font-normal text-black/50 uppercase tracking-wider">
                       Date
                     </th>
-                    <th className="px-4 py-2 text-right text-xs font-normal text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 py-2 text-right text-xs font-normal text-black/50 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-card divide-y divide-gray-200">
+                <tbody className="divide-y divide-[#f0f0f0]">
                   {files.map((file) => (
-                    <tr key={file.id} className="hover:bg-muted/50">
-                      <td className="px-4 py-2 text-sm">
+                    <tr key={file.id} className="hover:bg-[#f8f8f8]">
+                      <td className="px-3 py-2 text-sm">
                         <a
                           href={file.fileUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-primary hover:underline flex items-center"
+                          className="text-[#F44A00] hover:underline flex items-center"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -398,25 +401,26 @@ export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
                           {file.fileName}
                         </a>
                         {file.description && (
-                          <div className="text-xs text-gray-500 mt-1 ml-5">
+                          <div className="text-xs text-black/50 mt-1 ml-5">
                             {file.description}
                           </div>
                         )}
                       </td>
-                      <td className="px-4 py-2 text-sm text-gray-500">
+                      <td className="px-3 py-2 text-sm text-black/50">
                         {file.fileType.split("/")[1] || file.fileType}
                       </td>
-                      <td className="px-4 py-2 text-sm text-gray-500">
+                      <td className="px-3 py-2 text-sm text-black/50">
                         {formatFileSize(file.fileSize)}
                       </td>
-                      <td className="px-4 py-2 text-sm text-gray-500">
+                      <td className="px-3 py-2 text-sm text-black/50">
                         {new Date(file.createdAt).toLocaleString()}
                       </td>
-                      <td className="px-4 py-2 text-sm text-right">
+                      <td className="px-3 py-2 text-sm text-right">
                         <Button
-                          variant="destructive"
+                          variant="outline"
                           size="sm"
                           onClick={() => handleDeleteFile(file.id)}
+                          className="h-7 text-xs font-normal border-[#E11D48] text-[#E11D48] hover:bg-[#FFF0F0]"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -443,8 +447,8 @@ export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
               </table>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
@@ -455,5 +459,7 @@ function formatFileSize(bytes: number): string {
   const k = 1024;
   const sizes = ["Bytes", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  return (
+    Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
+  );
 }

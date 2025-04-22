@@ -1,3 +1,5 @@
+"use client";
+
 import {
   getTaskById,
   getTaskHistoryById,
@@ -8,57 +10,45 @@ import {
   TaskPriority,
 } from "@/mock-data";
 import { useParams } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import AISummaryDialog from "@/components/ai-summary-dialog";
 import { AIContext } from "./App";
 import { useState, useContext } from "react";
+import AISummaryDialog from "@/components/ai-summary-dialog";
 
-// Style maps for task statuses and priorities
+// Status color map
 const statusColorMap: Record<TaskStatus, { bg: string; text: string }> = {
-  [TaskStatus.TODO]: { bg: "bg-slate-100", text: "text-slate-700" },
-  [TaskStatus.IN_PROGRESS]: { bg: "bg-blue-100", text: "text-blue-700" },
-  [TaskStatus.IN_REVIEW]: { bg: "bg-purple-100", text: "text-purple-700" },
-  [TaskStatus.BLOCKED]: { bg: "bg-red-100", text: "text-red-700" },
-  [TaskStatus.COMPLETED]: { bg: "bg-green-100", text: "text-green-700" },
+  [TaskStatus.TODO]: { bg: "bg-[#f0f0f0]", text: "text-black/70" },
+  [TaskStatus.IN_PROGRESS]: { bg: "bg-[#FFF4ED]", text: "text-[#F44A00]" },
+  [TaskStatus.IN_REVIEW]: { bg: "bg-[#F5F0FF]", text: "text-[#7928CA]" },
+  [TaskStatus.BLOCKED]: { bg: "bg-[#FFF0F0]", text: "text-[#E11D48]" },
+  [TaskStatus.COMPLETED]: { bg: "bg-[#F0FFF4]", text: "text-[#16A34A]" },
 };
 
 const priorityColorMap: Record<TaskPriority, { bg: string; text: string }> = {
-  [TaskPriority.LOWEST]: { bg: "bg-slate-100", text: "text-slate-700" },
-  [TaskPriority.LOW]: { bg: "bg-teal-100", text: "text-teal-700" },
-  [TaskPriority.MEDIUM]: { bg: "bg-blue-100", text: "text-blue-700" },
-  [TaskPriority.HIGH]: { bg: "bg-amber-100", text: "text-amber-700" },
-  [TaskPriority.HIGHEST]: { bg: "bg-red-100", text: "text-red-700" },
+  [TaskPriority.LOWEST]: { bg: "bg-[#f0f0f0]", text: "text-black/70" },
+  [TaskPriority.LOW]: { bg: "bg-[#F0F9FF]", text: "text-[#0284C7]" },
+  [TaskPriority.MEDIUM]: { bg: "bg-[#FFF4ED]", text: "text-[#F44A00]" },
+  [TaskPriority.HIGH]: { bg: "bg-[#FFF7ED]", text: "text-[#EA580C]" },
+  [TaskPriority.HIGHEST]: { bg: "bg-[#FFF1F2]", text: "text-[#E11D48]" },
 };
 
 // Status badge component
 const StatusBadge = ({ status }: { status: TaskStatus }) => (
-  <Badge
-    variant="outline"
-    className={`${statusColorMap[status].bg} ${statusColorMap[status].text}`}
+  <div
+    className={`inline-flex px-2 py-0.5 text-xs ${statusColorMap[status].bg} ${statusColorMap[status].text}`}
   >
     {status.replace(/_/g, " ")}
-  </Badge>
+  </div>
 );
 
 // Priority badge component
 const PriorityBadge = ({ priority }: { priority: TaskPriority }) => (
-  <Badge
-    variant="outline"
-    className={`${priorityColorMap[priority].bg} ${priorityColorMap[priority].text}`}
+  <div
+    className={`inline-flex px-2 py-0.5 text-xs ${priorityColorMap[priority].bg} ${priorityColorMap[priority].text}`}
   >
     {priority}
-  </Badge>
+  </div>
 );
 
 // Status selector component
@@ -69,28 +59,17 @@ const StatusSelector = ({
   currentStatus: TaskStatus;
   onStatusChange: (status: TaskStatus) => void;
 }) => (
-  <Select
-    defaultValue={currentStatus}
-    onValueChange={(value: string) => onStatusChange(value as TaskStatus)}
+  <select
+    value={currentStatus}
+    onChange={(e) => onStatusChange(e.target.value as TaskStatus)}
+    className="text-xs h-8 px-2 bg-white"
   >
-    <SelectTrigger className="h-8 text-xs w-full">
-      <SelectValue placeholder="Change status" />
-    </SelectTrigger>
-    <SelectContent>
-      {Object.values(TaskStatus).map((status) => (
-        <SelectItem key={status} value={status}>
-          <div className="flex items-center gap-2">
-            <div
-              className={`w-2 h-2 rounded-full ${
-                statusColorMap[status as TaskStatus].bg
-              }`}
-            ></div>
-            {status.replace(/_/g, " ")}
-          </div>
-        </SelectItem>
-      ))}
-    </SelectContent>
-  </Select>
+    {Object.values(TaskStatus).map((status) => (
+      <option key={status} value={status}>
+        {status.replace(/_/g, " ")}
+      </option>
+    ))}
+  </select>
 );
 
 // User avatar component
@@ -110,9 +89,9 @@ const UserAvatar = ({
 
   return (
     <div className="flex items-center gap-1">
-      <Avatar className={sizeClass}>
+      <Avatar className={`${sizeClass}`}>
         <div
-          className={`w-full h-full flex items-center justify-center bg-gray-200 ${textSize} font-normal`}
+          className={`w-full h-full flex items-center justify-center bg-[#f0f0f0] ${textSize} font-normal text-black/80`}
         >
           {user.name ? user.name.charAt(0) : user.email.charAt(0)}
         </div>
@@ -130,10 +109,10 @@ const Comment = ({ comment, taskComments, userInfo }) => {
     : null;
 
   return (
-    <Card key={comment.id} className={isReply ? "ml-6" : ""}>
-      <CardHeader className="p-3 pb-0">
+    <div key={comment.id} className={`${isReply ? "ml-6" : ""} mb-2`}>
+      <div className="bg-white p-3">
         {isReply && (
-          <p className="text-xs text-gray-500 mb-1">
+          <p className="text-xs text-black/50 mb-1">
             Replying to: "{parentComment?.content.substring(0, 40)}..."
           </p>
         )}
@@ -148,26 +127,23 @@ const Comment = ({ comment, taskComments, userInfo }) => {
             size="sm"
           />
           <span className="font-normal text-sm">{userInfo.name}</span>
-          <span className="text-xs text-gray-500">{userInfo.role}</span>
+          <span className="text-xs text-black/50">{userInfo.role}</span>
           {userInfo.teams && userInfo.teams.length > 0 && (
-            <Badge
-              variant="outline"
-              className="bg-blue-50 text-blue-700 text-xs py-0 h-5"
-            >
+            <div className="bg-[#f0f0f0] text-black/70 text-xs px-1.5 py-0.5">
               {userInfo.teams[0].name}
-            </Badge>
+            </div>
           )}
-          <span className="text-xs text-gray-400 ml-auto">
+          <span className="text-xs text-black/40 ml-auto">
             {new Date(comment.createdAt).toLocaleString()}
             {comment.isEdited && " (edited)"}
           </span>
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent className="p-3 pt-2">
-        <p className="text-gray-700 text-sm">{comment.content}</p>
-      </CardContent>
-    </Card>
+      <div className="bg-white p-3 mt-px">
+        <p className="text-black/80 text-sm">{comment.content}</p>
+      </div>
+    </div>
   );
 };
 
@@ -175,31 +151,29 @@ const Comment = ({ comment, taskComments, userInfo }) => {
 const HistoryItem = ({ history }) => {
   const user = mockData.users.find((u) => u.id === history.changedBy);
   return (
-    <Card key={history.id}>
-      <CardContent className="p-3">
-        <div className="flex justify-between items-start">
-          <div>
-            <p className="font-normal text-sm">
-              Changed {history.fieldChanged} from{" "}
-              <Badge variant="outline" className="font-mono text-xs">
-                {history.oldValue}
-              </Badge>{" "}
-              to{" "}
-              <Badge variant="outline" className="font-mono text-xs">
-                {history.newValue}
-              </Badge>
-            </p>
-            <p className="text-xs text-gray-600 mt-1 flex items-center gap-1">
-              <UserAvatar user={user} size="sm" />
-              {user?.name || "Unknown"}
-            </p>
-          </div>
-          <p className="text-xs text-gray-500">
-            {new Date(history.changedAt).toLocaleString()}
+    <div key={history.id} className="bg-white p-3 mb-2">
+      <div className="flex justify-between items-start">
+        <div>
+          <p className="font-normal text-sm">
+            Changed {history.fieldChanged} from{" "}
+            <span className="inline-block bg-[#f0f0f0] px-1.5 font-mono text-xs">
+              {history.oldValue}
+            </span>{" "}
+            to{" "}
+            <span className="inline-block bg-[#f0f0f0] px-1.5 font-mono text-xs">
+              {history.newValue}
+            </span>
+          </p>
+          <p className="text-xs text-black/60 mt-1 flex items-center gap-1">
+            <UserAvatar user={user} size="sm" />
+            {user?.name || "Unknown"}
           </p>
         </div>
-      </CardContent>
-    </Card>
+        <p className="text-xs text-black/50">
+          {new Date(history.changedAt).toLocaleString()}
+        </p>
+      </div>
+    </div>
   );
 };
 
@@ -207,35 +181,33 @@ const HistoryItem = ({ history }) => {
 const AttachmentItem = ({ attachment }) => {
   const user = mockData.users.find((u) => u.id === attachment.userId);
   return (
-    <Card key={attachment.id}>
-      <CardContent className="p-3">
-        <div className="flex items-center gap-2 mb-1">
-          <svg
-            className="w-4 h-4 text-gray-500"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
-          </svg>
-          <p className="font-normal truncate flex-1 text-sm">
-            {attachment.fileName}
-          </p>
-        </div>
-        <div className="flex justify-between text-xs text-gray-500">
-          <span>{(attachment.fileSize / 1024).toFixed(0)} KB</span>
-          <span className="flex items-center gap-1">
-            <UserAvatar user={user} size="sm" />
-            {user?.name || "Unknown"}
-          </span>
-        </div>
-      </CardContent>
-    </Card>
+    <div key={attachment.id} className="bg-white p-3 mb-2">
+      <div className="flex items-center gap-2 mb-1">
+        <svg
+          className="w-4 h-4 text-black/50"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+        </svg>
+        <p className="font-normal truncate flex-1 text-sm">
+          {attachment.fileName}
+        </p>
+      </div>
+      <div className="flex justify-between text-xs text-black/50">
+        <span>{(attachment.fileSize / 1024).toFixed(0)} KB</span>
+        <span className="flex items-center gap-1">
+          <UserAvatar user={user} size="sm" />
+          {user?.name || "Unknown"}
+        </span>
+      </div>
+    </div>
   );
 };
 
@@ -287,12 +259,12 @@ const TaskMetadata = ({ task }) => {
   }
 
   return (
-    <div className="border rounded-md py-2 px-3 bg-gray-50 shadow-sm">
-      <h3 className="text-base font-normal text-gray-700 mb-2">Task Details</h3>
+    <div className="bg-[#f0f0f0] py-2 px-3">
+      <h3 className="text-base font-normal text-black/80 mb-2">Task Details</h3>
       <div className="grid grid-cols-2 gap-y-2 gap-x-3">
         {metadata.map((item, index) => (
           <div key={index} className="flex flex-col">
-            <span className="text-xs font-semibold text-gray-600">
+            <span className="text-xs font-medium text-black/60">
               {item.label}
             </span>
             <span className="text-sm font-normal">{item.value}</span>
@@ -312,6 +284,7 @@ const TaskPage = () => {
   const taskAttachments = getTaskAttachmentsById(id);
   const { selectedModel } = useContext(AIContext);
   const [showAISummary, setShowAISummary] = useState(false);
+  const [activeTab, setActiveTab] = useState("comments");
 
   // Get user information for comments
   const getUserInfo = (userId: string) => {
@@ -344,11 +317,9 @@ const TaskPage = () => {
   const assignee = task.assigneeId
     ? mockData.users.find((user) => user.id === task.assigneeId)
     : null;
-
   const reporter = task.reporterId
     ? mockData.users.find((user) => user.id === task.reporterId)
     : null;
-
   const project = mockData.projects.find((p) => p.id === task.projectId);
 
   const handleStatusChange = (newStatus: TaskStatus) => {
@@ -378,87 +349,92 @@ const TaskPage = () => {
 
   return (
     <div className="max-w-7xl mx-auto">
-      <Card className="mb-4  -500 shadow-sm">
-        <CardHeader className="py-3 px-4">
-          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-2">
-            <div className="flex-1">
-              <CardTitle className="text-2xl font-normal mb-2">
-                {task.title}
-              </CardTitle>
+      <div className="mb-6">
+        <div className="text-xs text-black/60 mb-1">TASK {task.id}</div>
+        <h1 className="text-2xl font-normal mb-3">{task.title}</h1>
 
-              <div className="flex flex-wrap items-center gap-2 mb-2">
-                <div className="flex items-center gap-1 mr-2">
-                  <span className="text-xs font-semibold text-gray-600">
-                    Status:
-                  </span>
-                  <StatusBadge status={task.status} />
-                </div>
+        <div className="flex flex-wrap items-center gap-2 mb-3">
+          <div className="flex items-center gap-1 mr-2">
+            <span className="text-xs font-medium text-black/60">Status:</span>
+            <StatusBadge status={task.status} />
+          </div>
 
-                {task.priority && (
-                  <div className="flex items-center gap-1 mr-2">
-                    <span className="text-xs font-semibold text-gray-600">
-                      Priority:
-                    </span>
-                    <PriorityBadge priority={task.priority} />
-                  </div>
-                )}
+          {task.priority && (
+            <div className="flex items-center gap-1 mr-2">
+              <span className="text-xs font-medium text-black/60">
+                Priority:
+              </span>
+              <PriorityBadge priority={task.priority} />
+            </div>
+          )}
 
-                {project && (
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs font-semibold text-gray-600">
-                      Project:
-                    </span>
-                    <Badge
-                      variant="outline"
-                      className="bg-gray-100 font-normal"
-                    >
-                      {project.name}
-                    </Badge>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="w-56">
-                  <StatusSelector
-                    currentStatus={task.status}
-                    onStatusChange={handleStatusChange}
-                  />
-                </div>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8 gap-1 border-orange-200 text-orange-600 hover:bg-orange-50 font-normal"
-                  onClick={() => setShowAISummary(true)}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-                    <path d="M12 17h.01"></path>
-                  </svg>
-                  Generate AI Summary
-                </Button>
+          {project && (
+            <div className="flex items-center gap-1">
+              <span className="text-xs font-medium text-black/60">
+                Project:
+              </span>
+              <div className="bg-[#f0f0f0] text-black/70 text-xs px-1.5 py-0.5">
+                {project.name}
               </div>
             </div>
+          )}
+        </div>
 
-            <div className="flex flex-row gap-4 bg-gray-50 py-2 px-3 rounded-md">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-56">
+            <StatusSelector
+              currentStatus={task.status}
+              onStatusChange={handleStatusChange}
+            />
+          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1 border-[#F44A00] text-[#F44A00] hover:bg-[#FFF4ED] font-normal"
+            onClick={() => setShowAISummary(true)}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <path d="M12 17h.01"></path>
+            </svg>
+            Generate AI Summary
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="md:col-span-2">
+            {task.description && (
+              <div className="mb-4">
+                <h3 className="text-base font-normal text-black/80 mb-1">
+                  Description
+                </h3>
+                <div className="text-black/80 whitespace-pre-line text-sm bg-[#f0f0f0] p-2">
+                  {task.description}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div>
+            <div className="bg-[#f0f0f0] p-3 mb-4">
               {assignee && (
-                <div className="flex flex-col">
-                  <span className="text-xs font-semibold text-gray-600">
+                <div className="flex flex-col mb-3">
+                  <span className="text-xs font-medium text-black/60">
                     Assignee
                   </span>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 mt-1">
                     <UserAvatar user={assignee} showName={true} />
                   </div>
                 </div>
@@ -466,28 +442,11 @@ const TaskPage = () => {
 
               {reporter && (
                 <div className="flex flex-col">
-                  <span className="text-xs font-semibold text-gray-600">
+                  <span className="text-xs font-medium text-black/60">
                     Reporter
                   </span>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 mt-1">
                     <UserAvatar user={reporter} showName={true} />
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </CardHeader>
-
-        <CardContent className="px-4 pb-3 pt-0">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              {task.description && (
-                <div>
-                  <h3 className="text-base font-normal text-gray-700 mb-1">
-                    Description
-                  </h3>
-                  <div className="text-gray-700 whitespace-pre-line text-sm bg-gray-50 p-2 rounded-md">
-                    {task.description}
                   </div>
                 </div>
               )}
@@ -495,65 +454,94 @@ const TaskPage = () => {
 
             <TaskMetadata task={task} />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      <Tabs defaultValue="comments" className="w-full">
-        <TabsList className="mb-3">
-          <TabsTrigger value="comments" className="font-normal text-base">
+      <div className="mb-2">
+        <div className="flex border-b">
+          <button
+            className={`px-4 py-2 text-sm font-normal ${
+              activeTab === "comments"
+                ? "border-b-2 border-black"
+                : "text-black/60"
+            }`}
+            onClick={() => setActiveTab("comments")}
+          >
             Comments ({taskComments.length})
-          </TabsTrigger>
-          <TabsTrigger value="history" className="font-normal text-base">
+          </button>
+          <button
+            className={`px-4 py-2 text-sm font-normal ${
+              activeTab === "history"
+                ? "border-b-2 border-black"
+                : "text-black/60"
+            }`}
+            onClick={() => setActiveTab("history")}
+          >
             History ({taskHistory.length})
-          </TabsTrigger>
-          <TabsTrigger value="attachments" className="font-normal text-base">
+          </button>
+          <button
+            className={`px-4 py-2 text-sm font-normal ${
+              activeTab === "attachments"
+                ? "border-b-2 border-black"
+                : "text-black/60"
+            }`}
+            onClick={() => setActiveTab("attachments")}
+          >
             Attachments ({taskAttachments.length})
-          </TabsTrigger>
-        </TabsList>
+          </button>
+        </div>
+      </div>
 
-        <TabsContent value="comments" className="space-y-2">
-          {taskComments.length === 0 ? (
-            <div className="text-center py-3 text-gray-500 font-normal">
-              No comments yet
-            </div>
-          ) : (
-            taskComments.map((comment) => (
-              <Comment
-                key={comment.id}
-                comment={comment}
-                taskComments={taskComments}
-                userInfo={getUserInfo(comment.userId)}
-              />
-            ))
-          )}
-        </TabsContent>
+      <div className="mt-4">
+        {activeTab === "comments" && (
+          <div>
+            {taskComments.length === 0 ? (
+              <div className="text-center py-3 text-black/50 font-normal">
+                No comments yet
+              </div>
+            ) : (
+              taskComments.map((comment) => (
+                <Comment
+                  key={comment.id}
+                  comment={comment}
+                  taskComments={taskComments}
+                  userInfo={getUserInfo(comment.userId)}
+                />
+              ))
+            )}
+          </div>
+        )}
 
-        <TabsContent value="history" className="space-y-2">
-          {taskHistory.length === 0 ? (
-            <div className="text-center py-3 text-gray-500 font-normal">
-              No history available
-            </div>
-          ) : (
-            taskHistory.map((history) => (
-              <HistoryItem key={history.id} history={history} />
-            ))
-          )}
-        </TabsContent>
+        {activeTab === "history" && (
+          <div>
+            {taskHistory.length === 0 ? (
+              <div className="text-center py-3 text-black/50 font-normal">
+                No history available
+              </div>
+            ) : (
+              taskHistory.map((history) => (
+                <HistoryItem key={history.id} history={history} />
+              ))
+            )}
+          </div>
+        )}
 
-        <TabsContent value="attachments">
-          {taskAttachments.length === 0 ? (
-            <div className="text-center py-3 text-gray-500 font-normal">
-              No attachments
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              {taskAttachments.map((attachment) => (
-                <AttachmentItem key={attachment.id} attachment={attachment} />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
+        {activeTab === "attachments" && (
+          <div>
+            {taskAttachments.length === 0 ? (
+              <div className="text-center py-3 text-black/50 font-normal">
+                No attachments
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {taskAttachments.map((attachment) => (
+                  <AttachmentItem key={attachment.id} attachment={attachment} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* AI Summary Dialog */}
       <AISummaryDialog

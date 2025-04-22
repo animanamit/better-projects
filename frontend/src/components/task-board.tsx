@@ -1,37 +1,23 @@
 import { mockData, type Task, TaskStatus, TaskPriority } from "@/mock-data";
 import { Link } from "react-router-dom";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useState } from "react";
 
-// Style maps for task statuses and priorities
+// Status color map
 const statusColorMap: Record<TaskStatus, { bg: string; text: string }> = {
-  [TaskStatus.TODO]: { bg: "bg-slate-100", text: "text-slate-700" },
-  [TaskStatus.IN_PROGRESS]: { bg: "bg-blue-100", text: "text-blue-700" },
-  [TaskStatus.IN_REVIEW]: { bg: "bg-purple-100", text: "text-purple-700" },
-  [TaskStatus.BLOCKED]: { bg: "bg-red-100", text: "text-red-700" },
-  [TaskStatus.COMPLETED]: { bg: "bg-green-100", text: "text-green-700" },
+  [TaskStatus.TODO]: { bg: "bg-[#f0f0f0]", text: "text-black/70" },
+  [TaskStatus.IN_PROGRESS]: { bg: "bg-[#FFF4ED]", text: "text-[#F44A00]" },
+  [TaskStatus.IN_REVIEW]: { bg: "bg-[#F5F0FF]", text: "text-[#7928CA]" },
+  [TaskStatus.BLOCKED]: { bg: "bg-[#FFF0F0]", text: "text-[#E11D48]" },
+  [TaskStatus.COMPLETED]: { bg: "bg-[#F0FFF4]", text: "text-[#16A34A]" },
 };
 
 const priorityColorMap: Record<TaskPriority, { bg: string; text: string }> = {
-  [TaskPriority.LOWEST]: { bg: "bg-slate-100", text: "text-slate-700" },
-  [TaskPriority.LOW]: { bg: "bg-teal-100", text: "text-teal-700" },
-  [TaskPriority.MEDIUM]: { bg: "bg-blue-100", text: "text-blue-700" },
-  [TaskPriority.HIGH]: { bg: "bg-amber-100", text: "text-amber-700" },
-  [TaskPriority.HIGHEST]: { bg: "bg-red-100", text: "text-red-700" },
+  [TaskPriority.LOWEST]: { bg: "bg-[#f0f0f0]", text: "text-black/70" },
+  [TaskPriority.LOW]: { bg: "bg-[#F0F9FF]", text: "text-[#0284C7]" },
+  [TaskPriority.MEDIUM]: { bg: "bg-[#FFF4ED]", text: "text-[#F44A00]" },
+  [TaskPriority.HIGH]: { bg: "bg-[#FFF7ED]", text: "text-[#EA580C]" },
+  [TaskPriority.HIGHEST]: { bg: "bg-[#FFF1F2]", text: "text-[#E11D48]" },
 };
 
 // Status badge component with click handling
@@ -42,23 +28,21 @@ const StatusBadge = ({
   status: TaskStatus;
   onClick: (e: React.MouseEvent) => void;
 }) => (
-  <Badge
-    variant="outline"
-    className={`${statusColorMap[status].bg} ${statusColorMap[status].text} hover:cursor-pointer text-sm font-normal`}
+  <div
+    className={`inline-flex px-2 py-0.5 text-xs ${statusColorMap[status].bg} ${statusColorMap[status].text} hover:cursor-pointer`}
     onClick={onClick}
   >
     {status.replace(/_/g, " ")}
-  </Badge>
+  </div>
 );
 
 // Priority badge component
 const PriorityBadge = ({ priority }: { priority: TaskPriority }) => (
-  <Badge
-    variant="outline"
-    className={`${priorityColorMap[priority].bg} ${priorityColorMap[priority].text} text-sm font-normal`}
+  <div
+    className={`inline-flex px-2 py-0.5 text-xs ${priorityColorMap[priority].bg} ${priorityColorMap[priority].text}`}
   >
     {priority}
-  </Badge>
+  </div>
 );
 
 // Assignee avatar component
@@ -69,8 +53,8 @@ const AssigneeAvatar = ({ userId }: { userId: string | null | undefined }) => {
   if (!user) return null;
 
   return (
-    <Avatar className="w-7 h-7">
-      <div className="w-full h-full flex items-center justify-center bg-gray-200 text-sm font-normal">
+    <Avatar className="w-6 h-6">
+      <div className="w-full h-full flex items-center justify-center bg-[#f0f0f0] text-xs font-normal text-black/80">
         {user.name ? user.name.charAt(0) : user.email.charAt(0)}
       </div>
     </Avatar>
@@ -85,28 +69,17 @@ const StatusSelector = ({
   currentStatus: TaskStatus;
   onStatusChange: (status: TaskStatus) => void;
 }) => (
-  <Select
-    defaultValue={currentStatus}
-    onValueChange={(value: string) => onStatusChange(value as TaskStatus)}
+  <select
+    value={currentStatus}
+    onChange={(e) => onStatusChange(e.target.value as TaskStatus)}
+    className="h-8 text-xs px-2 w-full bg-white"
   >
-    <SelectTrigger className="h-8 text-sm px-2 w-full font-normal">
-      <SelectValue placeholder="Change status" />
-    </SelectTrigger>
-    <SelectContent>
-      {Object.values(TaskStatus).map((status) => (
-        <SelectItem key={status} value={status}>
-          <div className="flex items-center gap-2">
-            <div
-              className={`w-2 h-2 rounded-full ${
-                statusColorMap[status as TaskStatus].bg
-              }`}
-            ></div>
-            <span className="font-normal">{status.replace(/_/g, " ")}</span>
-          </div>
-        </SelectItem>
-      ))}
-    </SelectContent>
-  </Select>
+    {Object.values(TaskStatus).map((status) => (
+      <option key={status} value={status}>
+        {status.replace(/_/g, " ")}
+      </option>
+    ))}
+  </select>
 );
 
 // Task card component
@@ -136,13 +109,11 @@ const TaskDetailsCard = ({
 
   return (
     <Link to={`/dashboard/task/${task.id}`} className="block">
-      <Card className="mb-2 hover:shadow-md transition-shadow cursor-pointer">
-        <CardHeader className="py-1 px-3 flex flex-row items-start justify-between">
-          <div className="flex flex-col">
-            <span className="font-normal text-lg hover:underline">
-              {task.title}
-            </span>
-            <div className="flex items-center gap-1">
+      <div className="mb-2 bg-white p-3 hover:bg-[#f8f8f8] transition-colors">
+        <div className="flex justify-between items-start">
+          <div className="flex-1">
+            <div className="font-normal text-sm mb-1">{task.title}</div>
+            <div className="flex flex-wrap gap-1 mb-1">
               <StatusBadge
                 status={task.status}
                 onClick={handleStatusBadgeClick}
@@ -159,28 +130,21 @@ const TaskDetailsCard = ({
             )}
           </div>
 
-          <div className="flex flex-col items-end">
+          <div className="ml-2">
             <AssigneeAvatar userId={task.assigneeId} />
-            {task.assigneeId && (
-              <span className="text-sm font-normal text-gray-600">
-                {mockData.users
-                  .find((u) => u.id === task.assigneeId)
-                  ?.name?.split(" ")[0] || "Assignee"}
-              </span>
-            )}
           </div>
-        </CardHeader>
+        </div>
 
-        <CardFooter className="py-1 px-3 flex items-center justify-between">
-          <span className="font-normal text-gray-700 truncate max-w-44 text-sm">
+        <div className="flex items-center justify-between mt-2 text-xs text-black/60">
+          <span className="truncate max-w-44">
             {project?.name || task.projectId}
           </span>
-          <div className="flex items-center gap-2 text-sm">
+          <div className="flex items-center gap-2">
             {task.numComments > 0 && (
-              <span className="text-gray-600 font-normal flex items-center">
+              <span className="flex items-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 mr-1"
+                  className="h-3 w-3 mr-1"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -196,10 +160,10 @@ const TaskDetailsCard = ({
               </span>
             )}
             {task.dueDate && (
-              <span className="text-gray-600 font-normal flex items-center">
+              <span className="flex items-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 mr-1"
+                  className="h-3 w-3 mr-1"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -218,19 +182,28 @@ const TaskDetailsCard = ({
               </span>
             )}
           </div>
-        </CardFooter>
-      </Card>
+        </div>
+      </div>
     </Link>
   );
 };
 
 // Column header component
-const ColumnHeader = ({ title, count }: { title: string; count: number }) => (
-  <div className="font-normal text-lg mb-1 flex items-center justify-between">
-    <h3>{title}</h3>
-    <Badge variant="outline" className="font-normal text-sm">
-      {count}
-    </Badge>
+const ColumnHeader = ({
+  title,
+  count,
+  color,
+}: {
+  title: string;
+  count: number;
+  color: string;
+}) => (
+  <div className="font-normal text-sm mb-2 flex items-center justify-between">
+    <div className="flex items-center">
+      <div className={`w-2 h-2 rounded-full ${color} mr-2`}></div>
+      <h3>{title}</h3>
+    </div>
+    <div className="text-xs text-black/60">{count}</div>
   </div>
 );
 
@@ -240,18 +213,20 @@ const TaskColumn = ({
   title,
   tasks,
   onStatusChange,
+  color,
 }: {
   status: TaskStatus;
   title: string;
   tasks: Task[];
   onStatusChange: (task: Task, newStatus: TaskStatus) => void;
+  color: string;
 }) => {
   const columnTasks = tasks.filter((task) => task.status === status);
 
   return (
-    <div className="board-column rounded-md border p-2 bg-gray-50 min-w-[375px] w-[375px]">
-      <ColumnHeader title={title} count={columnTasks.length} />
-      <div className="board-column-content">
+    <div className="min-w-[280px] w-[280px]">
+      <ColumnHeader title={title} count={columnTasks.length} color={color} />
+      <div>
         {columnTasks.map((task) => (
           <TaskDetailsCard
             key={task.id}
@@ -260,9 +235,7 @@ const TaskColumn = ({
           />
         ))}
         {columnTasks.length === 0 && (
-          <div className="text-center py-2 text-gray-400 text-base font-normal">
-            No tasks here
-          </div>
+          <div className="text-center py-2 text-black/40 text-xs">No tasks</div>
         )}
       </div>
     </div>
@@ -285,24 +258,34 @@ export default function TaskBoard() {
   };
 
   const columns = [
-    { status: TaskStatus.BLOCKED, title: "Blocked" },
-    { status: TaskStatus.TODO, title: "To Do" },
-    { status: TaskStatus.IN_PROGRESS, title: "In Progress" },
-    { status: TaskStatus.IN_REVIEW, title: "In Review" },
-    { status: TaskStatus.COMPLETED, title: "Done" },
+    { status: TaskStatus.BLOCKED, title: "Blocked", color: "bg-[#E11D48]" },
+    { status: TaskStatus.TODO, title: "To Do", color: "bg-black/60" },
+    {
+      status: TaskStatus.IN_PROGRESS,
+      title: "In Progress",
+      color: "bg-[#F44A00]",
+    },
+    { status: TaskStatus.IN_REVIEW, title: "In Review", color: "bg-[#7928CA]" },
+    { status: TaskStatus.COMPLETED, title: "Done", color: "bg-[#16A34A]" },
   ];
 
   return (
-    <div className="flex gap-3 overflow-x-scroll py-1">
-      {columns.map((column) => (
-        <TaskColumn
-          key={column.status}
-          status={column.status}
-          title={column.title}
-          tasks={tasks}
-          onStatusChange={handleStatusChange}
-        />
-      ))}
+    <div>
+      <div className="mb-4">
+        <h1 className="text-xl font-normal">Task Board</h1>
+      </div>
+      <div className="flex gap-3 overflow-x-auto pb-4">
+        {columns.map((column) => (
+          <TaskColumn
+            key={column.status}
+            status={column.status}
+            title={column.title}
+            tasks={tasks}
+            onStatusChange={handleStatusChange}
+            color={column.color}
+          />
+        ))}
+      </div>
     </div>
   );
 }

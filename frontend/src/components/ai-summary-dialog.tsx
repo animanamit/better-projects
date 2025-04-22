@@ -184,7 +184,7 @@ const StreamedMarkdown = ({
           result.push(
             <pre
               key={`code-${index}`}
-              className="bg-gray-50 rounded-md p-3 overflow-x-auto text-sm font-mono my-3 border border-gray-200"
+              className="bg-[#f8f8f8] p-3 overflow-x-auto text-sm font-mono my-2"
             >
               {currentCodeBlock}
             </pre>
@@ -229,7 +229,7 @@ const StreamedMarkdown = ({
           // If we have existing list items, finish that list first
           if (currentListItems.length > 0) {
             result.push(
-              <ul key={`list-${index}`} className="my-3 list-disc">
+              <ul key={`list-${index}`} className="my-2 list-disc">
                 {currentListItems}
               </ul>
             );
@@ -238,7 +238,7 @@ const StreamedMarkdown = ({
 
           // Add this as a subheading instead
           result.push(
-            <h4 key={index} className="text-base mt-2 mb-1 text-gray-700">
+            <h4 key={index} className="text-base mt-2 mb-1 text-black/70">
               {formatInlineMarkdown(heading)}
             </h4>
           );
@@ -289,7 +289,7 @@ const StreamedMarkdown = ({
           result.push(
             <h1
               key={index}
-              className="text-2xl font-semibold mt-4 mb-2 border-b pb-1 text-gray-800"
+              className="text-2xl font-normal mt-3 mb-2 pb-1 text-black/80"
             >
               {formatInlineMarkdown(line.replace("# ", "").trim())}
             </h1>
@@ -299,7 +299,7 @@ const StreamedMarkdown = ({
           result.push(
             <h2
               key={index}
-              className="text-xl font-semibold mt-3 mb-1 text-gray-800"
+              className="text-xl font-normal mt-3 mb-1 text-black/80"
             >
               {formatInlineMarkdown(line.replace("## ", "").trim())}
             </h2>
@@ -309,7 +309,7 @@ const StreamedMarkdown = ({
           result.push(
             <h3
               key={index}
-              className="text-lg font-medium mt-2 mb-0 text-gray-700"
+              className="text-lg font-normal mt-2 mb-0 text-black/70"
             >
               {formatInlineMarkdown(line.replace("### ", "").trim())}
             </h3>
@@ -319,7 +319,7 @@ const StreamedMarkdown = ({
           result.push(
             <h4
               key={index}
-              className="text-base font-medium mt-2 mb-0 text-gray-700"
+              className="text-base font-normal mt-2 mb-0 text-black/70"
             >
               {formatInlineMarkdown(line.replace("#### ", "").trim())}
             </h4>
@@ -329,7 +329,7 @@ const StreamedMarkdown = ({
           result.push(
             <blockquote
               key={index}
-              className=" border-gray-300 pl-4 italic my-3 text-gray-600"
+              className="border-l-2 border-black/20 pl-3 italic my-2 text-black/60"
             >
               {formatInlineMarkdown(line.replace("> ", "").trim())}
             </blockquote>
@@ -340,7 +340,7 @@ const StreamedMarkdown = ({
         } else {
           // Regular paragraph - minimal spacing
           result.push(
-            <p key={index} className="mt-0 mb-1 text-gray-600">
+            <p key={index} className="mt-0 mb-1 text-black/80">
               {formatInlineMarkdown(line)}
             </p>
           );
@@ -375,9 +375,7 @@ const StreamedMarkdown = ({
       "Product Insights",
     ];
     if (sectionHeadings.includes(text.trim())) {
-      return (
-        <span className="text-lg font-semibold text-gray-800">{text}</span>
-      );
+      return <span className="text-lg font-normal text-black/80">{text}</span>;
     }
 
     // Handle repeated label pattern (e.g., "Label:Label: Content")
@@ -496,7 +494,7 @@ const StreamedMarkdown = ({
             href={linkUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 hover:underline"
+            className="text-[#F44A00] hover:underline"
           >
             {linkText}
           </a>
@@ -603,7 +601,7 @@ const StreamedMarkdown = ({
   };
 
   return (
-    <div className="prose prose-sm max-w-none px-1 [&>*:first-child]:mt-0 [&_ul]:mt-0 [&_p+ul]:mt-0 [&_h2+p]:mt-0 [&_h3+p]:mt-0 [&_h4+p]:mt-0 [&_p+p]:mt-0 space-y-3">
+    <div className="prose prose-sm max-w-none px-1 [&>*:first-child]:mt-0 [&_ul]:mt-0 [&_p+ul]:mt-0 [&_h2+p]:mt-0 [&_h3+p]:mt-0 [&_h4+p]:mt-0 [&_p+p]:mt-0 space-y-2">
       <AnimatePresence>
         {applyFramerMotion(renderedContent)}
         {/* Removed cursor for cleaner appearance with faster text generation */}
@@ -701,17 +699,6 @@ const AISummaryDialog = ({
     fetchSummary(true);
   };
 
-  // const getTitle = () => {
-  //   switch (summaryType) {
-  //     case "project":
-  //       return "Project AI Summary";
-  //     case "task":
-  //       return "Task AI Summary";
-  //     case "team":
-  //       return "Team AI Summary";
-  //   }
-  // };
-
   // Format the last generated time
   const formatTimestamp = () => {
     if (!lastGeneratedAt) return null;
@@ -735,14 +722,14 @@ const AISummaryDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[75vw] max-h-[80vh] overflow-y-auto p-8 gap-0">
+      <DialogContent className="sm:max-w-[75vw] max-h-[80vh] overflow-y-auto p-6 gap-0 bg-[#f8f8f8]">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle></DialogTitle>
 
             <div className="flex items-center gap-2">
               {!isLoading && !error && lastGeneratedAt && (
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-black/50">
                   Generated {formatTimestamp()}
                 </span>
               )}
@@ -751,7 +738,7 @@ const AISummaryDialog = ({
                 <Button
                   variant="outline"
                   size="sm"
-                  className="gap-1"
+                  className="gap-1 h-8 text-xs font-normal"
                   onClick={skipToEnd}
                 >
                   <svg
@@ -776,7 +763,7 @@ const AISummaryDialog = ({
                 <Button
                   variant="outline"
                   size="sm"
-                  className="gap-1"
+                  className="gap-1 h-8 text-xs font-normal border-[#F44A00] text-[#F44A00] hover:bg-[#FFF4ED]"
                   onClick={handleRefresh}
                   disabled={isLoading || (isStreaming && !isComplete)}
                 >
@@ -806,22 +793,30 @@ const AISummaryDialog = ({
         <div className="pb-4">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mb-4"></div>
-              <p className="text-sm text-gray-500">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F44A00] mb-4"></div>
+              <p className="text-sm text-black/60">
                 {isCached
                   ? "Generating fresh summary..."
                   : "Generating summary..."}
               </p>
             </div>
           ) : error ? (
-            <div className="bg-red-50 p-4 rounded-md text-red-600">
+            <div className="bg-[#FFF0F0] p-4 text-[#E11D48]">
               <p className="font-normal">Error</p>
               <p className="text-sm">{error}</p>
               <div className="flex gap-2 mt-4">
-                <Button variant="outline" onClick={() => fetchSummary(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => fetchSummary(false)}
+                  className="h-8 text-xs font-normal"
+                >
                   Try Again
                 </Button>
-                <Button variant="outline" onClick={onClose}>
+                <Button
+                  variant="outline"
+                  onClick={onClose}
+                  className="h-8 text-xs font-normal"
+                >
                   Close
                 </Button>
               </div>

@@ -1,12 +1,6 @@
-// Clerk auth commented out for personal website deployment
-// import { UserButton } from "@clerk/clerk-react";
+"use client";
+
 import { useEffect, useState } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@/components/ui/select";
 import { aiModels, defaultModel } from "@/lib/ai";
 
 interface TopBarProps {
@@ -17,6 +11,7 @@ interface TopBarProps {
 const TopBar = ({ setSelectedModel, selectedModel }: TopBarProps) => {
   // Local state to ensure we always have a valid selection
   const [currentModel, setCurrentModel] = useState(defaultModel);
+  const [isModelMenuOpen, setIsModelMenuOpen] = useState(false);
 
   // Initialize model on mount and when props change
   useEffect(() => {
@@ -33,6 +28,7 @@ const TopBar = ({ setSelectedModel, selectedModel }: TopBarProps) => {
   const handleModelChange = (value: string) => {
     // Update local state
     setCurrentModel(value);
+    setIsModelMenuOpen(false);
 
     // Propagate to parent if possible
     if (setSelectedModel) {
@@ -46,44 +42,59 @@ const TopBar = ({ setSelectedModel, selectedModel }: TopBarProps) => {
   // Find the name of the current model for display purposes
   const currentModelName =
     aiModels.find((m) => m.id === currentModel)?.name || "Select AI Model";
+  const currentModelProvider =
+    aiModels.find((m) => m.id === currentModel)?.provider || "";
 
   return (
-    <div className="top-bar z-20 sticky top-0 p-2">
-      <div className="flex items-center justify-between h-fit py-2 text-white px-4 rounded-xl bg-orange-600">
-        <div className="text-md font-normal">Task Manager</div>
+    <div className="sticky top-0 z-20 px-4 py-3 bg-[#f8f8f8]">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 bg-black flex items-center justify-center text-white text-xs">
+            TM
+          </div>
+          <span className="text-sm font-medium">Task Manager</span>
+        </div>
+
         <div className="flex items-center gap-3">
           {/* AI Model Selector */}
           {setSelectedModel && (
-            <div className="w-52">
-              <Select value={currentModel} onValueChange={handleModelChange}>
-                <SelectTrigger className="text-xs h-8 bg-white/10 border-white/20 text-white">
-                  <div className="flex items-center gap-1 max-w-full truncate">
-                    <span className="truncate">{currentModelName}</span>
-                    <span className="text-[10px] bg-white/20 px-1 rounded text-white/80">
-                      {aiModels.find((m) => m.id === currentModel)?.provider ||
-                        ""}
-                    </span>
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
+            <div className="relative">
+              <button
+                onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
+                className="flex items-center gap-1 text-xs bg-[#f0f0f0] hover:bg-[#e8e8e8] px-3 py-1.5 rounded-sm"
+              >
+                <span className="truncate max-w-[120px]">
+                  {currentModelName}
+                </span>
+                {currentModelProvider && (
+                  <span className="text-[10px] bg-black/10 px-1 rounded text-black/70">
+                    {currentModelProvider}
+                  </span>
+                )}
+              </button>
+
+              {isModelMenuOpen && (
+                <div className="absolute right-0 mt-1 w-48 bg-white shadow-md z-50">
                   {aiModels.map((model) => (
-                    <SelectItem key={model.id} value={model.id}>
-                      <div className="flex flex-col">
-                        <span>{model.name}</span>
-                        <span className="text-xs text-gray-500">
-                          {model.provider}
-                        </span>
-                      </div>
-                    </SelectItem>
+                    <button
+                      key={model.id}
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-[#f0f0f0] flex flex-col"
+                      onClick={() => handleModelChange(model.id)}
+                    >
+                      <span>{model.name}</span>
+                      <span className="text-xs text-black/50">
+                        {model.provider}
+                      </span>
+                    </button>
                   ))}
-                </SelectContent>
-              </Select>
+                </div>
+              )}
             </div>
           )}
 
-          {/* User button replaced with mock avatar for personal website */}
-          <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-orange-600 font-normal">
-            D
+          {/* User avatar */}
+          <div className="w-7 h-7 rounded-full bg-[#F44A00] flex items-center justify-center text-white text-xs">
+            AA
           </div>
         </div>
       </div>
