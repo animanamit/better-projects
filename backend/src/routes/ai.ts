@@ -1,11 +1,11 @@
-import { FastifyInstance, FastifyPluginAsync } from 'fastify';
-import dotenv from 'dotenv';
-import * as path from 'path';
-import * as fs from 'fs';
-import fetch from 'node-fetch';
+import { FastifyInstance, FastifyPluginAsync } from "fastify";
+import dotenv from "dotenv";
+import * as path from "path";
+import * as fs from "fs";
+import fetch from "node-fetch";
 
 // Load environment variables with proper path
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 // Type definitions for better TypeScript support
 interface SummaryRequest {
@@ -42,15 +42,15 @@ interface Cache {
 // Define the AI plugin
 const aiRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
   // Log the OpenRouter API key (just the first few characters)
-  const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
-  console.log('OpenRouter API Key exists:', OPENROUTER_API_KEY ? 'Yes' : 'No');
+  const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "";
+  console.log("OpenRouter API Key exists:", OPENROUTER_API_KEY ? "Yes" : "No");
   if (OPENROUTER_API_KEY) {
     console.log(
-      'OpenRouter API Key preview:',
-      OPENROUTER_API_KEY.substring(0, 5) + '...'
+      "OpenRouter API Key preview:",
+      OPENROUTER_API_KEY.substring(0, 5) + "..."
     );
   }
-  const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
+  const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
   // Simple in-memory cache
   const summaryCache: {
@@ -67,9 +67,12 @@ const aiRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
   const CACHE_EXPIRATION = 24 * 60 * 60 * 1000;
 
   // Helper function to call OpenRouter API
-  async function callOpenRouter(prompt: string, model: string): Promise<string | null> {
+  async function callOpenRouter(
+    prompt: string,
+    model: string
+  ): Promise<string | null> {
     if (!OPENROUTER_API_KEY) {
-      console.warn('No OpenRouter API key found, using mock response');
+      console.warn("No OpenRouter API key found, using mock response");
       return null;
     }
 
@@ -77,22 +80,22 @@ const aiRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
       console.log(`Calling OpenRouter with model: ${model}`);
 
       const response = await fetch(OPENROUTER_URL, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://better-projects.vercel.app/',
-          'X-Title': 'Better Projects - Task Management',
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://better-projects.vercel.app/",
+          "X-Title": "Better Projects - Task Management",
           Authorization: `Bearer ${OPENROUTER_API_KEY}`,
         },
         body: JSON.stringify({
           model: model,
           messages: [
             {
-              role: 'system',
+              role: "system",
               content:
-                'You are an AI assistant that provides insightful, business-oriented summaries of tasks, projects, and teams. Your summaries should be concise, actionable, and tailored to different stakeholders like product owners, CTOs, and team leaders.',
+                "You are an AI assistant that provides insightful, business-oriented summaries of tasks, projects, and teams. Your summaries should be concise, actionable, and tailored to different stakeholders like product owners, CTOs, and team leaders.",
             },
-            { role: 'user', content: prompt },
+            { role: "user", content: prompt },
           ],
           temperature: 0.7,
           max_tokens: 1000,
@@ -101,23 +104,23 @@ const aiRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('OpenRouter API error:', errorData);
+        console.error("OpenRouter API error:", errorData);
         throw new Error(
-          `OpenRouter API error: ${errorData.error?.message || 'Unknown error'}`
+          `OpenRouter API error: ${errorData.error?.message || "Unknown error"}`
         );
       }
 
       const data = await response.json();
       return data.choices[0].message.content;
     } catch (error) {
-      console.error('Error calling OpenRouter:', error);
+      console.error("Error calling OpenRouter:", error);
       return null;
     }
   }
 
   // Helper function to get cached summary or generate a new one
   async function getOrGenerateSummary(
-    type: 'task' | 'project' | 'team',
+    type: "task" | "project" | "team",
     id: string,
     model: string,
     prompt: string,
@@ -164,8 +167,8 @@ const aiRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
   }
 
   // Mock summaries as fallback if API fails
-  function getMockSummary(type: 'task' | 'project' | 'team'): string {
-    if (type === 'task') {
+  function getMockSummary(type: "task" | "project" | "team"): string {
+    if (type === "task") {
       return `## Executive Summary: API Integration for Payment Gateway
 
 John Doe has been working on this task for 5 days and appears to be making steady progress. Based on the comment history and recent updates, I estimate this task will require another 3-4 days to complete. The complexity lies primarily in handling edge cases for international transactions.
@@ -185,7 +188,7 @@ While John is managing well, this task's completion timeline could be accelerate
 * **Mitigation**: A fallback implementation has been prepared in case the primary approach encounters unexpected issues
 
 The team has been proactive in communication, with regular updates in the dedicated Slack channel and comprehensive documentation being maintained throughout the development process.`;
-    } else if (type === 'project') {
+    } else if (type === "project") {
       return `## Executive Overview: Mobile App Redesign Project
 
 The mobile app redesign project is currently 33% complete and tracking on schedule for the planned July 15th release. The team has successfully completed the user research phase and finalized the design system, with development now in active progress.
@@ -254,39 +257,39 @@ Team morale remains high, though there's some concern about the upcoming office 
   const testSchema = {
     response: {
       200: {
-        type: 'object',
+        type: "object",
         properties: {
-          message: { type: 'string' },
+          message: { type: "string" },
           environment: {
-            type: 'object',
+            type: "object",
             properties: {
-              NODE_ENV: { type: ['string', 'null'] },
-              OPENROUTER_API_KEY_EXISTS: { type: 'boolean' },
-              ENV_FILE_PATH: { type: 'string' },
-              ENV_FILE_EXISTS: { type: 'boolean' },
-              CURRENT_WORKING_DIR: { type: 'string' },
+              NODE_ENV: { type: ["string", "null"] },
+              OPENROUTER_API_KEY_EXISTS: { type: "boolean" },
+              ENV_FILE_PATH: { type: "string" },
+              ENV_FILE_EXISTS: { type: "boolean" },
+              CURRENT_WORKING_DIR: { type: "string" },
               CACHE_STATUS: {
-                type: 'object',
+                type: "object",
                 properties: {
-                  task: { type: 'number' },
-                  project: { type: 'number' },
-                  team: { type: 'number' }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+                  task: { type: "number" },
+                  project: { type: "number" },
+                  team: { type: "number" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   };
 
   // Diagnostic endpoint
-  fastify.get('/test', { schema: testSchema }, (request, reply) => {
+  fastify.get("/test", { schema: testSchema }, (request, reply) => {
     const envVars = {
       NODE_ENV: process.env.NODE_ENV,
       OPENROUTER_API_KEY_EXISTS: Boolean(process.env.OPENROUTER_API_KEY),
-      ENV_FILE_PATH: path.resolve(__dirname, '../../.env'),
-      ENV_FILE_EXISTS: fs.existsSync(path.resolve(__dirname, '../../.env')),
+      ENV_FILE_PATH: path.resolve(__dirname, "../../.env"),
+      ENV_FILE_EXISTS: fs.existsSync(path.resolve(__dirname, "../../.env")),
       CURRENT_WORKING_DIR: process.cwd(),
       CACHE_STATUS: {
         task: Object.keys(summaryCache.task).length,
@@ -296,7 +299,7 @@ Team morale remains high, though there's some concern about the upcoming office 
     };
 
     return {
-      message: 'AI routes are working',
+      message: "AI routes are working",
       environment: envVars,
     };
   });
@@ -304,28 +307,28 @@ Team morale remains high, though there's some concern about the upcoming office 
   // Schema for task summary endpoint
   const taskSummarySchema = {
     body: {
-      type: 'object',
-      required: ['taskId', 'model'],
+      type: "object",
+      required: ["taskId", "model"],
       properties: {
-        taskId: { type: 'string' },
-        model: { type: 'string' },
-        forceRefresh: { type: 'boolean', default: false }
-      }
+        taskId: { type: "string" },
+        model: { type: "string" },
+        forceRefresh: { type: "boolean", default: false },
+      },
     },
     response: {
       200: {
-        type: 'object',
+        type: "object",
         properties: {
-          summary: { type: 'string' }
-        }
-      }
-    }
+          summary: { type: "string" },
+        },
+      },
+    },
   };
 
   // Task summary endpoint
   fastify.post<{
-    Body: TaskSummaryRequest
-  }>('/task-summary', { schema: taskSummarySchema }, async (request, reply) => {
+    Body: TaskSummaryRequest;
+  }>("/task-summary", { schema: taskSummarySchema }, async (request, reply) => {
     try {
       const { taskId, model, forceRefresh } = request.body;
 
@@ -344,7 +347,7 @@ FORMAT REQUIREMENTS:
 - Format any code snippets or technical details in code blocks using \`\`\` (triple backticks)
 
 RESPONSE STRUCTURE (follow this format):
-# Executive Summary: [Task Title]
+# Executive Summary for [Task Title]
 
 Brief overview of the task status and importance (2-3 sentences)
 
@@ -363,7 +366,7 @@ Resource allocation, team coordination, and performance insights
 Format your response in clear, professional language appropriate for a business context.`;
 
       const summary = await getOrGenerateSummary(
-        'task',
+        "task",
         taskId,
         model,
         prompt,
@@ -372,40 +375,45 @@ Format your response in clear, professional language appropriate for a business 
 
       return { summary };
     } catch (error) {
-      request.log.error('Error in task-summary endpoint:', error);
-      throw fastify.httpErrors.internalServerError('Failed to generate summary');
+      request.log.error("Error in task-summary endpoint:", error);
+      throw fastify.httpErrors.internalServerError(
+        "Failed to generate summary"
+      );
     }
   });
 
   // Schema for project summary endpoint
   const projectSummarySchema = {
     body: {
-      type: 'object',
-      required: ['projectId', 'model'],
+      type: "object",
+      required: ["projectId", "model"],
       properties: {
-        projectId: { type: 'string' },
-        model: { type: 'string' },
-        forceRefresh: { type: 'boolean', default: false }
-      }
+        projectId: { type: "string" },
+        model: { type: "string" },
+        forceRefresh: { type: "boolean", default: false },
+      },
     },
     response: {
       200: {
-        type: 'object',
+        type: "object",
         properties: {
-          summary: { type: 'string' }
-        }
-      }
-    }
+          summary: { type: "string" },
+        },
+      },
+    },
   };
 
   // Project summary endpoint
   fastify.post<{
-    Body: ProjectSummaryRequest
-  }>('/project-summary', { schema: projectSummarySchema }, async (request, reply) => {
-    try {
-      const { projectId, model, forceRefresh } = request.body;
+    Body: ProjectSummaryRequest;
+  }>(
+    "/project-summary",
+    { schema: projectSummarySchema },
+    async (request, reply) => {
+      try {
+        const { projectId, model, forceRefresh } = request.body;
 
-      const prompt = `Please generate an insightful summary of this project with ID ${projectId}.
+        const prompt = `Please generate an insightful summary of this project with ID ${projectId}.
 
 The summary should include sections targeted at different stakeholders (Executive Leadership, Product Management, Engineering Leadership).
 Include an executive overview at the top, and insights about progress, risks, and focus areas.
@@ -445,46 +453,49 @@ Technical progress, architecture decisions, and team performance
 
 Format your response in clear, professional language appropriate for a business context.`;
 
-      const summary = await getOrGenerateSummary(
-        'project',
-        projectId,
-        model,
-        prompt,
-        forceRefresh
-      );
+        const summary = await getOrGenerateSummary(
+          "project",
+          projectId,
+          model,
+          prompt,
+          forceRefresh
+        );
 
-      return { summary };
-    } catch (error) {
-      request.log.error('Error in project-summary endpoint:', error);
-      throw fastify.httpErrors.internalServerError('Failed to generate summary');
+        return { summary };
+      } catch (error) {
+        request.log.error("Error in project-summary endpoint:", error);
+        throw fastify.httpErrors.internalServerError(
+          "Failed to generate summary"
+        );
+      }
     }
-  });
+  );
 
   // Schema for team summary endpoint
   const teamSummarySchema = {
     body: {
-      type: 'object',
-      required: ['teamId', 'model'],
+      type: "object",
+      required: ["teamId", "model"],
       properties: {
-        teamId: { type: 'string' },
-        model: { type: 'string' },
-        forceRefresh: { type: 'boolean', default: false }
-      }
+        teamId: { type: "string" },
+        model: { type: "string" },
+        forceRefresh: { type: "boolean", default: false },
+      },
     },
     response: {
       200: {
-        type: 'object',
+        type: "object",
         properties: {
-          summary: { type: 'string' }
-        }
-      }
-    }
+          summary: { type: "string" },
+        },
+      },
+    },
   };
 
   // Team summary endpoint
   fastify.post<{
-    Body: TeamSummaryRequest
-  }>('/team-summary', { schema: teamSummarySchema }, async (request, reply) => {
+    Body: TeamSummaryRequest;
+  }>("/team-summary", { schema: teamSummarySchema }, async (request, reply) => {
     try {
       const { teamId, model, forceRefresh } = request.body;
 
@@ -527,7 +538,7 @@ Identified skill gaps, growth opportunities, and recommended investments
 Format your response in clear, professional language appropriate for a business context.`;
 
       const summary = await getOrGenerateSummary(
-        'team',
+        "team",
         teamId,
         model,
         prompt,
@@ -536,8 +547,10 @@ Format your response in clear, professional language appropriate for a business 
 
       return { summary };
     } catch (error) {
-      request.log.error('Error in team-summary endpoint:', error);
-      throw fastify.httpErrors.internalServerError('Failed to generate summary');
+      request.log.error("Error in team-summary endpoint:", error);
+      throw fastify.httpErrors.internalServerError(
+        "Failed to generate summary"
+      );
     }
   });
 
@@ -545,22 +558,26 @@ Format your response in clear, professional language appropriate for a business 
   const clearCacheSchema = {
     response: {
       200: {
-        type: 'object',
+        type: "object",
         properties: {
-          message: { type: 'string' }
-        }
-      }
-    }
+          message: { type: "string" },
+        },
+      },
+    },
   };
 
   // Endpoint to clear cache (admin/debug)
-  fastify.post('/clear-cache', { schema: clearCacheSchema }, (request, reply) => {
-    summaryCache.task = {};
-    summaryCache.project = {};
-    summaryCache.team = {};
+  fastify.post(
+    "/clear-cache",
+    { schema: clearCacheSchema },
+    (request, reply) => {
+      summaryCache.task = {};
+      summaryCache.project = {};
+      summaryCache.team = {};
 
-    return { message: 'Cache cleared successfully' };
-  });
+      return { message: "Cache cleared successfully" };
+    }
+  );
 };
 
 export default aiRoutes;

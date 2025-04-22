@@ -582,7 +582,7 @@ export const generateTaskSummary = async (
       : 0;
 
     // Generate mock summary with rich markdown formatting
-    const summary = `# Executive Summary: ${task.title}
+    const summary = `# Executive Summary for ${task.title}
 
 Status: **${task.status.replace(/_/g, " ")}** | ${
       task.priority ? `Priority: **${task.priority}**` : ""

@@ -319,7 +319,7 @@ const ProjectPage = () => {
         </button>
       </div>
 
-      <Card className="mb-4 border-l-4 border-l-green-500 shadow-sm">
+      <Card className="mb-4  green-500 shadow-sm">
         <CardHeader className="py-3 px-4">
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-2">
             <div className="flex-1">

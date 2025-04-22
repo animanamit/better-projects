@@ -1,4 +1,11 @@
-import { useEffect, useState, useRef, useMemo, useCallback } from "react";
+import {
+  useEffect,
+  useState,
+  useRef,
+  useMemo,
+  useCallback,
+  isValidElement,
+} from "react";
 import {
   Dialog,
   DialogContent,
@@ -12,6 +19,7 @@ import {
   generateTeamSummary,
 } from "@/lib/ai";
 import { useTransition } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 type SummaryType = "project" | "task" | "team";
 
@@ -27,7 +35,7 @@ interface AISummaryDialogProps {
 function useTextStreaming(
   fullText: string,
   isActive: boolean,
-  streamingSpeed = 5
+  streamingSpeed = 15 // Increased from 5 to 15 for faster streaming
 ) {
   const [streamedText, setStreamedText] = useState("");
   const [isComplete, setIsComplete] = useState(false);
@@ -98,7 +106,7 @@ function useTextStreaming(
           }
         }
       }
-    }, 30); // Update interval
+    }, 15); // Faster update interval (reduced from 30ms to 15ms)
 
     return () => {
       if (streamingRef.current) {
@@ -125,10 +133,37 @@ function useTextStreaming(
 const StreamedMarkdown = ({
   text,
   isComplete,
+  fullText,
 }: {
   text: string;
   isComplete: boolean;
+  fullText?: string;
 }) => {
+  // Animation variants for text elements - more subtle animation
+  const fadeVariants = {
+    hidden: { opacity: 0 },
+    visible: (custom: number) => ({
+      opacity: 1,
+      transition: {
+        duration: 0.4,
+        ease: "easeOut",
+        delay: isComplete ? 0 : custom * 0.005, // Reduced delay for subtler effect
+      },
+    }),
+  };
+
+  // Special variants for new text that's just arriving - faster fade-in
+  const newTextVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.2,
+        ease: "easeIn",
+      },
+    },
+  };
+
   const renderedContent = useMemo(() => {
     // Only process if there is text
     if (!text) return null;
@@ -139,6 +174,7 @@ const StreamedMarkdown = ({
     let currentListItems: React.ReactNode[] = [];
     let inCodeBlock = false;
     let currentCodeBlock = "";
+    let elementCounter = 0; // Unique key for elements
 
     lines.forEach((line, index) => {
       // Handle code blocks with triple backticks
@@ -202,10 +238,7 @@ const StreamedMarkdown = ({
 
           // Add this as a subheading instead
           result.push(
-            <h4
-              key={index}
-              className="font-semibold text-base mt-3 mb-1 text-gray-700"
-            >
+            <h4 key={index} className="text-base mt-2 mb-1 text-gray-700">
               {formatInlineMarkdown(heading)}
             </h4>
           );
@@ -231,14 +264,14 @@ const StreamedMarkdown = ({
         itemContent = formatInlineMarkdown(itemContent);
 
         currentListItems.push(
-          <li key={`list-item-${index}`} className="ml-5 mb-1">
+          <li key={`list-item-${index}`} className="ml-4 py-0.5">
             {itemContent}
           </li>
         );
       } else if (currentListItems.length > 0) {
         // End the previous list if this line is not a list item
         result.push(
-          <ul key={`list-${index}`} className="my-3 list-disc">
+          <ul key={`list-${index}`} className="mt-0 mb-2 list-disc">
             {currentListItems}
           </ul>
         );
@@ -256,7 +289,7 @@ const StreamedMarkdown = ({
           result.push(
             <h1
               key={index}
-              className="text-2xl font-normal mt-5 mb-3 border-b pb-2 text-gray-800"
+              className="text-2xl font-semibold mt-4 mb-2 border-b pb-1 text-gray-800"
             >
               {formatInlineMarkdown(line.replace("# ", "").trim())}
             </h1>
@@ -266,7 +299,7 @@ const StreamedMarkdown = ({
           result.push(
             <h2
               key={index}
-              className="text-xl font-normal mt-4 mb-2 text-gray-800"
+              className="text-xl font-semibold mt-3 mb-1 text-gray-800"
             >
               {formatInlineMarkdown(line.replace("## ", "").trim())}
             </h2>
@@ -276,7 +309,7 @@ const StreamedMarkdown = ({
           result.push(
             <h3
               key={index}
-              className="text-lg font-normal mt-3 mb-2 text-gray-700"
+              className="text-lg font-medium mt-2 mb-0 text-gray-700"
             >
               {formatInlineMarkdown(line.replace("### ", "").trim())}
             </h3>
@@ -286,7 +319,7 @@ const StreamedMarkdown = ({
           result.push(
             <h4
               key={index}
-              className="text-base font-normal mt-3 mb-1 text-gray-700"
+              className="text-base font-medium mt-2 mb-0 text-gray-700"
             >
               {formatInlineMarkdown(line.replace("#### ", "").trim())}
             </h4>
@@ -296,18 +329,18 @@ const StreamedMarkdown = ({
           result.push(
             <blockquote
               key={index}
-              className="border-l-4 border-gray-300 pl-4 italic my-3 text-gray-600"
+              className=" border-gray-300 pl-4 italic my-3 text-gray-600"
             >
               {formatInlineMarkdown(line.replace("> ", "").trim())}
             </blockquote>
           );
         } else if (line.trim() === "") {
-          // Empty line
-          result.push(<div key={index} className="my-2" />);
+          // Skip empty lines completely to avoid extra spacing
+          // No div added for empty lines
         } else {
-          // Regular paragraph
+          // Regular paragraph - minimal spacing
           result.push(
-            <p key={index} className="my-2 text-gray-600">
+            <p key={index} className="mt-0 mb-1 text-gray-600">
               {formatInlineMarkdown(line)}
             </p>
           );
@@ -318,7 +351,7 @@ const StreamedMarkdown = ({
     // If we have list items at the end, add them
     if (currentListItems.length > 0) {
       result.push(
-        <ul key="final-list" className="my-3 list-disc">
+        <ul key="final-list" className="mt-0 mb-2 list-disc">
           {currentListItems}
         </ul>
       );
@@ -328,8 +361,24 @@ const StreamedMarkdown = ({
   }, [text]);
 
   // Function to format inline markdown (bold, italic, links) and handle colon-separated labels
-  function formatInlineMarkdown(text: string): React.ReactNode {
+  function formatInlineMarkdown(
+    text: string,
+    index: number = 0
+  ): React.ReactNode {
     if (!text) return text;
+
+    // Check for common section headings and enhance their styling
+    const sectionHeadings = [
+      "Key features",
+      "Key Features",
+      "Product insights",
+      "Product Insights",
+    ];
+    if (sectionHeadings.includes(text.trim())) {
+      return (
+        <span className="text-lg font-semibold text-gray-800">{text}</span>
+      );
+    }
 
     // Handle repeated label pattern (e.g., "Label:Label: Content")
     // This fixes issues with "Business Impact:Business Impact:" style repetition
@@ -476,12 +525,89 @@ const StreamedMarkdown = ({
     return parts.length > 0 ? parts : text;
   }
 
+  // Apply Framer Motion to the rendered content
+  const applyFramerMotion = (content: React.ReactNode[]) => {
+    if (!content || content.length === 0) return content;
+
+    // Calculate which elements are newly added in this render
+    const totalElements = content.length;
+    const visibleTextPercentage =
+      text.length / (fullText?.length || text.length);
+    const approximateVisibleElements = Math.ceil(
+      totalElements * visibleTextPercentage
+    );
+
+    // Filter out empty divs and apply motion to valid elements
+    return content
+      .filter((element: any) => {
+        // Remove empty divs or divs with just a single space
+        if (
+          isValidElement(element) &&
+          element.type === "div" &&
+          // @ts-ignore
+          (!element.props?.children || element.props?.children === " ")
+        ) {
+          return false;
+        }
+        return true;
+      })
+      .map((element, index) => {
+        // Only apply to React elements
+        if (isValidElement(element)) {
+          // Check if this is a new element that just appeared
+          const isNewElement =
+            index >= approximateVisibleElements - 3 &&
+            index <= approximateVisibleElements;
+
+          // Use different variants and delays for different parts of the text
+          const variants = isNewElement ? newTextVariants : fadeVariants;
+          const delayIndex = isComplete ? 0 : Math.min(index, 20); // Cap delay multiplier
+
+          // Create element with framer motion
+          return (
+            <motion.div
+              key={`motion-${index}`}
+              initial="hidden"
+              animate="visible"
+              custom={delayIndex}
+              variants={variants}
+              style={{
+                display:
+                  element.type === "p" ||
+                  element.type === "h1" ||
+                  element.type === "h2" ||
+                  element.type === "h3" ||
+                  element.type === "h4" ||
+                  element.type === "ul" ||
+                  element.type === "ol"
+                    ? "block"
+                    : "inline-block",
+                width:
+                  element.type === "p" ||
+                  element.type === "h1" ||
+                  element.type === "h2" ||
+                  element.type === "h3" ||
+                  element.type === "h4"
+                    ? "100%"
+                    : "auto",
+                marginTop: element.type === "ul" ? "0" : null,
+              }}
+            >
+              {element}
+            </motion.div>
+          );
+        }
+
+        return element;
+      });
+  };
+
   return (
-    <div className="prose prose-sm max-w-none px-1">
-      {renderedContent}
-      {!isComplete && (
-        <span className="inline-block animate-pulse w-2 h-4 bg-orange-500 ml-1"></span>
-      )}
+    <div className="prose prose-sm max-w-none px-1 [&>*:first-child]:mt-0 [&_ul]:mt-0 [&_p+ul]:mt-0 [&_h2+p]:mt-0 [&_h3+p]:mt-0 [&_h4+p]:mt-0 [&_p+p]:mt-0 space-y-3">
+      <AnimatePresence>
+        {applyFramerMotion(renderedContent)}
+        {/* Removed cursor for cleaner appearance with faster text generation */}
+      </AnimatePresence>
     </div>
   );
 };
@@ -701,7 +827,11 @@ const AISummaryDialog = ({
               </div>
             </div>
           ) : (
-            <StreamedMarkdown text={streamedText} isComplete={isComplete} />
+            <StreamedMarkdown
+              text={streamedText}
+              isComplete={isComplete}
+              fullText={fullSummary}
+            />
           )}
         </div>
       </DialogContent>
