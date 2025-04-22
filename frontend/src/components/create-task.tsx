@@ -106,7 +106,7 @@ export function CreateTask() {
         <div>
           <label
             htmlFor="title"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-normal text-gray-700"
           >
             Title
           </label>
@@ -122,7 +122,7 @@ export function CreateTask() {
         <div>
           <label
             htmlFor="description"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-normal text-gray-700"
           >
             Description
           </label>
@@ -137,7 +137,7 @@ export function CreateTask() {
         <button
           type="submit"
           disabled={isPending}
-          className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 
+          className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-normal text-white shadow-sm hover:bg-indigo-700 
 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
         >
           {isPending ? "Creating..." : "Create Task"}
@@ -145,11 +145,11 @@ focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
       </form>
 
       <div className="mt-8">
-        <h2 className="text-lg font-medium text-gray-900">Tasks</h2>
+        <h2 className="text-lg font-normal text-gray-900">Tasks</h2>
         <ul className="mt-4 space-y-4">
           {tasks.map((task: Task) => (
             <li key={task.id} className="rounded-lg border p-4">
-              <h3 className="font-medium">{task.title}</h3>
+              <h3 className="font-normal">{task.title}</h3>
               {task.description && (
                 <p className="text-gray-600">{task.description}</p>
               )}

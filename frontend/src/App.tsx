@@ -25,7 +25,7 @@ function App() {
         {/* </SignedIn> */}
         {/* <SignedOut> */}
         <div className="flex flex-col items-center justify-center min-h-screen">
-          <h1 className="text-3xl font-bold mb-4">Welcome to Task Manager</h1>
+          <h1 className="text-3xl font-normal mb-4">Welcome to Task Manager</h1>
           <p className="text-lg mb-8">Please sign in to continue</p>
           <a
             href="/sign-in"

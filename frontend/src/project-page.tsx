@@ -96,7 +96,7 @@ const UserAvatar = ({
     <div className="flex items-center gap-1">
       <Avatar className={sizeClass}>
         <div
-          className={`w-full h-full flex items-center justify-center bg-gray-200 ${textSize} font-medium`}
+          className={`w-full h-full flex items-center justify-center bg-gray-200 ${textSize} font-normal`}
         >
           {user.name ? user.name.charAt(0) : user.email.charAt(0)}
         </div>
@@ -118,7 +118,7 @@ const TaskCard = ({ task }) => {
         <CardContent className="p-3">
           <div className="flex justify-between items-start">
             <div className="flex-1">
-              <h3 className="font-medium text-sm mb-1">{task.title}</h3>
+              <h3 className="font-normal text-sm mb-1">{task.title}</h3>
               <div className="flex flex-wrap gap-2 mb-1">
                 <StatusBadge status={task.status} />
                 {task.priority && <PriorityBadge priority={task.priority} />}
@@ -182,14 +182,16 @@ const ProjectMetadata = ({ project }) => {
 
   return (
     <div className="border rounded-md py-2 px-3 bg-gray-50 shadow-sm">
-      <h3 className="text-base font-bold text-gray-700 mb-2">
+      <h3 className="text-base font-normal text-gray-700 mb-2">
         Project Details
       </h3>
       <div className="grid grid-cols-2 gap-y-2 gap-x-3">
         {metadata.map((item, index) => (
           <div key={index} className="flex flex-col">
-            <span className="text-xs font-semibold text-gray-600">{item.label}</span>
-            <span className="text-sm font-medium">{item.value}</span>
+            <span className="text-xs font-semibold text-gray-600">
+              {item.label}
+            </span>
+            <span className="text-sm font-normal">{item.value}</span>
           </div>
         ))}
       </div>
@@ -222,7 +224,7 @@ const TeamMemberList = ({ teamId }) => {
           <Card key={member.id} className="flex items-center p-3">
             <UserAvatar user={user} showName={true} />
             <div className="ml-3 flex-1">
-              <div className="text-sm font-medium">
+              <div className="text-sm font-normal">
                 {user.name || user.email}
               </div>
               <div className="text-xs text-gray-500">{member.role}</div>
@@ -297,7 +299,7 @@ const ProjectPage = () => {
       <div className="mb-3">
         <button
           onClick={goBackToDashboard}
-          className="flex items-center text-gray-600 hover:text-orange-500 transition-colors font-medium"
+          className="flex items-center text-gray-600 hover:text-orange-500 transition-colors font-normal"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -321,20 +323,27 @@ const ProjectPage = () => {
         <CardHeader className="py-3 px-4">
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-2">
             <div className="flex-1">
-              <CardTitle className="text-2xl font-bold mb-2">
+              <CardTitle className="text-2xl font-normal mb-2">
                 {project.name}
               </CardTitle>
 
               <div className="flex flex-wrap items-center gap-2 mb-2">
                 <div className="flex items-center gap-1 mr-2">
-                  <span className="text-xs font-semibold text-gray-600">Status:</span>
+                  <span className="text-xs font-semibold text-gray-600">
+                    Status:
+                  </span>
                   <ProjectStatusBadge status={project.status} />
                 </div>
 
                 {team && (
                   <div className="flex items-center gap-1">
-                    <span className="text-xs font-semibold text-gray-600">Team:</span>
-                    <Badge variant="outline" className="bg-gray-100 font-medium">
+                    <span className="text-xs font-semibold text-gray-600">
+                      Team:
+                    </span>
+                    <Badge
+                      variant="outline"
+                      className="bg-gray-100 font-normal"
+                    >
                       {team.name}
                     </Badge>
                   </div>
@@ -344,7 +353,7 @@ const ProjectPage = () => {
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-1 border-orange-200 text-orange-600 hover:bg-orange-50 font-medium"
+                className="gap-1 border-orange-200 text-orange-600 hover:bg-orange-50 font-normal"
                 onClick={() => setShowAISummary(true)}
               >
                 <svg
@@ -373,7 +382,7 @@ const ProjectPage = () => {
             <div>
               {project.description && (
                 <div>
-                  <h3 className="text-base font-bold text-gray-700 mb-1">
+                  <h3 className="text-base font-normal text-gray-700 mb-1">
                     Description
                   </h3>
                   <div className="text-gray-700 whitespace-pre-line text-sm bg-gray-50 p-2 rounded-md">
@@ -390,22 +399,24 @@ const ProjectPage = () => {
 
       <Tabs defaultValue="tasks" className="w-full">
         <TabsList className="mb-3">
-          <TabsTrigger value="tasks" className="font-medium text-base">Tasks ({projectTasks.length})</TabsTrigger>
-          <TabsTrigger value="team" className="font-medium text-base">
+          <TabsTrigger value="tasks" className="font-normal text-base">
+            Tasks ({projectTasks.length})
+          </TabsTrigger>
+          <TabsTrigger value="team" className="font-normal text-base">
             Team {team ? `(${team.name})` : ""}
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="tasks">
           {projectTasks.length === 0 ? (
-            <div className="text-center py-3 text-gray-500 font-medium">
+            <div className="text-center py-3 text-gray-500 font-normal">
               No tasks for this project
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* TODO tasks */}
               <div className="bg-gray-50 py-2 px-3 rounded-md border">
-                <h3 className="text-base font-bold mb-2 flex items-center">
+                <h3 className="text-base font-normal mb-2 flex items-center">
                   <div className="w-3 h-3 rounded-full bg-slate-300 mr-2"></div>
                   TODO ({tasksByStatus[TaskStatus.TODO].length})
                 </h3>
@@ -416,7 +427,7 @@ const ProjectPage = () => {
 
               {/* IN PROGRESS tasks */}
               <div className="bg-gray-50 py-2 px-3 rounded-md border">
-                <h3 className="text-base font-bold mb-2 flex items-center">
+                <h3 className="text-base font-normal mb-2 flex items-center">
                   <div className="w-3 h-3 rounded-full bg-blue-400 mr-2"></div>
                   IN PROGRESS ({tasksByStatus[TaskStatus.IN_PROGRESS].length})
                 </h3>
@@ -427,7 +438,7 @@ const ProjectPage = () => {
 
               {/* COMPLETED tasks */}
               <div className="bg-gray-50 py-2 px-3 rounded-md border">
-                <h3 className="text-base font-bold mb-2 flex items-center">
+                <h3 className="text-base font-normal mb-2 flex items-center">
                   <div className="w-3 h-3 rounded-full bg-green-400 mr-2"></div>
                   COMPLETED ({tasksByStatus[TaskStatus.COMPLETED].length})
                 </h3>
@@ -443,7 +454,7 @@ const ProjectPage = () => {
           {team ? (
             <TeamMemberList teamId={team.id} />
           ) : (
-            <div className="text-center py-3 text-gray-500 font-medium">
+            <div className="text-center py-3 text-gray-500 font-normal">
               No team assigned to this project
             </div>
           )}

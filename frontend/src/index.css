@@ -3,15 +3,10 @@
 
 @custom-variant dark (&:is(.dark *));
 
-@font-face {
-  font-family: 'Aeonik'; /* Name of the font */
-  src: url('/fonts/aeonik.woff2') format('woff2'); /* Path to the font file */
-  font-weight: normal; /* Adjust if you have multiple weights */
-  font-style: normal; /* Adjust if you have italic styles */
-}
+/* Google Fonts - Geist Sans is loaded from the HTML head */
 
 :root {
-  font-family: 'Aeonik', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Geist Sans', system-ui, Avenir, Helvetica, Arial, sans-serif;
   font-weight: 400;
 
   font-synthesis: none;
@@ -58,7 +53,7 @@
 }
 
 @theme {
-  --font-sans: "Aeonik", "sans-serif"; 
+  --font-sans: "Geist Sans", "sans-serif"; 
   --color-completed: #20C280;
   --color-blocked: #E75D69;
   --color-todo: #3B82F6;

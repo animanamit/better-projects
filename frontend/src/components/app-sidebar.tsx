@@ -20,7 +20,7 @@ export function AppSidebar() {
         <div className="mb-4">
           <Link
             to="/dashboard"
-            className={`flex items-center space-x-2 w-full px-2 py-2 text-md font-medium ${
+            className={`flex items-center space-x-2 w-full px-2 py-2 text-md font-normal ${
               !location.pathname.includes("/project/") &&
               !location.pathname.includes("/task/") &&
               activeTab === "tasks"
@@ -52,7 +52,7 @@ export function AppSidebar() {
 
           <Link
             to="/dashboard"
-            className={`flex items-center space-x-2 w-full px-2 py-2 text-md font-medium ${
+            className={`flex items-center space-x-2 w-full px-2 py-2 text-md font-normal ${
               !location.pathname.includes("/project/") &&
               !location.pathname.includes("/task/") &&
               activeTab === "files"
@@ -93,7 +93,7 @@ export function AppSidebar() {
                 to={`/dashboard/project/${project.id}`}
                 // Use replace to force navigation when already on project pages
                 replace={location.pathname.includes("/project/")}
-                className={`flex items-center justify-between w-full px-2 py-1 text-md font-medium ${
+                className={`flex items-center justify-between w-full px-2 py-1 text-md font-normal ${
                   isActive
                     ? "bg-gray-100 text-orange-500"
                     : "text-gray-700 hover:bg-gray-100"
@@ -117,9 +117,9 @@ export function AppSidebar() {
                 key={team.id}
                 to={`/dashboard/team/${team.id}`}
                 replace={location.pathname.includes("/team/")}
-                className={`flex items-center justify-between w-full px-2 py-1 text-md font-medium ${
-                  isActive 
-                    ? "bg-gray-100 text-orange-500" 
+                className={`flex items-center justify-between w-full px-2 py-1 text-md font-normal ${
+                  isActive
+                    ? "bg-gray-100 text-orange-500"
                     : "text-gray-700 hover:bg-gray-100"
                 } rounded-lg`}
               >

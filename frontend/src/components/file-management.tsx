@@ -24,7 +24,7 @@ export function FileManagement() {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">File Management</h1>
+      <h1 className="text-2xl font-normal mb-6">File Management</h1>
 
       <div className="bg-white shadow rounded-lg p-6 mb-8">
         <h2 className="text-xl font-semibold mb-4">Upload Files</h2>
@@ -40,7 +40,7 @@ export function FileManagement() {
                 key={file.id}
                 className="border rounded-lg p-4 hover:bg-gray-50"
               >
-                <div className="text-sm font-medium mb-1 truncate">
+                <div className="text-sm font-normal mb-1 truncate">
                   {file.fileName}
                 </div>
                 <div className="text-xs text-gray-500 mb-2">

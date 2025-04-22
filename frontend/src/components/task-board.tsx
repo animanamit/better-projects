@@ -44,7 +44,7 @@ const StatusBadge = ({
 }) => (
   <Badge
     variant="outline"
-    className={`${statusColorMap[status].bg} ${statusColorMap[status].text} hover:cursor-pointer text-sm font-medium`}
+    className={`${statusColorMap[status].bg} ${statusColorMap[status].text} hover:cursor-pointer text-sm font-normal`}
     onClick={onClick}
   >
     {status.replace(/_/g, " ")}
@@ -55,7 +55,7 @@ const StatusBadge = ({
 const PriorityBadge = ({ priority }: { priority: TaskPriority }) => (
   <Badge
     variant="outline"
-    className={`${priorityColorMap[priority].bg} ${priorityColorMap[priority].text} text-sm font-medium`}
+    className={`${priorityColorMap[priority].bg} ${priorityColorMap[priority].text} text-sm font-normal`}
   >
     {priority}
   </Badge>
@@ -70,7 +70,7 @@ const AssigneeAvatar = ({ userId }: { userId: string | null | undefined }) => {
 
   return (
     <Avatar className="w-7 h-7">
-      <div className="w-full h-full flex items-center justify-center bg-gray-200 text-sm font-medium">
+      <div className="w-full h-full flex items-center justify-center bg-gray-200 text-sm font-normal">
         {user.name ? user.name.charAt(0) : user.email.charAt(0)}
       </div>
     </Avatar>
@@ -89,7 +89,7 @@ const StatusSelector = ({
     defaultValue={currentStatus}
     onValueChange={(value: string) => onStatusChange(value as TaskStatus)}
   >
-    <SelectTrigger className="h-8 text-sm px-2 w-full font-medium">
+    <SelectTrigger className="h-8 text-sm px-2 w-full font-normal">
       <SelectValue placeholder="Change status" />
     </SelectTrigger>
     <SelectContent>
@@ -101,7 +101,7 @@ const StatusSelector = ({
                 statusColorMap[status as TaskStatus].bg
               }`}
             ></div>
-            <span className="font-medium">{status.replace(/_/g, " ")}</span>
+            <span className="font-normal">{status.replace(/_/g, " ")}</span>
           </div>
         </SelectItem>
       ))}
@@ -139,7 +139,9 @@ const TaskDetailsCard = ({
       <Card className="mb-2 hover:shadow-md transition-shadow cursor-pointer">
         <CardHeader className="py-1 px-3 flex flex-row items-start justify-between">
           <div className="flex flex-col">
-            <span className="font-bold text-lg hover:underline">{task.title}</span>
+            <span className="font-normal text-lg hover:underline">
+              {task.title}
+            </span>
             <div className="flex items-center gap-1">
               <StatusBadge
                 status={task.status}
@@ -156,36 +158,63 @@ const TaskDetailsCard = ({
               </div>
             )}
           </div>
-          
+
           <div className="flex flex-col items-end">
             <AssigneeAvatar userId={task.assigneeId} />
             {task.assigneeId && (
-              <span className="text-sm font-medium text-gray-600">
-                {mockData.users.find(u => u.id === task.assigneeId)?.name?.split(' ')[0] || 'Assignee'}
+              <span className="text-sm font-normal text-gray-600">
+                {mockData.users
+                  .find((u) => u.id === task.assigneeId)
+                  ?.name?.split(" ")[0] || "Assignee"}
               </span>
             )}
           </div>
         </CardHeader>
 
         <CardFooter className="py-1 px-3 flex items-center justify-between">
-          <span className="font-medium text-gray-700 truncate max-w-44 text-sm">
+          <span className="font-normal text-gray-700 truncate max-w-44 text-sm">
             {project?.name || task.projectId}
           </span>
           <div className="flex items-center gap-2 text-sm">
             {task.numComments > 0 && (
-              <span className="text-gray-600 font-medium flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+              <span className="text-gray-600 font-normal flex items-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4 mr-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+                  />
                 </svg>
                 {task.numComments}
               </span>
             )}
             {task.dueDate && (
-              <span className="text-gray-600 font-medium flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              <span className="text-gray-600 font-normal flex items-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4 mr-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
                 </svg>
-                {new Date(task.dueDate).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}
+                {new Date(task.dueDate).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                })}
               </span>
             )}
           </div>
@@ -197,9 +226,11 @@ const TaskDetailsCard = ({
 
 // Column header component
 const ColumnHeader = ({ title, count }: { title: string; count: number }) => (
-  <div className="font-bold text-lg mb-1 flex items-center justify-between">
+  <div className="font-normal text-lg mb-1 flex items-center justify-between">
     <h3>{title}</h3>
-    <Badge variant="outline" className="font-medium text-sm">{count}</Badge>
+    <Badge variant="outline" className="font-normal text-sm">
+      {count}
+    </Badge>
   </div>
 );
 
@@ -229,7 +260,7 @@ const TaskColumn = ({
           />
         ))}
         {columnTasks.length === 0 && (
-          <div className="text-center py-2 text-gray-400 text-base font-medium">
+          <div className="text-center py-2 text-gray-400 text-base font-normal">
             No tasks here
           </div>
         )}

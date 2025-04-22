@@ -256,7 +256,7 @@ const StreamedMarkdown = ({
           result.push(
             <h1
               key={index}
-              className="text-2xl font-bold mt-5 mb-3 border-b pb-2 text-gray-800"
+              className="text-2xl font-normal mt-5 mb-3 border-b pb-2 text-gray-800"
             >
               {formatInlineMarkdown(line.replace("# ", "").trim())}
             </h1>
@@ -266,7 +266,7 @@ const StreamedMarkdown = ({
           result.push(
             <h2
               key={index}
-              className="text-xl font-bold mt-4 mb-2 text-gray-800"
+              className="text-xl font-normal mt-4 mb-2 text-gray-800"
             >
               {formatInlineMarkdown(line.replace("## ", "").trim())}
             </h2>
@@ -276,7 +276,7 @@ const StreamedMarkdown = ({
           result.push(
             <h3
               key={index}
-              className="text-lg font-bold mt-3 mb-2 text-gray-700"
+              className="text-lg font-normal mt-3 mb-2 text-gray-700"
             >
               {formatInlineMarkdown(line.replace("### ", "").trim())}
             </h3>
@@ -286,7 +286,7 @@ const StreamedMarkdown = ({
           result.push(
             <h4
               key={index}
-              className="text-base font-bold mt-3 mb-1 text-gray-700"
+              className="text-base font-normal mt-3 mb-1 text-gray-700"
             >
               {formatInlineMarkdown(line.replace("#### ", "").trim())}
             </h4>
@@ -689,7 +689,7 @@ const AISummaryDialog = ({
             </div>
           ) : error ? (
             <div className="bg-red-50 p-4 rounded-md text-red-600">
-              <p className="font-medium">Error</p>
+              <p className="font-normal">Error</p>
               <p className="text-sm">{error}</p>
               <div className="flex gap-2 mt-4">
                 <Button variant="outline" onClick={() => fetchSummary(false)}>

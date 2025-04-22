@@ -25,12 +25,12 @@ interface FileUploaderProps {
 
 export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
   // Mock user for personal website deployment
-  const user = { 
-    id: "user-01", 
+  const user = {
+    id: "user-01",
     primaryEmailAddress: { emailAddress: "demo@example.com" },
-    fullName: "Demo User"
+    fullName: "Demo User",
   };
-  
+
   const [files, setFiles] = useState<FileAttachment[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -67,7 +67,7 @@ export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
   const fetchFiles = useCallback(async () => {
     // Simulate API delay
     await new Promise((r) => setTimeout(r, 500));
-    
+
     // Filter mock files based on taskId or userId
     const fetchedFiles = mockData.fileAttachments
       .filter((f) => {
@@ -76,7 +76,7 @@ export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
         return false;
       })
       .slice(0, 5);
-    
+
     setFiles(fetchedFiles);
   }, [user?.id, taskId]);
 
@@ -108,7 +108,7 @@ export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
 
       // Simulate API delay
       await new Promise((r) => setTimeout(r, 800));
-      
+
       // Create a mock file upload response
       const uploadedFile: FileAttachment = {
         id: `file-${Date.now()}`,
@@ -154,7 +154,7 @@ export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
     try {
       // Simulate API delay
       await new Promise((r) => setTimeout(r, 300));
-      
+
       // Remove deleted file from the list
       setFiles((prev) => prev.filter((file) => file.id !== fileId));
     } catch (err) {
@@ -194,7 +194,7 @@ export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
                 <path d="M12 12v9"></path>
                 <path d="m16 16-4-4-4 4"></path>
               </svg>
-              <p className="text-sm font-medium">
+              <p className="text-sm font-normal">
                 Drop file here or click to upload
               </p>
               <p className="text-xs text-gray-500">
@@ -222,7 +222,7 @@ export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
                 <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
                 <polyline points="14 2 14 8 20 8" />
               </svg>
-              <CardTitle className="text-md font-medium">
+              <CardTitle className="text-md font-normal">
                 {selectedFile.name}
               </CardTitle>
               <span className="text-xs text-gray-500">
@@ -353,19 +353,19 @@ export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-muted/50">
                   <tr>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-2 text-left text-xs font-normal text-gray-500 uppercase tracking-wider">
                       Name
                     </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-2 text-left text-xs font-normal text-gray-500 uppercase tracking-wider">
                       Type
                     </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-2 text-left text-xs font-normal text-gray-500 uppercase tracking-wider">
                       Size
                     </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-2 text-left text-xs font-normal text-gray-500 uppercase tracking-wider">
                       Date
                     </th>
-                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-2 text-right text-xs font-normal text-gray-500 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>

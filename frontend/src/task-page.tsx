@@ -112,7 +112,7 @@ const UserAvatar = ({
     <div className="flex items-center gap-1">
       <Avatar className={sizeClass}>
         <div
-          className={`w-full h-full flex items-center justify-center bg-gray-200 ${textSize} font-medium`}
+          className={`w-full h-full flex items-center justify-center bg-gray-200 ${textSize} font-normal`}
         >
           {user.name ? user.name.charAt(0) : user.email.charAt(0)}
         </div>
@@ -147,7 +147,7 @@ const Comment = ({ comment, taskComments, userInfo }) => {
             }}
             size="sm"
           />
-          <span className="font-medium text-sm">{userInfo.name}</span>
+          <span className="font-normal text-sm">{userInfo.name}</span>
           <span className="text-xs text-gray-500">{userInfo.role}</span>
           {userInfo.teams && userInfo.teams.length > 0 && (
             <Badge
@@ -179,7 +179,7 @@ const HistoryItem = ({ history }) => {
       <CardContent className="p-3">
         <div className="flex justify-between items-start">
           <div>
-            <p className="font-medium text-sm">
+            <p className="font-normal text-sm">
               Changed {history.fieldChanged} from{" "}
               <Badge variant="outline" className="font-mono text-xs">
                 {history.oldValue}
@@ -223,7 +223,7 @@ const AttachmentItem = ({ attachment }) => {
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
             <polyline points="14 2 14 8 20 8"></polyline>
           </svg>
-          <p className="font-medium truncate flex-1 text-sm">
+          <p className="font-normal truncate flex-1 text-sm">
             {attachment.fileName}
           </p>
         </div>
@@ -288,12 +288,14 @@ const TaskMetadata = ({ task }) => {
 
   return (
     <div className="border rounded-md py-2 px-3 bg-gray-50 shadow-sm">
-      <h3 className="text-base font-bold text-gray-700 mb-2">Task Details</h3>
+      <h3 className="text-base font-normal text-gray-700 mb-2">Task Details</h3>
       <div className="grid grid-cols-2 gap-y-2 gap-x-3">
         {metadata.map((item, index) => (
           <div key={index} className="flex flex-col">
-            <span className="text-xs font-semibold text-gray-600">{item.label}</span>
-            <span className="text-sm font-medium">{item.value}</span>
+            <span className="text-xs font-semibold text-gray-600">
+              {item.label}
+            </span>
+            <span className="text-sm font-normal">{item.value}</span>
           </div>
         ))}
       </div>
@@ -380,27 +382,36 @@ const TaskPage = () => {
         <CardHeader className="py-3 px-4">
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-2">
             <div className="flex-1">
-              <CardTitle className="text-2xl font-bold mb-2">
+              <CardTitle className="text-2xl font-normal mb-2">
                 {task.title}
               </CardTitle>
 
               <div className="flex flex-wrap items-center gap-2 mb-2">
                 <div className="flex items-center gap-1 mr-2">
-                  <span className="text-xs font-semibold text-gray-600">Status:</span>
+                  <span className="text-xs font-semibold text-gray-600">
+                    Status:
+                  </span>
                   <StatusBadge status={task.status} />
                 </div>
 
                 {task.priority && (
                   <div className="flex items-center gap-1 mr-2">
-                    <span className="text-xs font-semibold text-gray-600">Priority:</span>
+                    <span className="text-xs font-semibold text-gray-600">
+                      Priority:
+                    </span>
                     <PriorityBadge priority={task.priority} />
                   </div>
                 )}
 
                 {project && (
                   <div className="flex items-center gap-1">
-                    <span className="text-xs font-semibold text-gray-600">Project:</span>
-                    <Badge variant="outline" className="bg-gray-100 font-medium">
+                    <span className="text-xs font-semibold text-gray-600">
+                      Project:
+                    </span>
+                    <Badge
+                      variant="outline"
+                      className="bg-gray-100 font-normal"
+                    >
                       {project.name}
                     </Badge>
                   </div>
@@ -414,14 +425,24 @@ const TaskPage = () => {
                     onStatusChange={handleStatusChange}
                   />
                 </div>
-                
-                <Button 
-                  variant="outline" 
+
+                <Button
+                  variant="outline"
                   size="sm"
-                  className="h-8 gap-1 border-orange-200 text-orange-600 hover:bg-orange-50 font-medium"
+                  className="h-8 gap-1 border-orange-200 text-orange-600 hover:bg-orange-50 font-normal"
                   onClick={() => setShowAISummary(true)}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <circle cx="12" cy="12" r="10"></circle>
                     <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
                     <path d="M12 17h.01"></path>
@@ -434,7 +455,9 @@ const TaskPage = () => {
             <div className="flex flex-row gap-4 bg-gray-50 py-2 px-3 rounded-md">
               {assignee && (
                 <div className="flex flex-col">
-                  <span className="text-xs font-semibold text-gray-600">Assignee</span>
+                  <span className="text-xs font-semibold text-gray-600">
+                    Assignee
+                  </span>
                   <div className="flex items-center gap-1">
                     <UserAvatar user={assignee} showName={true} />
                   </div>
@@ -443,7 +466,9 @@ const TaskPage = () => {
 
               {reporter && (
                 <div className="flex flex-col">
-                  <span className="text-xs font-semibold text-gray-600">Reporter</span>
+                  <span className="text-xs font-semibold text-gray-600">
+                    Reporter
+                  </span>
                   <div className="flex items-center gap-1">
                     <UserAvatar user={reporter} showName={true} />
                   </div>
@@ -458,7 +483,7 @@ const TaskPage = () => {
             <div>
               {task.description && (
                 <div>
-                  <h3 className="text-base font-bold text-gray-700 mb-1">
+                  <h3 className="text-base font-normal text-gray-700 mb-1">
                     Description
                   </h3>
                   <div className="text-gray-700 whitespace-pre-line text-sm bg-gray-50 p-2 rounded-md">
@@ -475,20 +500,20 @@ const TaskPage = () => {
 
       <Tabs defaultValue="comments" className="w-full">
         <TabsList className="mb-3">
-          <TabsTrigger value="comments" className="font-medium text-base">
+          <TabsTrigger value="comments" className="font-normal text-base">
             Comments ({taskComments.length})
           </TabsTrigger>
-          <TabsTrigger value="history" className="font-medium text-base">
+          <TabsTrigger value="history" className="font-normal text-base">
             History ({taskHistory.length})
           </TabsTrigger>
-          <TabsTrigger value="attachments" className="font-medium text-base">
+          <TabsTrigger value="attachments" className="font-normal text-base">
             Attachments ({taskAttachments.length})
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="comments" className="space-y-2">
           {taskComments.length === 0 ? (
-            <div className="text-center py-3 text-gray-500 font-medium">
+            <div className="text-center py-3 text-gray-500 font-normal">
               No comments yet
             </div>
           ) : (
@@ -505,7 +530,7 @@ const TaskPage = () => {
 
         <TabsContent value="history" className="space-y-2">
           {taskHistory.length === 0 ? (
-            <div className="text-center py-3 text-gray-500 font-medium">
+            <div className="text-center py-3 text-gray-500 font-normal">
               No history available
             </div>
           ) : (
@@ -517,7 +542,7 @@ const TaskPage = () => {
 
         <TabsContent value="attachments">
           {taskAttachments.length === 0 ? (
-            <div className="text-center py-3 text-gray-500 font-medium">
+            <div className="text-center py-3 text-gray-500 font-normal">
               No attachments
             </div>
           ) : (
