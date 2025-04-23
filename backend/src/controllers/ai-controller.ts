@@ -76,6 +76,11 @@ export function taskSummary(req: Request, res: Response) {
     
     Format your response as Markdown with clear sections for status, description, key information, activity, and next steps.
     Be professional, factual, and highlight actionable insights or issues that need attention.
+    
+    Important requirements:
+    1. Include 1-2 specific points of contact (POCs) for people who need more information about this task
+    2. If the task is blocked or encountering difficulties, highlight the situation in a constructive manner, focusing on how others can help
+    3. Identify any potential impacts or dependencies with other tasks/projects, especially where conflicts might arise
   `;
 
   const userPrompt = `
@@ -87,8 +92,11 @@ export function taskSummary(req: Request, res: Response) {
     1. Task title and status
     2. Key information (assignee, time open, priority, etc.)
     3. Activity summary (comments, status changes, etc.)
-    4. Recent updates
-    5. Next steps or recommendations
+    4. Points of contact for questions or assistance
+    5. If blocked, what support is needed to unblock
+    6. Related tasks or projects that may be affected
+    7. Recent updates
+    8. Next steps or recommendations
   `;
 
   // Call OpenRouter API or use mock response
@@ -165,6 +173,11 @@ export function projectSummary(req: Request, res: Response) {
     
     Format your response as Markdown with clear sections for status, description, tasks, team, and timeline.
     Be professional, factual, and highlight actionable insights or issues that need attention.
+    
+    Important requirements:
+    1. Include 1-2 specific points of contact (POCs) for people who need more information about this project
+    2. Highlight any blocked individuals or teams in a constructive manner, focusing on how others can help them
+    3. Identify any potential impacts or dependencies with other projects, especially where conflicts might arise
   `;
 
   const userPrompt = `
@@ -178,7 +191,10 @@ export function projectSummary(req: Request, res: Response) {
     3. Task breakdown by status
     4. Team overview
     5. Timeline information
-    6. Any critical issues or blockers
+    6. Points of contact for questions or assistance
+    7. Blocked individuals or teams who need help
+    8. Cross-project dependencies and potential conflicts
+    9. Any critical issues or roadblocks
   `;
 
   // Call OpenRouter API or use mock response
@@ -268,6 +284,11 @@ export function teamSummary(req: Request, res: Response) {
     
     Format your response as Markdown with clear sections for team composition, projects, and task overview.
     Be professional, factual, and highlight actionable insights or issues that need attention.
+    
+    Important requirements:
+    1. Include 1-2 specific points of contact (POCs) for people who need more information about this team
+    2. Highlight any blocked individuals or teams in a constructive manner, focusing on how others can help them
+    3. Identify any potential impacts or dependencies with other teams/projects, especially where conflicts might arise
   `;
 
   const userPrompt = `
@@ -281,7 +302,10 @@ export function teamSummary(req: Request, res: Response) {
     3. Projects overview
     4. Task distribution and progress
     5. This week's focus areas
-    6. Any critical issues or blockers
+    6. Points of contact for questions or assistance
+    7. Blocked individuals who need support from other teams
+    8. Cross-team dependencies and potential conflicts
+    9. Any critical issues or roadblocks
   `;
 
   // Call OpenRouter API or use mock response
