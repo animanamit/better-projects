@@ -1,4 +1,7 @@
 node_modules
 package-lock.json
 backend/package-lock.json
-CLAUDE.md
+
+# Ignore all markdown files except README.md
+*.md
+!README.md
