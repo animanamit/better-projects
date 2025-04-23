@@ -54,7 +54,10 @@ const AssigneeAvatar = ({ userId }: { userId: string | null | undefined }) => {
 
   return (
     <Avatar className="w-6 h-6">
-      <div className="w-full h-full flex items-center justify-center bg-[#f0f0f0] text-xs font-normal text-black/80">
+      <div
+        title={user.name || user.email}
+        className="w-full h-full flex items-center justify-center bg-[#f0f0f0] text-xs font-normal text-black/80"
+      >
         {user.name ? user.name.charAt(0) : user.email.charAt(0)}
       </div>
     </Avatar>

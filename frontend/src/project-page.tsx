@@ -91,6 +91,7 @@ const UserAvatar = ({
     <div className="flex items-center gap-1">
       <Avatar className={`${sizeClass}`}>
         <div
+          title={user.name || user.email}
           className={`w-full h-full flex items-center justify-center bg-[#f0f0f0] ${textSize} font-normal text-black/80`}
         >
           {user.name ? user.name.charAt(0) : user.email.charAt(0)}
