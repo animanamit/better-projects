@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, createContext, useContext, useEffect } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import TopBar from "@/components/top-bar";

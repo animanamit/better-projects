@@ -1,5 +1,3 @@
-"use client";
-
 import { Navigate } from "react-router";
 import { useState, createContext, useEffect } from "react";
 import { defaultModel } from "@/lib/ai";

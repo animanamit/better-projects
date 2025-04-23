@@ -1,5 +1,3 @@
-"use client";
-
 import { useTabContext } from "@/dashboard";
 import { mockData } from "@/mock-data";
 import { Link, useLocation, useNavigate } from "react-router-dom";

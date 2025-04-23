@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 // Clerk auth commented out for personal website deployment

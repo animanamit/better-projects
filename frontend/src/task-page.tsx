@@ -1,20 +1,19 @@
-"use client";
-
-import {
-  getTaskById,
-  getTaskHistoryById,
-  getTaskCommentsById,
-  getTaskAttachmentsById,
-  mockData,
-  TaskStatus,
-  TaskPriority,
-} from "@/mock-data";
 import { useParams } from "react-router-dom";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { AIContext } from "./App";
 import { useState, useContext } from "react";
 import AISummaryDialog from "@/components/ai-summary-dialog";
+import { TaskPriority, TaskStatus } from "@/mock-data/types";
+import { users } from "@/mock-data/users";
+import { projects } from "@/mock-data/projects";
+import { teamMembers } from "@/mock-data/team-members";
+import {
+  getTaskAttachmentsById,
+  getTaskById,
+  getTaskCommentsById,
+  getTaskHistoryById,
+} from "@/mock-data/index";
 
 // Status color map
 const statusColorMap: Record<TaskStatus, { bg: string; text: string }> = {
@@ -149,7 +148,7 @@ const Comment = ({ comment, taskComments, userInfo }) => {
 
 // History item component
 const HistoryItem = ({ history }) => {
-  const user = mockData.users.find((u) => u.id === history.changedBy);
+  const user = users.find((u) => u.id === history.changedBy);
   return (
     <div key={history.id} className="bg-white p-3 mb-2">
       <div className="flex justify-between items-start">
@@ -179,7 +178,7 @@ const HistoryItem = ({ history }) => {
 
 // Attachment item component
 const AttachmentItem = ({ attachment }) => {
-  const user = mockData.users.find((u) => u.id === attachment.userId);
+  const user = users.find((u) => u.id === attachment.userId);
   return (
     <div key={attachment.id} className="bg-white p-3 mb-2">
       <div className="flex items-center gap-2 mb-1">
@@ -288,24 +287,23 @@ const TaskPage = () => {
 
   // Get user information for comments
   const getUserInfo = (userId: string) => {
-    const user = mockData.users.find((user) => user.id === userId);
+    const user = users.find((user) => user.id === userId);
     if (!user) return { name: "Unknown User", role: "Unknown" };
 
     // Find team membership for this user
-    const teamMemberships = mockData.teamMembers.filter(
-      (tm) => tm.userId === userId
-    );
-    const teams = teamMemberships
+    const teamMemberships = teamMembers.filter((tm) => tm.userId === userId);
+    const userTeams = teamMemberships
       .map((tm) => {
-        const team = mockData.teams.find((t) => t.id === tm.teamId);
-        return team ? { id: team.id, name: team.name } : null;
+        // Import the teams array from the mock-data module
+        const team = projects.find((p) => p.teamId === tm.teamId);
+        return team ? { id: tm.teamId, name: team.name } : null;
       })
       .filter(Boolean);
 
     return {
       name: user.name || user.email,
       role: user.role || "Team Member",
-      teams,
+      teams: userTeams,
       avatarUrl: user.avatarUrl,
     };
   };
@@ -315,12 +313,12 @@ const TaskPage = () => {
   }
 
   const assignee = task.assigneeId
-    ? mockData.users.find((user) => user.id === task.assigneeId)
+    ? users.find((user) => user.id === task.assigneeId)
     : null;
   const reporter = task.reporterId
-    ? mockData.users.find((user) => user.id === task.reporterId)
+    ? users.find((user) => user.id === task.reporterId)
     : null;
-  const project = mockData.projects.find((p) => p.id === task.projectId);
+  const project = projects.find((p) => p.id === task.projectId);
 
   const handleStatusChange = (newStatus: TaskStatus) => {
     if (!task || newStatus === task.status) return;
@@ -333,7 +331,7 @@ const TaskPage = () => {
       oldValue: task.status,
       newValue: newStatus,
       changedAt: now,
-      changedBy: mockData.users[0].id, // Assume current user is first user
+      changedBy: users[0].id, // Assume current user is first user
     };
 
     // Update task

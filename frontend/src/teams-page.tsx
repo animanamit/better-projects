@@ -1,5 +1,3 @@
-"use client";
-
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
