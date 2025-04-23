@@ -5,8 +5,16 @@
 
 /* Google Fonts - Geist Sans is loaded from the HTML head */
 
+@font-face {
+  font-family: "Aeonik";
+  src: url("/fonts/aeonik.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  font-family: 'Geist Sans', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Aeonik', 'Geist Sans', system-ui, Avenir, Helvetica, Arial, sans-serif;
   font-weight: 400;
 
   font-synthesis: none;
