@@ -1,9 +1,8 @@
+"use client";
+
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { mockData } from "@/mock-data";
 import { useState, useEffect, useContext } from "react";
 import { useTabContext } from "@/dashboard";
@@ -37,7 +36,7 @@ const UserAvatar = ({
     <div className="flex items-center gap-1">
       <Avatar className={sizeClass}>
         <div
-          className={`w-full h-full flex items-center justify-center bg-gray-200 ${textSize} font-normal`}
+          className={`w-full h-full flex items-center justify-center bg-[#f0f0f0] ${textSize} font-normal text-black/80`}
         >
           {user.name ? user.name.charAt(0) : user.email.charAt(0)}
         </div>
@@ -50,20 +49,18 @@ const UserAvatar = ({
 // Team member card component
 const TeamMemberCard = ({ member, user, role }) => {
   return (
-    <Card key={member.id} className="mb-2">
-      <CardContent className="p-4">
-        <div className="flex items-start">
-          <UserAvatar user={user} size="lg" />
-          <div className="ml-3 flex-1">
-            <h3 className="font-normal text-base">{user.name || user.email}</h3>
-            <div className="text-gray-600 text-sm">{role}</div>
-            <div className="mt-2 text-xs text-gray-500">
-              Joined: {new Date(member.joinedAt).toLocaleDateString()}
-            </div>
+    <div key={member.id} className="mb-2 bg-white p-3">
+      <div className="flex items-start">
+        <UserAvatar user={user} size="lg" />
+        <div className="ml-3 flex-1">
+          <h3 className="font-normal text-base">{user.name || user.email}</h3>
+          <div className="text-black/60 text-sm">{role}</div>
+          <div className="mt-2 text-xs text-black/50">
+            Joined: {new Date(member.joinedAt).toLocaleDateString()}
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
@@ -82,47 +79,46 @@ const ProjectCard = ({ project }) => {
 
   return (
     <Link to={`/dashboard/project/${project.id}`}>
-      <Card key={project.id} className="mb-2 hover:shadow-md transition-shadow">
-        <CardContent className="p-4">
-          <div className="flex flex-col">
-            <h3 className="font-normal text-base mb-1">{project.name}</h3>
-            <div className="text-gray-600 text-xs line-clamp-2 mb-2">
-              {project.description || "No description available"}
+      <div
+        key={project.id}
+        className="mb-2 bg-white p-3 hover:bg-[#f8f8f8] transition-colors"
+      >
+        <div className="flex flex-col">
+          <h3 className="font-normal text-base mb-1">{project.name}</h3>
+          <div className="text-black/60 text-xs line-clamp-2 mb-2">
+            {project.description || "No description available"}
+          </div>
+
+          <div className="flex items-center justify-between text-xs">
+            <div
+              className={`inline-flex px-2 py-0.5 text-xs ${
+                project.status === "active"
+                  ? "bg-[#F0FFF4] text-[#16A34A]"
+                  : project.status === "completed"
+                  ? "bg-[#F0F9FF] text-[#0284C7]"
+                  : "bg-[#f0f0f0] text-black/70"
+              }`}
+            >
+              {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
             </div>
 
-            <div className="flex items-center justify-between text-xs">
-              <Badge
-                variant="outline"
-                className={`${
-                  project.status === "active"
-                    ? "bg-green-100 text-green-700"
-                    : project.status === "completed"
-                    ? "bg-blue-100 text-blue-700"
-                    : "bg-gray-100 text-gray-700"
-                }`}
-              >
-                {project.status.charAt(0).toUpperCase() +
-                  project.status.slice(1)}
-              </Badge>
-
-              <div className="flex items-center">
-                <span className="mr-2">{progress}% Complete</span>
-                <span className="text-gray-500">
-                  {completedTasks.length}/{tasksInProject.length} Tasks
-                </span>
-              </div>
-            </div>
-
-            {/* Simple progress bar */}
-            <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">
-              <div
-                className="bg-blue-500 h-1.5 rounded-full"
-                style={{ width: `${progress}%` }}
-              ></div>
+            <div className="flex items-center">
+              <span className="mr-2">{progress}% Complete</span>
+              <span className="text-black/50">
+                {completedTasks.length}/{tasksInProject.length} Tasks
+              </span>
             </div>
           </div>
-        </CardContent>
-      </Card>
+
+          {/* Simple progress bar */}
+          <div className="w-full bg-[#f0f0f0] h-1 mt-2">
+            <div
+              className="bg-[#F44A00] h-1"
+              style={{ width: `${progress}%` }}
+            ></div>
+          </div>
+        </div>
+      </div>
     </Link>
   );
 };
@@ -175,12 +171,12 @@ const TeamMetadata = ({ team }) => {
   });
 
   return (
-    <div className="border rounded-md py-2 px-3 bg-gray-50 shadow-sm">
-      <h3 className="text-base font-normal text-gray-700 mb-2">Team Details</h3>
+    <div className="bg-[#f0f0f0] py-2 px-3">
+      <h3 className="text-base font-normal text-black/80 mb-2">Team Details</h3>
       <div className="grid grid-cols-2 gap-y-2 gap-x-3">
         {metadata.map((item, index) => (
           <div key={index} className="flex flex-col">
-            <span className="text-xs font-semibold text-gray-600">
+            <span className="text-xs font-medium text-black/60">
               {item.label}
             </span>
             <span className="text-sm font-normal">{item.value}</span>
@@ -199,6 +195,7 @@ const TeamPage = () => {
   const [team, setTeam] = useState(null);
   const { selectedModel } = useContext(AIContext);
   const [showAISummary, setShowAISummary] = useState(false);
+  const [activeTabState, setActiveTabState] = useState("members");
 
   // Update team when id changes
   useEffect(() => {
@@ -241,7 +238,7 @@ const TeamPage = () => {
       <div className="mb-3">
         <button
           onClick={goBackToDashboard}
-          className="flex items-center text-gray-600 hover:text-orange-500 transition-colors font-normal"
+          className="flex items-center text-black/60 hover:text-[#F44A00] transition-colors font-normal"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -261,31 +258,30 @@ const TeamPage = () => {
         </button>
       </div>
 
-      <Card className="mb-4  purple-500 shadow-sm">
-        <CardHeader className="py-3 px-4">
+      <div className="mb-4">
+        <div className="py-3 px-4">
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-2">
             <div className="flex-1">
-              <CardTitle className="text-2xl font-normal mb-2">
-                {team.name}
-              </CardTitle>
+              <div className="text-xs text-black/60 mb-1">TEAM {team.id}</div>
+              <h1 className="text-2xl font-normal mb-2">{team.name}</h1>
 
               {organization && (
                 <div className="flex items-center gap-1 mb-2">
-                  <span className="text-xs font-semibold text-gray-600">
+                  <span className="text-xs font-medium text-black/60">
                     Organization:
                   </span>
-                  <Badge variant="outline" className="bg-gray-100 font-normal">
+                  <div className="bg-[#f0f0f0] text-black/70 text-xs px-1.5 py-0.5">
                     {organization.name}
-                  </Badge>
+                  </div>
                 </div>
               )}
 
               {team.description && (
                 <div className="mb-3">
-                  <h3 className="text-base font-normal text-gray-700 mb-1">
+                  <h3 className="text-base font-normal text-black/80 mb-1">
                     Description
                   </h3>
-                  <p className="text-gray-700 text-sm bg-gray-50 p-2 rounded-md">
+                  <p className="text-black/80 text-sm bg-[#f0f0f0] p-2">
                     {team.description}
                   </p>
                 </div>
@@ -294,7 +290,7 @@ const TeamPage = () => {
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-1 border-orange-200 text-orange-600 hover:bg-orange-50 font-normal"
+                className="gap-1 border-[#F44A00] text-[#F44A00] hover:bg-[#FFF4ED] font-normal h-8"
                 onClick={() => setShowAISummary(true)}
               >
                 <svg
@@ -316,62 +312,82 @@ const TeamPage = () => {
               </Button>
             </div>
           </div>
-        </CardHeader>
+        </div>
 
-        <CardContent className="px-4 pb-3 pt-0">
+        <div className="px-4 pb-3 pt-0">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <TeamMetadata team={team} />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      <Tabs defaultValue="members" className="w-full">
-        <TabsList className="mb-3">
-          <TabsTrigger value="members" className="font-normal text-base">
+      <div className="w-full">
+        <div className="flex border-b mb-3">
+          <button
+            onClick={() => setActiveTabState("members")}
+            className={`px-4 py-2 text-sm font-normal ${
+              activeTabState === "members"
+                ? "border-b-2 border-black"
+                : "text-black/60"
+            }`}
+          >
             Members ({teamMembers.length})
-          </TabsTrigger>
-          <TabsTrigger value="projects" className="font-normal text-base">
+          </button>
+          <button
+            onClick={() => setActiveTabState("projects")}
+            className={`px-4 py-2 text-sm font-normal ${
+              activeTabState === "projects"
+                ? "border-b-2 border-black"
+                : "text-black/60"
+            }`}
+          >
             Projects ({teamProjects.length})
-          </TabsTrigger>
-        </TabsList>
+          </button>
+        </div>
 
-        <TabsContent value="members">
-          {teamMembers.length === 0 ? (
-            <div className="text-center py-3 text-gray-500 font-normal">
-              No members in this team
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {teamMembers.map((member) => {
-                const user = mockData.users.find((u) => u.id === member.userId);
-                if (!user) return null;
-                return (
-                  <TeamMemberCard
-                    key={member.id}
-                    member={member}
-                    user={user}
-                    role={member.role}
-                  />
-                );
-              })}
-            </div>
-          )}
-        </TabsContent>
+        {activeTabState === "members" && (
+          <>
+            {teamMembers.length === 0 ? (
+              <div className="text-center py-3 text-black/50 font-normal">
+                No members in this team
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {teamMembers.map((member) => {
+                  const user = mockData.users.find(
+                    (u) => u.id === member.userId
+                  );
+                  if (!user) return null;
+                  return (
+                    <TeamMemberCard
+                      key={member.id}
+                      member={member}
+                      user={user}
+                      role={member.role}
+                    />
+                  );
+                })}
+              </div>
+            )}
+          </>
+        )}
 
-        <TabsContent value="projects">
-          {teamProjects.length === 0 ? (
-            <div className="text-center py-3 text-gray-500 font-normal">
-              No projects assigned to this team
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {teamProjects.map((project) => (
-                <ProjectCard key={project.id} project={project} />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
+        {activeTabState === "projects" && (
+          <>
+            {teamProjects.length === 0 ? (
+              <div className="text-center py-3 text-black/50 font-normal">
+                No projects assigned to this team
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {teamProjects.map((project) => (
+                  <ProjectCard key={project.id} project={project} />
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </div>
 
       {/* AI Summary Dialog */}
       <AISummaryDialog
