@@ -1,156 +1,123 @@
-## **🚀 Overview**
-This is a **Linear/JIRA-inspired project management tool** built to showcase my expertise in **frontend and backend development** using modern technologies. The app allows users to:
-- **Authenticate** using **Clerk**.
-- **Create, update, and manage tasks and projects**.
-- **Upload files (e.g., images) to AWS S3**.
-- **Leverage AI insights** for tasks and projects using **OpenAI/OpenRouter**.
-- **Collaborate in real-time** with a responsive and modern UI.
+# Better Projects - Modern Task Management Platform
 
-This project is designed to demonstrate my ability to work across the full stack, integrate cloud services, and build scalable, maintainable applications.
+## **🚀 Overview**
+This is a **Linear/JIRA-inspired project management tool** built to showcase expertise in **modern frontend development** with a focus on React and TypeScript. The app allows users to:
+
+- **Create, update, and manage tasks** with an intuitive kanban board interface
+- **Create tasks using AI** with a global command palette (Cmd+K / Ctrl+K) 
+- **Generate AI summaries** for tasks using OpenAI/OpenRouter
+- **Upload files** as task attachments
+- **Track task history** and status changes
+- **Filter and organize tasks** by various criteria
+
+This project demonstrates advanced React patterns, state management solutions, and integration with AI services to create a modern, responsive user interface.
+
+---
+
+## **✨ Features**
+
+### **Implemented Features**
+- ✅ **Task Management**: Create, view, and update tasks with a kanban-style board
+- ✅ **AI Task Creation**: Generate structured task data from natural language descriptions
+- ✅ **AI Task Summaries**: Generate executive summaries of task details for different stakeholders
+- ✅ **Command Palette**: Global command interface (Cmd+K) for quick task creation
+- ✅ **Mock Data Context**: In-memory data store that simulates a backend database
+- ✅ **Task Details View**: Comprehensive task details with comments, history, and attachments
+
+### **WIP Features (TODO)**
+- 🔲 **Responsive Design**: Mobile and tablet optimized layouts that work across various screen sizes
+- 🔲 **Authentication**: User authentication system with role-based permissions 
+- 🔲 **Real-time Updates**: Live updates when task statuses change
+- 🔲 **Advanced Filtering**: Filter tasks by assignee, due date, priority, etc.
+- 🔲 **Testing**: Comprehensive test suite using Vitest and React Testing Library
+- 🔲 **Backend Integration**: Connect to a real backend API for persistent storage
+- 🔲 **Offline Support**: Progressive Web App capabilities for offline access
+- 🔲 **Performance Optimizations**: Implement React.memo, useMemo, and useCallback for optimized rendering
 
 ---
 
 ## **🧰 Tech Stack**
 
 ### **Frontend**
-- **React**: For building the user interface.
-- **React Router**: For client-side routing.
-- **Redux Toolkit**: For global state management.
-- **React Query**: For server-side state management and API calls.
-- **tRPC**: For type-safe API communication between the frontend and backend.
-- **Tailwind CSS**: For styling the app.
-- **ShadCN**: For pre-built, accessible UI components.
-- **Clerk**: For user authentication.
-- **TypeScript**: For type safety and better developer experience.
+- **React**: UI component library for building the interface
+- **TypeScript**: For type safety throughout the codebase
+- **TanStack Query**: For server-state management and data fetching
+- **React Router**: For client-side routing between pages
+- **Tailwind CSS**: For styling with utility-first approach
+- **ShadCN UI**: For accessible, customizable UI components
+- **Context API**: For global state management with mock data
+- **Command-K**: Command palette for global actions
 
-### **Backend**
-- **Node.js**: For the server runtime.
-- **Express.js**: For building RESTful APIs and integrating tRPC.
-- **Prisma**: For database ORM and schema management.
-- **AWS S3**: For file storage (e.g., task attachments).
-- **Supabase**: For the database during development (migrating to AWS RDS later).
-- **tRPC**: For type-safe API endpoints.
-- **TypeScript**: For type safety and better developer experience.
+### **AI Integration**
+- **OpenRouter API**: For AI-powered task creation and summaries
+- **Prompt Engineering**: Structured system prompts for consistent AI responses
 
-### **Testing**
-- **Vitest**: For unit testing.
-- **React Testing Library**: For component testing.
-- **Playwright**: For end-to-end testing.
-
-### **Deployment**
-- **Frontend**: Deployed to **Vercel** during development (migrating to AWS Amplify later).
-- **Backend**: Deployed to **Railway** during development (migrating to AWS EC2 and API Gateway later).
+### **Testing (Planned)**
+- **Vitest**: For unit and integration testing *(TODO)*
+- **React Testing Library**: For component testing *(TODO)*
+- **MSW**: For mocking API requests in tests *(TODO)*
 
 ---
 
-## **📂 Folder Structure**
-
-This project is organized as a **monorepo** with separate folders for the frontend and backend:
+## **📂 Project Structure**
 
 ```plaintext
 project-root/
 ├── frontend/               # React app (client-side)
 │   ├── src/
 │   │   ├── components/     # Reusable React components
-│   │   ├── pages/          # React Router pages
-│   │   ├── redux/          # Redux slices and store
-│   │   ├── api/            # tRPC client and API utilities
-│   │   ├── styles/         # Tailwind CSS styles
-│   │   └── utils/          # Helper functions
-│   ├── public/             # Static assets (e.g., fonts)
-│   ├── tailwind.config.js  # Tailwind configuration
-│   └── package.json        # Frontend dependencies
-├── backend/                # Node.js + Express backend
+│   │   │   ├── ui/         # Base UI components from ShadCN
+│   │   │   └── ...         # Feature-specific components
+│   │   ├── lib/            # Utilities and services
+│   │   │   ├── ai.ts       # AI processing utilities
+│   │   │   ├── api.ts      # API client utilities
+│   │   │   └── mock-data-context.tsx # Mock data store
+│   │   ├── mock-data/      # Mock data for development
+│   │   ├── hooks/          # Custom React hooks
+│   │   ├── App.tsx         # Main application component
+│   │   ├── dashboard.tsx   # Dashboard page
+│   │   ├── task-page.tsx   # Task details page
+│   │   └── ...
+├── backend/                # NodeJS + Fastify backend
 │   ├── src/
-│   │   ├── routes/         # REST API and tRPC routes
-│   │   ├── prisma/         # Prisma schema and client
-│   │   ├── utils/          # AWS S3 helpers, Zod validation
-│   │   ├── middlewares/    # Middleware (e.g., Clerk auth)
-│   │   └── index.ts        # Entry point for the server
-│   ├── prisma/
-│   │   ├── schema.prisma   # Prisma schema
-│   │   └── migrations/     # Database migrations
-│   ├── package.json        # Backend dependencies
-│   └── .env                # Environment variables
-├── README.md               # Project documentation
-└── .gitignore              # Ignored files
+│   │   ├── routes/         # API routes including AI endpoints
+│   │   ├── controllers/    # Business logic controllers
+│   │   ├── prisma/         # Database schema and client
+│   │   └── ...
+├── task-creation.md        # Technical documentation for AI task creation
+└── README.md               # Project documentation
 ```
 
 ---
 
 ## **🛠️ How It Works**
 
-### **Frontend**
-1. **React + React Router**:
-   - The app uses **React Router** for client-side routing (e.g., `/tasks`, `/projects`).
-   - Pages are dynamically rendered based on the user’s actions.
+### **AI-Powered Task Creation**
+1. **Command Palette**: Press Cmd+K (or Ctrl+K) to open the global command palette
+2. **Natural Language Input**: Describe your task in plain language
+3. **AI Processing**: The system uses AI to extract structured task data (title, description, priority, due date, etc.)
+4. **Preview & Edit**: Review and edit the extracted data before creating the task
+5. **Task Creation**: The task is saved to the mock data context and appears on the board
 
-2. **Redux Toolkit**:
-   - Global state (e.g., user authentication, task/project data) is managed using **Redux Toolkit**.
-   - Redux slices are used to organize state logic.
+### **Mock Data Architecture**
+1. **React Context API**: Provides an in-memory data store that simulates a backend database
+2. **CRUD Operations**: Implements create, read, update, and delete operations for tasks
+3. **TypeScript Interfaces**: Ensures type safety for all data structures
+4. **Component Integration**: Components read from and write to the shared context
 
-3. **React Query**:
-   - Server-side state (e.g., fetching tasks from the backend) is managed using **React Query**.
-   - This ensures efficient data fetching, caching, and synchronization.
-
-4. **tRPC**:
-   - The frontend communicates with the backend using **tRPC**, ensuring type-safe API calls.
-   - All API endpoints are defined in the backend and consumed directly in the frontend.
-
-5. **Styling**:
-   - The app is styled using **Tailwind CSS** for utility-first styling.
-   - **ShadCN** components are used for accessible, pre-built UI elements.
-
-6. **Authentication**:
-   - **Clerk** handles user authentication, providing sign-in, sign-up, and session management.
+### **Task Board UI**
+1. **Kanban Layout**: Tasks are organized by status in columns
+2. **Drag & Drop**: *(WIP)* Move tasks between columns to update status
+3. **Quick Actions**: Update task status directly from the board
+4. **Task Cards**: Display essential information for at-a-glance understanding
 
 ---
 
-### **Backend**
-1. **Express.js**:
-   - The backend is built with **Express.js**, which serves RESTful APIs and integrates **tRPC** for type-safe communication.
+## **🔮 Future Directions**
 
-2. **Prisma**:
-   - **Prisma** is used as the ORM to interact with the database (Supabase during development, AWS RDS later).
-   - The `schema.prisma` file defines the database models (e.g., `User`, `Task`, `Project`).
-
-3. **AWS S3**:
-   - File uploads (e.g., task attachments) are handled using **AWS S3**.
-   - The backend uses the AWS SDK to upload files and return their URLs to the frontend.
-
-4. **tRPC**:
-   - The backend defines **tRPC routers** for type-safe API endpoints.
-   - These routers are consumed directly by the frontend.
-
-5. **Zod**:
-   - **Zod** is used for input validation in both the backend (e.g., validating API requests) and the frontend (e.g., validating forms).
-
----
-
-### **How Everything Connects**
-1. **Frontend to Backend**:
-   - The frontend communicates with the backend via **tRPC** and RESTful APIs.
-   - For example, when a user creates a task, the frontend sends a request to the backend, which stores the task in the database and returns the updated task list.
-
-2. **Backend to AWS**:
-   - The backend integrates with **AWS S3** for file uploads.
-   - In the future, the backend will connect to **AWS RDS** for database storage.
-
-3. **AI Insights**:
-   - The backend integrates with **OpenAI/OpenRouter** to provide AI-generated insights for tasks and projects.
-   - For example, the backend can generate task summaries or suggest related tasks.
-
----
-
-## **🧪 Testing**
-
-### **Unit Testing**
-- **Vitest**: For testing backend utilities (e.g., AWS S3 integration) and frontend Redux slices.
-
-### **Component Testing**
-- **React Testing Library**: For testing React components in isolation.
-
-### **End-to-End Testing**
-- **Playwright**: For testing the entire app, including frontend-backend interactions and file uploads.
+- **Full Backend Integration**: Connect to a real backend API for persistent storage
+- **Authentication System**: Implement user accounts and permissions
+- **Real-time Collaboration**: Add WebSocket support for live updates
+- **Advanced Analytics**: Track task completion rates and team productivity
 
 ---

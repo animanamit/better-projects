@@ -253,11 +253,11 @@ import { AiCommand } from "./ai-command";
 // Main board component
 export default function TaskBoard() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  
+
   // Get tasks from context if available, otherwise use mock data
   const mockDataContext = useMockData();
   const [localTasks, setLocalTasks] = useState(mockData.tasks);
-  
+
   // Use tasks from context if available, otherwise use local state
   const tasks = mockDataContext?.tasks || localTasks;
 
@@ -265,9 +265,9 @@ export default function TaskBoard() {
     // If we have context, use it, otherwise use local state
     if (mockDataContext?.updateTask) {
       mockDataContext.updateTask({
-        id: task.id, 
+        id: task.id,
         status: newStatus,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       });
     } else {
       // In a real app, this would make an API call
@@ -297,20 +297,30 @@ export default function TaskBoard() {
     <div>
       <div className="mb-4 flex justify-between items-center">
         <h1 className="text-xl font-normal">Task Board</h1>
-        
+
         <div className="flex items-center gap-3">
           <span className="text-xs text-black/60 hidden md:inline-flex items-center">
             <kbd className="px-1 py-0.5 bg-black/5 rounded text-black/70 font-mono">
-              {navigator.platform.indexOf("Mac") === 0 ? "⌘" : "Ctrl"}+K
+              <h6 className="text-xs">
+                {navigator.platform.indexOf("Mac") === 0 ? "⌘" : "Ctrl"}K
+              </h6>
             </kbd>
             <span className="ml-1">to create with AI</span>
           </span>
-          
+
           <button
             onClick={() => setIsCreateDialogOpen(true)}
             className="px-4 py-2 bg-black text-white text-sm hover:bg-black/90 flex items-center gap-1"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
@@ -318,7 +328,7 @@ export default function TaskBoard() {
           </button>
         </div>
       </div>
-      
+
       <div className="flex gap-3 overflow-x-auto pb-4">
         {columns.map((column) => (
           <TaskColumn
@@ -331,13 +341,13 @@ export default function TaskBoard() {
           />
         ))}
       </div>
-      
+
       {/* Create Task Dialog */}
-      <CreateTaskDialog 
+      <CreateTaskDialog
         isOpen={isCreateDialogOpen}
         onClose={() => setIsCreateDialogOpen(false)}
       />
-      
+
       {/* AI Command for task creation */}
       <AiCommand />
     </div>
