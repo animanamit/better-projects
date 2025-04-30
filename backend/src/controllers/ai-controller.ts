@@ -1,6 +1,22 @@
 import { Request, Response } from "express";
 import dotenv from "dotenv";
 import * as path from "path";
+// Import task status and priority enums
+enum TaskStatus {
+  TODO = "TODO",
+  IN_PROGRESS = "IN_PROGRESS",
+  IN_REVIEW = "IN_REVIEW",
+  BLOCKED = "BLOCKED",
+  COMPLETED = "COMPLETED"
+}
+
+enum TaskPriority {
+  LOWEST = "LOWEST",
+  LOW = "LOW",
+  MEDIUM = "MEDIUM",
+  HIGH = "HIGH",
+  HIGHEST = "HIGHEST"
+}
 
 // Load environment variables with proper path
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
@@ -8,6 +24,17 @@ dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 // OpenRouter API key - should be stored in environment variables
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || ""; 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
+
+// Interface for parsed task
+interface ParsedTask {
+  title: string;
+  description?: string;
+  priority?: TaskPriority;
+  status?: TaskStatus;
+  estimatedHours?: number;
+  tags?: string[];
+  dueDate?: string;
+}
 
 // Helper function to make requests to OpenRouter
 async function callOpenRouter(
@@ -237,6 +264,165 @@ No specific timeline information available.`;
 }
 
 // Generate a summary for a team
+// Create task using natural language
+export function createTask(req: Request, res: Response) {
+  const { prompt, model } = req.body;
+
+  if (!prompt) {
+    return res.status(400).json({ error: "Prompt is required" });
+  }
+
+  // Define prompts
+  const systemPrompt = `
+    You are an AI assistant specializing in project management. Your task is to analyze a natural language 
+    description of a task and extract structured information from it. Extract the following components:
+    
+    1. A concise title for the task (max 60 characters)
+    2. A detailed description of what needs to be done
+    3. The priority level of the task (LOWEST, LOW, MEDIUM, HIGH, HIGHEST)
+    4. Any time estimates mentioned (in hours)
+    5. Any tags or categories that should be associated with the task
+    6. Any due date mentioned
+    
+    Respond ONLY with a JSON object containing these fields. Do not include explanations or additional text.
+    The JSON should have this structure:
+    {
+      "title": "string",
+      "description": "string",
+      "priority": "MEDIUM", // One of: LOWEST, LOW, MEDIUM, HIGH, HIGHEST
+      "estimatedHours": number, // Optional
+      "tags": ["string"], // Optional array of strings
+      "dueDate": "YYYY-MM-DD" // Optional ISO date format
+    }
+    
+    If any field cannot be determined from the input, omit it from the JSON response.
+  `;
+
+  const userPrompt = `
+    Please extract structured task information from the following description:
+    
+    ${prompt}
+  `;
+
+  // Call OpenRouter API or use mock response
+  if (!OPENROUTER_API_KEY) {
+    // Mock extraction if no API key is available
+    const mockTask = extractTaskDataMock(prompt);
+    return res.json({ task: mockTask });
+  } else {
+    // Call actual API
+    callOpenRouter(model, systemPrompt, userPrompt)
+      .then(responseContent => {
+        try {
+          // Parse JSON from the response
+          const parsedTask = JSON.parse(responseContent as string) as ParsedTask;
+          
+          // Ensure task has the basic required fields
+          const task: ParsedTask = {
+            title: parsedTask.title || prompt.slice(0, 60),
+            description: parsedTask.description || prompt,
+            status: TaskStatus.TODO,
+            priority: parsedTask.priority || TaskPriority.MEDIUM,
+            estimatedHours: parsedTask.estimatedHours,
+            tags: parsedTask.tags,
+            dueDate: parsedTask.dueDate
+          };
+          
+          res.json({ task });
+        } catch (error) {
+          console.error("Error parsing task data from API response:", error);
+          
+          // Fall back to mock extraction if parsing fails
+          const mockTask = extractTaskDataMock(prompt);
+          res.json({ task: mockTask });
+        }
+      })
+      .catch(error => {
+        console.error("Error generating task data:", error);
+        
+        // Fall back to mock extraction if API call fails
+        const mockTask = extractTaskDataMock(prompt);
+        res.json({ task: mockTask });
+      });
+  }
+}
+
+// Mock implementation for task extraction without API
+function extractTaskDataMock(prompt: string): ParsedTask {
+  // Extract title (first line or first sentence if single line)
+  const lines = prompt.split('\n').filter(line => line.trim() !== '');
+  let title = lines[0] || prompt;
+  if (lines.length === 1 && prompt.includes('.')) {
+    title = prompt.split('.')[0] + '.';
+  }
+  // Truncate if too long
+  if (title.length > 60) {
+    title = title.substring(0, 57) + '...';
+  }
+  
+  // Rest is description
+  const description = lines.length > 1 
+    ? lines.slice(1).join('\n') 
+    : (prompt.length > title.length ? prompt.substring(title.length).trim() : '');
+  
+  // Extract priority if mentioned
+  let priority = TaskPriority.MEDIUM;
+  if (
+    prompt.toLowerCase().includes('urgent') || 
+    prompt.toLowerCase().includes('critical') ||
+    prompt.toLowerCase().includes('highest priority')
+  ) {
+    priority = TaskPriority.HIGHEST;
+  } else if (
+    prompt.toLowerCase().includes('high priority') ||
+    prompt.toLowerCase().includes('important')
+  ) {
+    priority = TaskPriority.HIGH;
+  } else if (
+    prompt.toLowerCase().includes('low priority') ||
+    prompt.toLowerCase().includes('whenever')
+  ) {
+    priority = TaskPriority.LOW;
+  }
+  
+  // Extract estimated hours if mentioned
+  let estimatedHours: number | undefined = undefined;
+  const hourMatches = prompt.match(/(\d+)\s*hours?/i) || prompt.match(/take[s]?\s*(\d+)\s*hours?/i);
+  if (hourMatches && hourMatches[1]) {
+    estimatedHours = parseInt(hourMatches[1], 10);
+  }
+  
+  // Extract tags based on common keywords
+  const potentialTags = ['bug', 'feature', 'ui', 'api', 'documentation', 'testing', 'design', 'frontend', 'backend'];
+  const tags = potentialTags.filter(tag => 
+    prompt.toLowerCase().includes(tag.toLowerCase())
+  );
+  
+  // Extract due date if mentioned
+  let dueDate: string | undefined = undefined;
+  const dateMatches = prompt.match(/due\s*(?:date|by)?\s*(?:on|by)?\s*([A-Za-z]+\s+\d{1,2}(?:st|nd|rd|th)?(?:,\s*\d{4})?)/i);
+  if (dateMatches && dateMatches[1]) {
+    try {
+      const parsedDate = new Date(dateMatches[1]);
+      if (!isNaN(parsedDate.getTime())) {
+        dueDate = parsedDate.toISOString().split('T')[0];
+      }
+    } catch (e) {
+      // Parsing failed, ignore
+    }
+  }
+  
+  return {
+    title,
+    description,
+    priority,
+    status: TaskStatus.TODO,
+    estimatedHours,
+    tags: tags.length > 0 ? tags : undefined,
+    dueDate,
+  };
+}
+
 export function teamSummary(req: Request, res: Response) {
   const { teamId, model } = req.body;
 

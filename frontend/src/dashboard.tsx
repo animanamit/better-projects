@@ -6,6 +6,7 @@ import { AIContext } from "./App";
 import TaskBoard from "@/components/task-board";
 import { Outlet, useLocation } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { MockDataProvider } from "@/lib/mock-data-context";
 
 // Create a context for the active tab
 export type TabType = "tasks" | "files";
@@ -48,30 +49,32 @@ function Dashboard() {
 
   return (
     <TabContext.Provider value={{ activeTab, setActiveTab }}>
-      <SidebarProvider>
-        <main className="flex flex-col h-screen w-full bg-[#f8f8f8]">
-          <TopBar
-            selectedModel={selectedModel}
-            setSelectedModel={setSelectedModel}
-          />
-          <div className="flex flex-row h-full w-full overflow-hidden">
-            <AppSidebar />
-            <div className="flex-1 overflow-auto">
-              {/* Content */}
-              <div className="p-4">
-                {isTaskPage ? (
-                  <Outlet />
-                ) : (
-                  <>
-                    {activeTab === "tasks" && <TaskBoard />}
-                    {activeTab === "files" && <FileManagement />}
-                  </>
-                )}
+      <MockDataProvider>
+        <SidebarProvider>
+          <main className="flex flex-col h-screen w-full bg-[#f8f8f8]">
+            <TopBar
+              selectedModel={selectedModel}
+              setSelectedModel={setSelectedModel}
+            />
+            <div className="flex flex-row h-full w-full overflow-hidden">
+              <AppSidebar />
+              <div className="flex-1 overflow-auto">
+                {/* Content */}
+                <div className="p-4">
+                  {isTaskPage ? (
+                    <Outlet />
+                  ) : (
+                    <>
+                      {activeTab === "tasks" && <TaskBoard />}
+                      {activeTab === "files" && <FileManagement />}
+                    </>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        </main>
-      </SidebarProvider>
+          </main>
+        </SidebarProvider>
+      </MockDataProvider>
     </TabContext.Provider>
   );
 }

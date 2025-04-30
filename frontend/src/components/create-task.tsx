@@ -1,15 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-
-// import { useUser } from "@clerk/clerk-react";
-import { type Task, mockData } from "@/mock-data";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-// API calls commented out and replaced with mock data for personal website deployment
-// import { fetchTasks, createTask } from "@/lib/api";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { TaskPriority, TaskStatus } from "@/mock-data";
+import { useMockData } from "@/lib/mock-data-context";
 
 export function CreateTask() {
+  // Context for mock data
+  const { addTask } = useMockData();
+  
+  // Traditional form states
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  
   // Mock user for personal website deployment
   const user = {
     id: "user-01",
@@ -19,75 +21,42 @@ export function CreateTask() {
   const queryClient = useQueryClient();
   const userId = user?.id;
 
-  // Mock fetchTasks function for personal website
-  const mockFetchTasks = async () => {
-    // Simulate API delay
-    await new Promise((r) => setTimeout(r, 500));
-    return mockData.tasks
-      .filter(
-        (task) => task.assigneeId === userId || task.reporterId === userId
-      )
-      .slice(0, 5);
-  };
-
-  // Query for tasks using mock data
-  const { data: tasks = [] } = useQuery({
-    queryKey: ["tasks", userId],
-    queryFn: mockFetchTasks,
-    staleTime: Infinity,
-    retry: false,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-  });
-
-  // Mock createTask function for personal website
-  const mockCreateTask = async (data: {
-    title: string;
-    description: string;
-    userId: string;
-    userEmail: string;
-    userName?: string;
-  }): Promise<Task> => {
-    // Simulate API delay
-    await new Promise((r) => setTimeout(r, 600));
-
-    // Create a mock task
-    return {
-      id: `task-${Date.now()}`,
-      title: data.title,
-      description: data.description,
-      status: "TODO" as any,
-      priority: "MEDIUM" as any,
-      projectId: "proj-01", // Default project
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      numComments: 0,
-    };
-  };
-
-  // Mutation for creating tasks using mock function
-  const { mutate, isPending } = useMutation({
-    mutationFn: mockCreateTask,
-    onSuccess: (newTask) => {
+  // Create task mutation
+  const { mutate: createTaskMutation, isPending } = useMutation({
+    mutationFn: async (data: {
+      title: string;
+      description: string;
+      userId: string;
+      userEmail: string;
+      userName?: string;
+    }) => {
+      // Create a new task using the mock data context
+      return addTask({
+        title: data.title,
+        description: data.description,
+        status: TaskStatus.TODO,
+        priority: TaskPriority.MEDIUM,
+        projectId: "proj-01", // Default project
+        assigneeId: data.userId,
+        reporterId: data.userId,
+      });
+    },
+    onSuccess: () => {
       // Reset form
       setTitle("");
       setDescription("");
-
-      // Instead of invalidating the entire query, let's update the cache directly
-      queryClient.setQueryData(["tasks", userId], (oldData: Task[] = []) => [
-        newTask,
-        ...oldData,
-      ]);
+      
+      // Invalidate queries to refresh the task list
+      queryClient.invalidateQueries({ queryKey: ["tasks", userId] });
     },
-    retry: false,
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Traditional form submission
+  const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!userId || !user?.primaryEmailAddress?.emailAddress) return;
 
-    mutate({
+    createTaskMutation({
       title,
       description,
       userId,
@@ -97,9 +66,15 @@ export function CreateTask() {
   };
 
   return (
-    <div className="p-4">
-      <h1 className="text-xl font-normal mb-4">Create Task</h1>
-      <form onSubmit={handleSubmit} className="space-y-3">
+    <div>
+      <div className="bg-white p-3 border border-black/10 mb-4">
+        <h3 className="text-sm font-medium">Create Task</h3>
+        <p className="text-xs text-black/60 mt-1">
+          Create a task by filling out the structured form fields below
+        </p>
+      </div>
+      
+      <form onSubmit={handleFormSubmit} className="space-y-3">
         <div>
           <label
             htmlFor="title"
@@ -139,26 +114,6 @@ export function CreateTask() {
           {isPending ? "Creating..." : "Create Task"}
         </button>
       </form>
-
-      <div className="mt-6">
-        <h2 className="text-base font-normal text-black/80 mb-3">Your Tasks</h2>
-        {tasks.length === 0 ? (
-          <div className="text-sm text-black/60 py-3">No tasks yet</div>
-        ) : (
-          <div className="space-y-2">
-            {tasks.map((task: Task) => (
-              <div key={task.id} className="bg-white p-3">
-                <h3 className="font-normal text-sm">{task.title}</h3>
-                {task.description && (
-                  <p className="text-sm text-black/60 mt-1">
-                    {task.description}
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
     </div>
   );
 }

@@ -1,4 +1,147 @@
-import { mockData, TaskPriority, TaskStatus } from "@/mock-data";
+import { mockData, TaskPriority, TaskStatus, Task } from "@/mock-data";
+
+// Define interfaces for AI task extraction
+export interface ParsedTask {
+  title: string;
+  description?: string;
+  priority?: TaskPriority;
+  status?: TaskStatus;
+  estimatedHours?: number;
+  tags?: string[];
+  dueDate?: string;
+}
+
+// Process natural language into structured task data
+export const processTaskWithAI = async (
+  prompt: string,
+  model: string = defaultModel
+): Promise<{ task: ParsedTask }> => {
+  // For local development with no API key, mock the processing
+  if (ALWAYS_USE_MOCK) {
+    console.log("Using mock implementation for AI task processing");
+    // Add a small artificial delay to simulate API request
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return mockProcessTask(prompt);
+  }
+  
+  // This code path is only used if ALWAYS_USE_MOCK is false
+  try {
+    const response = await fetch(`${API_URL}/ai/create-task`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        prompt,
+        model,
+      }),
+    });
+    
+    if (!response.ok) {
+      // If we get an error from the backend, use a fallback mock implementation
+      if (USE_MOCK_DATA) {
+        console.log("Using fallback mock implementation for AI task processing");
+        return mockProcessTask(prompt);
+      }
+      
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to process task with AI");
+    }
+    
+    return response.json();
+  } catch (error) {
+    // If we encounter an error, use a fallback mock implementation
+    if (USE_MOCK_DATA) {
+      console.log("Using fallback mock implementation for AI task processing");
+      return mockProcessTask(prompt);
+    }
+    console.error("Error processing task with AI:", error);
+    throw error;
+  }
+};
+
+// Mock implementation as a fallback
+function mockProcessTask(prompt: string): { task: ParsedTask } {
+  // Simulate API delay
+  // await new Promise((r) => setTimeout(r, 800));
+  
+  // Mock AI processing - extract task data from the prompt
+  const lines = prompt.split('\n').filter(line => line.trim() !== '');
+  
+  // Extract title (first line or first sentence if single line)
+  let title = lines[0] || prompt;
+  if (lines.length === 1 && prompt.includes('.')) {
+    title = prompt.split('.')[0] + '.';
+  }
+  // Truncate if too long
+  if (title.length > 50) {
+    title = title.substring(0, 47) + '...';
+  }
+  
+  // Rest is description
+  const description = lines.length > 1 
+    ? lines.slice(1).join('\n') 
+    : (prompt.length > title.length ? prompt.substring(title.length).trim() : '');
+  
+  // Extract priority if mentioned
+  let priority = TaskPriority.MEDIUM;
+  if (
+    prompt.toLowerCase().includes('urgent') || 
+    prompt.toLowerCase().includes('critical') ||
+    prompt.toLowerCase().includes('highest priority')
+  ) {
+    priority = TaskPriority.HIGHEST;
+  } else if (
+    prompt.toLowerCase().includes('high priority') ||
+    prompt.toLowerCase().includes('important')
+  ) {
+    priority = TaskPriority.HIGH;
+  } else if (
+    prompt.toLowerCase().includes('low priority') ||
+    prompt.toLowerCase().includes('whenever')
+  ) {
+    priority = TaskPriority.LOW;
+  }
+  
+  // Extract estimated hours if mentioned
+  let estimatedHours: number | undefined = undefined;
+  const hourMatches = prompt.match(/(\d+)\s*hours?/i) || prompt.match(/take[s]?\s*(\d+)\s*hours?/i);
+  if (hourMatches && hourMatches[1]) {
+    estimatedHours = parseInt(hourMatches[1], 10);
+  }
+  
+  // Extract tags based on common keywords
+  const potentialTags = ['bug', 'feature', 'ui', 'api', 'documentation', 'testing', 'design', 'frontend', 'backend'];
+  const tags = potentialTags.filter(tag => 
+    prompt.toLowerCase().includes(tag.toLowerCase())
+  );
+  
+  // Extract due date if mentioned
+  let dueDate: string | undefined = undefined;
+  const dateMatches = prompt.match(/due\s*(?:date|by)?\s*(?:on|by)?\s*([A-Za-z]+\s+\d{1,2}(?:st|nd|rd|th)?(?:,\s*\d{4})?)/i);
+  if (dateMatches && dateMatches[1]) {
+    try {
+      const parsedDate = new Date(dateMatches[1]);
+      if (!isNaN(parsedDate.getTime())) {
+        dueDate = parsedDate.toISOString().split('T')[0];
+      }
+    } catch (e) {
+      // Parsing failed, ignore
+    }
+  }
+  
+  return {
+    task: {
+      title,
+      description,
+      priority,
+      status: TaskStatus.TODO,
+      estimatedHours,
+      tags: tags.length > 0 ? tags : undefined,
+      dueDate,
+    }
+  };
+};
 
 // Available AI models on OpenRouter
 export const aiModels = [
@@ -38,11 +181,10 @@ interface AIResponse {
 // API configuration
 const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3001/api";
 
-// Use mock data in development if API is not available
-const USE_MOCK_DATA =
-  import.meta.env.NODE_ENV === "development" &&
-  (!import.meta.env.VITE_BACKEND_URL ||
-    import.meta.env.VITE_USE_MOCK_DATA === "true");
+// For this demo project, we'll have fallback to mock data
+// but we'll try to use the OpenRouter API if available
+const USE_MOCK_DATA = true; // Only as fallback
+const ALWAYS_USE_MOCK = false;
 
 // Local frontend cache
 interface CacheEntry {

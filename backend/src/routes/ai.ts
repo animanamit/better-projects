@@ -578,6 +578,176 @@ Format your response in clear, professional language appropriate for a business 
       return { message: "Cache cleared successfully" };
     }
   );
+  
+  // Schema for create task endpoint
+  const createTaskSchema = {
+    body: {
+      type: "object",
+      required: ["prompt", "model"],
+      properties: {
+        prompt: { type: "string" },
+        model: { type: "string" },
+      },
+    },
+    response: {
+      200: {
+        type: "object",
+        properties: {
+          task: {
+            type: "object",
+            properties: {
+              title: { type: "string" },
+              description: { type: "string" },
+              priority: { type: "string" },
+              status: { type: "string" },
+              estimatedHours: { type: ["number", "null"] },
+              tags: { 
+                type: "array",
+                items: { type: "string" }
+              },
+              dueDate: { type: ["string", "null"] },
+            },
+          },
+        },
+      },
+    },
+  };
+  
+  // Create task endpoint with request/response type coercion to match Express types
+  fastify.post("/create-task", { schema: createTaskSchema }, async (request, reply) => {
+    try {
+      // Extract data from the request
+      const { prompt, model } = request.body as { prompt: string; model: string };
+      
+      if (!prompt) {
+        return reply.status(400).send({ error: "Prompt is required" });
+      }
+      
+      // Define prompts
+      const systemPrompt = `
+        You are an AI assistant specializing in project management. Your task is to analyze a natural language 
+        description of a task and extract structured information from it. Extract the following components:
+        
+        1. A concise title for the task (max 60 characters)
+        2. A detailed description of what needs to be done
+        3. The priority level of the task (LOWEST, LOW, MEDIUM, HIGH, HIGHEST)
+        4. Any time estimates mentioned (in hours)
+        5. Any tags or categories that should be associated with the task
+        6. Any due date mentioned
+        
+        Respond ONLY with a JSON object containing these fields. Do not include explanations or additional text.
+        The JSON should have this structure:
+        {
+          "title": "string",
+          "description": "string",
+          "priority": "MEDIUM", // One of: LOWEST, LOW, MEDIUM, HIGH, HIGHEST
+          "estimatedHours": number, // Optional
+          "tags": ["string"], // Optional array of strings
+          "dueDate": "YYYY-MM-DD" // Optional ISO date format
+        }
+        
+        If any field cannot be determined from the input, omit it from the JSON response.
+      `;
+    
+      const userPrompt = `
+        Please extract structured task information from the following description:
+        
+        ${prompt}
+      `;
+      
+      // Call OpenRouter API or use mock response
+      if (!OPENROUTER_API_KEY) {
+        // Return mock data if no API key is available
+        const mockTask = {
+          title: prompt.substring(0, 60),
+          description: prompt,
+          priority: "MEDIUM",
+          status: "TODO",
+        };
+        return reply.send({ task: mockTask });
+      }
+      
+      // Call OpenRouter API directly
+      try {
+        const response = await fetch(OPENROUTER_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+            "HTTP-Referer": "https://better-projects.app",
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: [
+              {
+                role: "system",
+                content: systemPrompt,
+              },
+              {
+                role: "user",
+                content: userPrompt,
+              },
+            ],
+            temperature: 0.7,
+            max_tokens: 500,
+          }),
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to call OpenRouter API");
+        }
+        
+        const data = await response.json();
+        const content = data.choices[0].message.content;
+        
+        try {
+          // Parse JSON from the response
+          const parsedTask = JSON.parse(content);
+          
+          // Ensure task has the basic required fields
+          const task = {
+            title: parsedTask.title || prompt.substring(0, 60),
+            description: parsedTask.description || prompt,
+            status: "TODO",
+            priority: parsedTask.priority || "MEDIUM",
+            estimatedHours: parsedTask.estimatedHours,
+            tags: parsedTask.tags,
+            dueDate: parsedTask.dueDate
+          };
+          
+          return reply.send({ task });
+        } catch (parseError) {
+          request.log.error("Error parsing task data from API response:", parseError);
+          
+          // Fall back to simple format if parsing fails
+          const task = {
+            title: prompt.substring(0, 60),
+            description: prompt,
+            status: "TODO",
+            priority: "MEDIUM"
+          };
+          
+          return reply.send({ task });
+        }
+      } catch (error) {
+        request.log.error("Error calling OpenRouter:", error);
+        
+        // Fall back to simple format if API call fails
+        const task = {
+          title: prompt.substring(0, 60),
+          description: prompt,
+          status: "TODO",
+          priority: "MEDIUM"
+        };
+        
+        return reply.send({ task });
+      }
+    } catch (error) {
+      request.log.error("Error in create-task endpoint:", error);
+      return reply.status(500).send({ error: "Failed to create task" });
+    }
+  });
 };
 
 export default aiRoutes;

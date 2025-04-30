@@ -2,17 +2,18 @@ import { useParams } from "react-router-dom";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { AIContext } from "./App";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import AISummaryDialog from "@/components/ai-summary-dialog";
 import { TaskPriority, TaskStatus } from "@/mock-data/types";
 import { users } from "@/mock-data/users";
 import { projects } from "@/mock-data/projects";
 import { teamMembers } from "@/mock-data/team-members";
+import { useMockData } from "@/lib/mock-data-context";
 import {
   getTaskAttachmentsById,
-  getTaskById,
   getTaskCommentsById,
   getTaskHistoryById,
+  getTaskById,
 } from "@/mock-data/index";
 
 // Status color map
@@ -277,7 +278,22 @@ const TaskMetadata = ({ task }) => {
 // Main component
 const TaskPage = () => {
   const { id } = useParams();
-  const [task, setTask] = useState(getTaskById(id));
+  const mockData = useMockData();
+  
+  // Get task from context if available, otherwise use the static mock data
+  const contextTask = mockData?.getTaskById ? mockData.getTaskById(id) : undefined;
+  const [task, setTask] = useState(contextTask || getTaskById(id));
+  
+  // Use an effect to update the task when it changes in the context
+  useEffect(() => {
+    if (mockData?.getTaskById && id) {
+      const updatedTask = mockData.getTaskById(id);
+      if (updatedTask) {
+        setTask(updatedTask);
+      }
+    }
+  }, [mockData, id, mockData?.tasks]);
+  
   const [taskHistory, setTaskHistory] = useState(getTaskHistoryById(id));
   const taskComments = getTaskCommentsById(id);
   const taskAttachments = getTaskAttachmentsById(id);
@@ -341,6 +357,14 @@ const TaskPage = () => {
       updatedAt: now,
     };
 
+    // Update using context if available, or local state
+    if (mockData?.updateTask) {
+      mockData.updateTask({
+        id: task.id,
+        status: newStatus,
+      });
+    }
+    
     setTask(updatedTask);
     setTaskHistory([historyEntry, ...taskHistory]);
   };
