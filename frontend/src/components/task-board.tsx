@@ -2,6 +2,7 @@ import { mockData, type Task, TaskStatus, TaskPriority } from "@/mock-data";
 import { Link } from "react-router-dom";
 import { Avatar } from "@/components/ui/avatar";
 import { useState } from "react";
+import { useIsMobile, useBreakpoint } from "@/hooks/use-mobile";
 
 // Status color map
 const statusColorMap: Record<TaskStatus, { bg: string; text: string }> = {
@@ -196,12 +197,19 @@ const ColumnHeader = ({
   title,
   count,
   color,
+  isActive = false,
+  onClick = () => {},
 }: {
   title: string;
   count: number;
   color: string;
+  isActive?: boolean;
+  onClick?: () => void;
 }) => (
-  <div className="font-normal text-sm mb-2 flex items-center justify-between">
+  <div 
+    className={`font-normal text-sm mb-2 flex items-center justify-between ${isActive ? 'bg-black/5 p-1 rounded' : ''}`}
+    onClick={onClick}
+  >
     <div className="flex items-center">
       <div className={`w-2 h-2 rounded-full ${color} mr-2`}></div>
       <h3>{title}</h3>
@@ -217,18 +225,29 @@ const TaskColumn = ({
   tasks,
   onStatusChange,
   color,
+  isActive = false,
+  onClick = () => {},
 }: {
   status: TaskStatus;
   title: string;
   tasks: Task[];
   onStatusChange: (task: Task, newStatus: TaskStatus) => void;
   color: string;
+  isActive?: boolean;
+  onClick?: () => void;
 }) => {
   const columnTasks = tasks.filter((task) => task.status === status);
+  const isMobile = useIsMobile();
 
   return (
-    <div className="min-w-[280px] w-[280px]">
-      <ColumnHeader title={title} count={columnTasks.length} color={color} />
+    <div className={`${isMobile ? 'w-full' : 'min-w-[280px] w-[280px]'} ${!isActive && isMobile ? 'hidden' : ''}`}>
+      <ColumnHeader 
+        title={title} 
+        count={columnTasks.length} 
+        color={color} 
+        isActive={isActive}
+        onClick={onClick}
+      />
       <div>
         {columnTasks.map((task) => (
           <TaskDetailsCard
@@ -253,6 +272,9 @@ import { AiCommand } from "./ai-command";
 // Main board component
 export default function TaskBoard() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [activeColumnIndex, setActiveColumnIndex] = useState(1); // Default to "To Do"
+  const isMobile = useIsMobile();
+  const isTablet = useBreakpoint('lg');
 
   // Get tasks from context if available, otherwise use mock data
   const mockDataContext = useMockData();
@@ -310,7 +332,7 @@ export default function TaskBoard() {
 
           <button
             onClick={() => setIsCreateDialogOpen(true)}
-            className="px-4 py-2 bg-black text-white text-sm hover:bg-black/90 flex items-center gap-1"
+            className="px-2 sm:px-4 py-2 bg-black text-white text-xs sm:text-sm hover:bg-black/90 flex items-center gap-1"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -328,19 +350,61 @@ export default function TaskBoard() {
           </button>
         </div>
       </div>
+      
+      {/* Mobile Column Selector */}
+      {isMobile && (
+        <div className="flex justify-between mb-3 overflow-x-auto pb-2">
+          {columns.map((column, index) => (
+            <button
+              key={column.status}
+              onClick={() => setActiveColumnIndex(index)}
+              className={`px-2 py-1 text-xs whitespace-nowrap flex items-center ${
+                index === activeColumnIndex 
+                  ? 'bg-black text-white' 
+                  : 'bg-white text-black/70'
+              }`}
+            >
+              <div className={`w-2 h-2 rounded-full ${column.color} mr-1`}></div>
+              {column.title}
+            </button>
+          ))}
+        </div>
+      )}
 
-      <div className="flex gap-3 overflow-x-auto pb-4">
-        {columns.map((column) => (
-          <TaskColumn
-            key={column.status}
-            status={column.status}
-            title={column.title}
-            tasks={tasks}
-            onStatusChange={handleStatusChange}
-            color={column.color}
-          />
-        ))}
-      </div>
+      {/* Desktop and tablet view - horizontal scrolling */}
+      {!isMobile ? (
+        <div className="flex gap-3 overflow-x-auto pb-4">
+          {columns.map((column) => (
+            <TaskColumn
+              key={column.status}
+              status={column.status}
+              title={column.title}
+              tasks={tasks}
+              onStatusChange={handleStatusChange}
+              color={column.color}
+            />
+          ))}
+        </div>
+      ) : (
+        /* Mobile view - only show active column */
+        <div className="flex flex-col">
+          {columns.map((column, index) => (
+            <TaskColumn
+              key={column.status}
+              status={column.status}
+              title={column.title}
+              tasks={tasks}
+              onStatusChange={handleStatusChange}
+              color={column.color}
+              isActive={index === activeColumnIndex}
+              onClick={() => setActiveColumnIndex(index)}
+            />
+          ))}
+        </div>
+      )}
+      
+      {/* Add spacing for mobile bottom navigation */}
+      {isMobile && <div className="h-16"></div>}
 
       {/* Create Task Dialog */}
       <CreateTaskDialog

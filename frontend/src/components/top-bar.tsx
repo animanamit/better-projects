@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { aiModels, defaultModel } from "@/lib/ai";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TopBarProps {
   setSelectedModel?: (model: string) => void;
@@ -7,6 +8,9 @@ interface TopBarProps {
 }
 
 const TopBar = ({ setSelectedModel, selectedModel }: TopBarProps) => {
+  const isMobile = useIsMobile();
+  const modelMenuRef = useRef<HTMLDivElement>(null);
+  
   // Local state to ensure we always have a valid selection
   const [currentModel, setCurrentModel] = useState(defaultModel);
   const [isModelMenuOpen, setIsModelMenuOpen] = useState(false);
@@ -22,6 +26,20 @@ const TopBar = ({ setSelectedModel, selectedModel }: TopBarProps) => {
       setCurrentModel(defaultModel);
     }
   }, [selectedModel, setSelectedModel]);
+
+  // Close the model menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modelMenuRef.current && !modelMenuRef.current.contains(event.target as Node)) {
+        setIsModelMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleModelChange = (value: string) => {
     // Update local state
@@ -44,27 +62,27 @@ const TopBar = ({ setSelectedModel, selectedModel }: TopBarProps) => {
     aiModels.find((m) => m.id === currentModel)?.provider || "";
 
   return (
-    <div className="sticky top-0 z-20 px-4 py-3 bg-[#f8f8f8]">
+    <div className="sticky top-0 z-20 px-2 sm:px-4 py-2 sm:py-3 bg-[#f8f8f8] shadow-sm">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 bg-black flex items-center justify-center text-white text-xs">
             TM
           </div>
-          <span className="text-sm font-medium">Task Manager</span>
+          <span className={`text-sm font-medium ${isMobile ? "hidden sm:inline" : ""}`}>Task Manager</span>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           {/* AI Model Selector */}
           {setSelectedModel && (
-            <div className="relative">
+            <div className="relative" ref={modelMenuRef}>
               <button
                 onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
-                className="flex items-center gap-1 text-xs bg-[#f0f0f0] hover:bg-[#e8e8e8] px-3 py-1.5 rounded-sm"
+                className="flex items-center gap-1 text-xs bg-[#f0f0f0] hover:bg-[#e8e8e8] px-2 sm:px-3 py-1.5 rounded-sm"
               >
-                <span className="truncate max-w-[120px]">
-                  {currentModelName}
+                <span className={`truncate ${isMobile ? "max-w-[80px]" : "max-w-[120px]"}`}>
+                  {isMobile ? currentModelName.split(" ")[0] : currentModelName}
                 </span>
-                {currentModelProvider && (
+                {currentModelProvider && !isMobile && (
                   <span className="text-[10px] bg-black/10 px-1 rounded text-black/70">
                     {currentModelProvider}
                   </span>
@@ -88,6 +106,27 @@ const TopBar = ({ setSelectedModel, selectedModel }: TopBarProps) => {
                 </div>
               )}
             </div>
+          )}
+
+          {/* Create Task Button - Mobile only */}
+          {isMobile && (
+            <button
+              className="bg-black text-white text-xs py-1.5 px-2 rounded-sm flex items-center gap-1"
+              onClick={() => {
+                // Find the Create Task button in the task board and click it
+                const createTaskBtns = Array.from(document.querySelectorAll('button'))
+                  .filter(btn => btn.textContent?.includes('Create Task'));
+                if (createTaskBtns.length > 0) {
+                  (createTaskBtns[0] as HTMLButtonElement).click();
+                }
+              }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              New
+            </button>
           )}
 
           {/* User avatar */}

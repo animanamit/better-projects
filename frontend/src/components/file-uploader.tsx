@@ -350,100 +350,182 @@ export function FileUploader({ taskId, onUploadComplete }: FileUploaderProps) {
           {files.length === 0 ? (
             <p className="text-sm text-black/50 p-3">No files yet</p>
           ) : (
-            <div className="overflow-hidden">
-              <table className="min-w-full divide-y divide-[#f0f0f0]">
-                <thead className="bg-[#f8f8f8]">
-                  <tr>
-                    <th className="px-3 py-2 text-left text-xs font-normal text-black/50 uppercase tracking-wider">
-                      Name
-                    </th>
-                    <th className="px-3 py-2 text-left text-xs font-normal text-black/50 uppercase tracking-wider">
-                      Type
-                    </th>
-                    <th className="px-3 py-2 text-left text-xs font-normal text-black/50 uppercase tracking-wider">
-                      Size
-                    </th>
-                    <th className="px-3 py-2 text-left text-xs font-normal text-black/50 uppercase tracking-wider">
-                      Date
-                    </th>
-                    <th className="px-3 py-2 text-right text-xs font-normal text-black/50 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#f0f0f0]">
-                  {files.map((file) => (
-                    <tr key={file.id} className="hover:bg-[#f8f8f8]">
-                      <td className="px-3 py-2 text-sm">
+            <>
+              {/* Desktop view - table */}
+              <div className="hidden md:block overflow-hidden">
+                <table className="min-w-full divide-y divide-[#f0f0f0]">
+                  <thead className="bg-[#f8f8f8]">
+                    <tr>
+                      <th className="px-3 py-2 text-left text-xs font-normal text-black/50 uppercase tracking-wider">
+                        Name
+                      </th>
+                      <th className="px-3 py-2 text-left text-xs font-normal text-black/50 uppercase tracking-wider">
+                        Type
+                      </th>
+                      <th className="px-3 py-2 text-left text-xs font-normal text-black/50 uppercase tracking-wider">
+                        Size
+                      </th>
+                      <th className="px-3 py-2 text-left text-xs font-normal text-black/50 uppercase tracking-wider">
+                        Date
+                      </th>
+                      <th className="px-3 py-2 text-right text-xs font-normal text-black/50 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#f0f0f0]">
+                    {files.map((file) => (
+                      <tr key={file.id} className="hover:bg-[#f8f8f8]">
+                        <td className="px-3 py-2 text-sm">
+                          <a
+                            href={file.fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[#F44A00] hover:underline flex items-center"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="mr-1.5"
+                            >
+                              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                              <polyline points="14 2 14 8 20 8" />
+                            </svg>
+                            {file.fileName}
+                          </a>
+                          {file.description && (
+                            <div className="text-xs text-black/50 mt-1 ml-5">
+                              {file.description}
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-3 py-2 text-sm text-black/50">
+                          {file.fileType.split("/")[1] || file.fileType}
+                        </td>
+                        <td className="px-3 py-2 text-sm text-black/50">
+                          {formatFileSize(file.fileSize)}
+                        </td>
+                        <td className="px-3 py-2 text-sm text-black/50">
+                          {new Date(file.createdAt).toLocaleString()}
+                        </td>
+                        <td className="px-3 py-2 text-sm text-right">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeleteFile(file.id)}
+                            className="h-7 text-xs font-normal border-[#E11D48] text-[#E11D48] hover:bg-[#FFF0F0]"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="mr-1"
+                            >
+                              <path d="M3 6h18"></path>
+                              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                            </svg>
+                            Delete
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              
+              {/* Mobile view - card list */}
+              <div className="md:hidden divide-y divide-[#f0f0f0]">
+                {files.map((file) => (
+                  <div key={file.id} className="p-3 hover:bg-[#f8f8f8]">
+                    <div className="flex items-start">
+                      <div className="w-8 h-8 bg-[#f0f0f0] flex items-center justify-center rounded-sm mr-2 shrink-0">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                          <polyline points="14 2 14 8 20 8" />
+                        </svg>
+                      </div>
+                      <div className="flex-1 min-w-0">
                         <a
                           href={file.fileUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-[#F44A00] hover:underline flex items-center"
+                          className="text-sm text-[#F44A00] hover:underline font-normal truncate block"
                         >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="mr-1.5"
-                          >
-                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-                            <polyline points="14 2 14 8 20 8" />
-                          </svg>
                           {file.fileName}
                         </a>
+                        <div className="flex flex-wrap text-xs text-black/50 mt-1 gap-x-3">
+                          <span className="whitespace-nowrap">{file.fileType.split("/")[1] || file.fileType}</span>
+                          <span className="whitespace-nowrap">{formatFileSize(file.fileSize)}</span>
+                        </div>
                         {file.description && (
-                          <div className="text-xs text-black/50 mt-1 ml-5">
+                          <div className="text-xs text-black/50 mt-1">
                             {file.description}
                           </div>
                         )}
-                      </td>
-                      <td className="px-3 py-2 text-sm text-black/50">
-                        {file.fileType.split("/")[1] || file.fileType}
-                      </td>
-                      <td className="px-3 py-2 text-sm text-black/50">
-                        {formatFileSize(file.fileSize)}
-                      </td>
-                      <td className="px-3 py-2 text-sm text-black/50">
-                        {new Date(file.createdAt).toLocaleString()}
-                      </td>
-                      <td className="px-3 py-2 text-sm text-right">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDeleteFile(file.id)}
-                          className="h-7 text-xs font-normal border-[#E11D48] text-[#E11D48] hover:bg-[#FFF0F0]"
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center mt-3">
+                      <span className="text-xs text-black/50">
+                        {new Date(file.createdAt).toLocaleDateString("en-US", {
+                          month: "short", 
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit"
+                        })}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDeleteFile(file.id)}
+                        className="h-7 text-xs font-normal border-[#E11D48] text-[#E11D48] hover:bg-[#FFF0F0]"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="mr-1"
                         >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="14"
-                            height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="mr-1"
-                          >
-                            <path d="M3 6h18"></path>
-                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                          </svg>
-                          Delete
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                          <path d="M3 6h18"></path>
+                          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                        </svg>
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </div>
       </div>
